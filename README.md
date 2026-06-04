@@ -1,0 +1,1 @@
+# Summer-2026-CfE-Computer-Vision-for-Ecology-Project

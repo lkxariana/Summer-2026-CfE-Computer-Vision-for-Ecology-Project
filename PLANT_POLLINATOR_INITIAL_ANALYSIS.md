@@ -45,7 +45,7 @@ Step 1. Normalise directionality so plant and pollinator columns are
 consistently the plant and the pollinator (the `*By` interaction types invert
 source/target). Output: unique `(plant_species, pollinator_species)` pairs.
 
-### Step 3 — Pollinator observations
+### Step 3.1 — Pollinator observations
 
 From iNat Open Data, filter to:
 
@@ -59,6 +59,18 @@ From iNat Open Data, filter to:
 
 The taxonomy filter is a join through `taxa.csv.gz` on `taxon_id` ancestry.
 Output: `(pollinator_species, lat, lon, date)` per observation.
+
+### Step 3.2 - Pollinator Data Collection
+
+Go to GBIF Dataset: https://www.gbif.org/occurrence/search
+
+Filtering conditions:
+Taxonomy: Hymenoptera (Order), Lepidoptera (Order), Diptera (Order), Coleoptera (Order), Trochilidae (Family)
+Continent: North America
+Country or area: United States of America
+Year: Between 2013 – 2026
+Basis of record: Human observation
+Coordinate uncertainty: less than 1000m
 
 ### Step 4 — Per-(species, spatial bin) timing distributions
 

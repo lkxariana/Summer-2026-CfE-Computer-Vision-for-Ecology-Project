@@ -66,11 +66,20 @@ Go to GBIF Dataset: https://www.gbif.org/occurrence/search
 
 Filtering conditions:
 Taxonomy: Hymenoptera (Order), Lepidoptera (Order), Diptera (Order), Coleoptera (Order), Trochilidae (Family)
+
 Continent: North America
+
 Country or area: United States of America
+
 Year: Between 2013 – 2026
+
 Basis of record: Human observation
+
 Coordinate uncertainty: less than 1000m
+
+There are roughly 2310,0000 species after filtering. And later it got reduced to around 2100,0000 species (the first two numbers dropped from 2.3 to 2.1)
+
+This is because not all the species have lon, lat, date. The system automatically filters out the species with insufficient information.
 
 ### Step 4 — Per-(species, spatial bin) timing distributions
 

@@ -1,0 +1,91 @@
+Streaming 107 train shards from dcher95/phenofield...
+HF_HOME: /scratch/ariana.l/hf_cache
+HF_DATASETS_CACHE: /scratch/ariana.l/hf_cache/datasets
+Target columns: ['species', 'lat', 'lon', 'label']
+Progress updates every 5 shards. Press Ctrl+C to stop.
+------------------------------------------------------------
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Shard 5/107 | rows so far: 123,855 | unique species: 261 | elapsed: 118.9s
+Shard 10/107 | rows so far: 247,710 | unique species: 530 | elapsed: 236.5s
+Shard 15/107 | rows so far: 371,565 | unique species: 828 | elapsed: 356.3s
+Shard 20/107 | rows so far: 495,420 | unique species: 1,122 | elapsed: 468.5s
+Shard 25/107 | rows so far: 619,275 | unique species: 1,376 | elapsed: 584.0s
+Shard 30/107 | rows so far: 743,130 | unique species: 1,685 | elapsed: 705.3s
+Shard 35/107 | rows so far: 866,985 | unique species: 1,936 | elapsed: 822.0s
+Shard 40/107 | rows so far: 990,840 | unique species: 2,244 | elapsed: 943.1s
+Shard 45/107 | rows so far: 1,114,695 | unique species: 2,547 | elapsed: 1081.3s
+Shard 50/107 | rows so far: 1,238,550 | unique species: 2,855 | elapsed: 1199.9s
+Shard 55/107 | rows so far: 1,362,405 | unique species: 3,198 | elapsed: 1319.5s
+Shard 60/107 | rows so far: 1,486,258 | unique species: 3,490 | elapsed: 1435.2s
+Shard 65/107 | rows so far: 1,610,108 | unique species: 3,727 | elapsed: 1553.6s
+Shard 70/107 | rows so far: 1,733,958 | unique species: 4,070 | elapsed: 1672.1s
+Shard 75/107 | rows so far: 1,857,808 | unique species: 4,511 | elapsed: 1792.7s
+Shard 80/107 | rows so far: 1,981,658 | unique species: 4,829 | elapsed: 1910.5s
+Shard 85/107 | rows so far: 2,105,508 | unique species: 5,126 | elapsed: 2029.7s
+Shard 90/107 | rows so far: 2,229,358 | unique species: 5,480 | elapsed: 2147.4s
+Shard 95/107 | rows so far: 2,353,208 | unique species: 5,881 | elapsed: 2262.9s
+Shard 100/107 | rows so far: 2,477,058 | unique species: 6,077 | elapsed: 2380.8s
+Shard 105/107 | rows so far: 2,600,908 | unique species: 6,386 | elapsed: 2494.8s
+Shard 107/107 | rows so far: 2,650,448 | unique species: 6,466 | elapsed: 2545.5s
+------------------------------------------------------------
+Finished. Total rows: 2,650,448 | Unique species: 6,466
+
+--- TOP 55 MOST POPULATED SPECIES ---
+ 1. unknown                                  Count: 19,416
+ 2. Asimina triloba                          Count: 19,032
+ 3. Sanguinaria canadensis                   Count: 14,624
+ 4. Mitchella repens                         Count: 11,883
+ 5. Cypripedium acaule                       Count: 11,710
+ 6. Erodium cicutarium                       Count: 11,343
+ 7. Malosma laurina                          Count: 11,085
+ 8. Diospyros virginiana                     Count: 11,034
+ 9. Dipterostemon capitatus                  Count: 10,692
+10. Phytolacca americana                     Count: 10,459
+11. Trillium grandiflorum                    Count: 10,155
+12. Claytonia virginica                      Count: 9,926
+13. Microstegium vimineum                    Count: 9,457
+14. Trillium ovatum                          Count: 8,968
+15. Lonicera maackii                         Count: 8,928
+16. Asclepias syriaca                        Count: 8,915
+17. Rhus glabra                              Count: 8,805
+18. Ligustrum sinense                        Count: 8,745
+19. Aquilegia canadensis                     Count: 8,679
+20. Passiflora incarnata                     Count: 8,650
+21. Chimaphila maculata                      Count: 8,541
+22. Trillium erectum                         Count: 8,469
+23. Alliaria petiolata                       Count: 8,460
+24. Celastrus orbiculatus                    Count: 8,186
+25. Amphicarpaea bracteata                   Count: 8,032
+26. Arisaema triphyllum                      Count: 7,774
+27. Bignonia capreolata                      Count: 7,658
+28. Houstonia caerulea                       Count: 7,629
+29. Dicentra cucullaria                      Count: 7,627
+30. Impatiens capensis                       Count: 7,338
+31. Conium maculatum                         Count: 7,321
+32. Mertensia virginica                      Count: 7,124
+33. Convolvulus arvensis                     Count: 7,057
+34. Glechoma hederacea                       Count: 7,001
+35. Erythronium americanum                   Count: 6,900
+36. Galium aparine                           Count: 6,768
+37. Achillea millefolium                     Count: 6,765
+38. Lysimachia borealis                      Count: 6,709
+39. Caltha palustris                         Count: 6,639
+40. Sambucus canadensis                      Count: 6,626
+41. Staphylea trifolia                       Count: 6,570
+42. Kalmia latifolia                         Count: 6,524
+43. Maianthemum racemosum                    Count: 6,475
+44. Lamium purpureum                         Count: 6,348
+45. Triteleia laxa                           Count: 6,319
+46. Erigeron philadelphicus                  Count: 6,253
+47. Chamaenerion angustifolium               Count: 6,241
+48. Bellis perennis                          Count: 6,134
+49. Eschscholzia californica                 Count: 6,102
+50. Sambucus cerulea                         Count: 5,964
+51. Larrea tridentata                        Count: 5,924
+52. Hesperoyucca whipplei                    Count: 5,893
+53. Maianthemum canadense                    Count: 5,801
+54. Trillium undulatum                       Count: 5,777
+55. Acer rubrum                              Count: 5,650
+------------------------------------------------------------
+Cumulative records in top 55 species: 463,105 (17.5% of 2,650,448 total rows)
+55th most populated species: Acer rubrum (5,650 records)

@@ -14,7 +14,7 @@ co-occurrence analysis.
 ### 1. Where the data comes from
 
 The plant data comes from **PhenoField**, a publicly available dataset on
-Hugging Face created by the research team at dcher95:
+Hugging Face created by my mentor Dan Cher (Username: dcher95):
 
 > https://huggingface.co/datasets/dcher95/phenofield
 
@@ -28,15 +28,15 @@ species, and includes:
 - `doy` — day of year (a number from 1 to 365, e.g. doy 125 = May 5th)
 - `year` — the year of the observation
 - `label` — what the plant was doing, coded as a number (confirmed from the
-  dataset card provided by our mentor):
+  dataset card provided by Dan):
   - `0` = vegetative (just leaves, no flowers)
   - `1` = flower budding
   - `2` = **flowering** ← this is what we want
   - `3` = fruiting
 
-The dataset was pre-filtered by our mentor to **CONUS** (the continental United
-States) and **post-2013**, so we do not need to apply those geographic or date
-filters ourselves — they are already baked into the version of the dataset we
+The dataset was pre-filtered by Dan to **CONUS** (the continental United
+States) and **post-2013**, so I do not need to apply those geographic or date
+filters myself — they are already baked into the version of the dataset I
 received.
 
 The dataset is stored as **107 separate `.arrow` shard files**, each roughly
@@ -60,7 +60,7 @@ We streamed all 107 shards and counted how many observations each species has
 across the whole dataset. The script reads each shard, extracts the `species`
 column, feeds the names into a running tally (a Python `Counter`), and then
 discards the shard to save disk space. At the end, it prints the top 55
-most-recorded species.
+most-recorded species. 
 
 The results showed:
 - **Rank 1:** `unknown` (19,416 records) — excluded because it's not a real

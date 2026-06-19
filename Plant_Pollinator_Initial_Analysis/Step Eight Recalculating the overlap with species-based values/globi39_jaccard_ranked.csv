@@ -1,0 +1,13 @@
+rank,plant_species,pollinator_species,jaccard,shared_bins
+1,Larrea tridentata,Asphondylia auripila,0.625,130
+2,Asclepias syriaca,Typocerus velutinus,0.48464163822525597,426
+3,Asclepias syriaca,Satyrium calanus,0.3969465648854962,416
+4,Asclepias syriaca,Euphyes vestris,0.3188831741366642,434
+5,Asclepias syriaca,Bombus griseocollis,0.2726347914547304,536
+6,Asclepias syriaca,Bombus ternarius,0.26052631578947366,198
+7,Asclepias syriaca,Nymphalis antiopa,0.2446351931330472,513
+8,Asclepias syriaca,Danaus plexippus,0.21325209444021326,560
+9,Asclepias syriaca,Apis mellifera,0.20925784238714615,547
+10,Erodium cicutarium,Papilio polyxenes,0.12265446224256293,268
+11,Trillium grandiflorum,Chalcosyrphus libo,0.09215686274509804,47
+12,Larrea tridentata,Apis mellifera,0.05293440736478711,138

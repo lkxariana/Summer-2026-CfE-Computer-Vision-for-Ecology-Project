@@ -1,0 +1,13 @@
+plant,pollinator,mean_overlap,std_overlap,n_bins
+Asclepias syriaca,Satyrium calanus,0.6527295089074783,0.13373624479776816,59
+Asclepias syriaca,Typocerus velutinus,0.5307297164424573,0.13586874261709825,58
+Asclepias syriaca,Bombus griseocollis,0.49343553147663655,0.13772462704046365,62
+Asclepias syriaca,Euphyes vestris,0.4687178208864947,0.13808351482480283,60
+Larrea tridentata,Apis mellifera,0.4377678621839418,0.10119523694787635,18
+Larrea tridentata,Asphondylia auripila,0.4060264324317578,0.12125020023693926,18
+Trillium grandiflorum,Chalcosyrphus libo,0.36591158666630363,0.2532318499431863,2
+Asclepias syriaca,Bombus ternarius,0.27115922369363404,0.07020657756476849,23
+Asclepias syriaca,Apis mellifera,0.26661845841497217,0.05449477375116528,62
+Erodium cicutarium,Papilio polyxenes,0.2631768145015273,0.17094346675811792,31
+Asclepias syriaca,Danaus plexippus,0.25916402757093204,0.10287319017518416,62
+Asclepias syriaca,Nymphalis antiopa,0.20453857439426185,0.0754094436059354,62

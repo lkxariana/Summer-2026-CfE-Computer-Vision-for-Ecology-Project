@@ -1,0 +1,5 @@
+rawplantsdata/
+rawpollinatordata/
+*.zip
+*.parquet
+*.gz

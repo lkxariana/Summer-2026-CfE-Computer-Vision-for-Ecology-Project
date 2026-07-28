@@ -86,4 +86,4 @@ The SINR model — a shared implicit neural representation with per-species head
 
 The climate-driven flowering probability surface that provides the plant-side temporal signal in ANTHEIA. PPE feeds a pretrained CrossModalVAE backbone on weekly PRISM climate windows to produce per-species, per-bin, per-week flowering probability curves across CONUS. These curves are the basis for the f_curves input and the spatiotemporal plant embeddings V_δ used in ANTHEIA-4D and ANTHEIA-15D.
 
-**Note:** PPE has not been formally published as of the time of writing. There is no official citation. When referencing PPE in the paper, coordinate with Dan Cher on the correct attribution format — it may appear as a preprint, a workshop paper, or an internal technical report by the time of submission.
+**Note:** PPE has not been formally published as of the time of writing. There is no official citation. 

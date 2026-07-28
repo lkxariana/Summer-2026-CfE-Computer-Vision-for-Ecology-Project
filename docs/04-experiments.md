@@ -95,5 +95,3 @@ Seed 42 is the original single-run seed and serves as a sanity check — its res
 Per-bin interaction probability maps for *Achillea millefolium* across February–May confirm the model's behavior qualitatively. ANTHEIA produces finer spatial discrimination than the Spatial Baseline — notably lower predicted interaction probabilities in the Gulf Coast and Florida regions where the plant and its pollinators are spatially proximate but phenologically misaligned. This seasonal variation is invisible to the Spatial Baseline, which produces the same prediction regardless of time of year.
 
 The raw PPE Δ = min(f_curve, a_curve) is visualized directly in the seasonal maps rather than ANTHEIA's predict_proba output, because logistic regression compresses predictions into a narrow high-probability range (mean ~0.88, std ~0.089) that makes seasonal variation invisible at the scale of a map. Hovmöller diagrams (latitude vs. week) confirm the expected phenological gradient — peak temporal overlap propagates northward through the season, concentrated at mid-latitudes (35–45°N) between May and July.
-
-See `visualization/01_spatial_figures.ipynb` for the full figure pipeline.

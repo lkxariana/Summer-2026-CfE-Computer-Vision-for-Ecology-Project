@@ -44,6 +44,7 @@ class FeatureStore:
         self.Frs = self.F.sum(1).astype(np.float64)
         self.Prs = self.P.sum(1).astype(np.float64)
         self._N = None
+        self._S = None
 
     @property
     def N_full(self):
@@ -57,6 +58,33 @@ class FeatureStore:
                 cache.parent.mkdir(parents=True, exist_ok=True)
                 np.save(cache, self._N)
         return self._N
+
+    @property
+    def surfaces(self):
+        """Per-plant PPE opportunity surfaces (n_plants x n_common_bins x 52, float16 memmap)."""
+        if self._S is None:
+            path = self.cfg["cache_dir"] / f"plant_surfaces_{len(self.plants)}x{len(self.common_bins)}x52.npy"
+            if not path.exists():
+                raise FileNotFoundError(f"{path} missing — run scripts/build_plant_surfaces.py first")
+            self._S = np.load(path, mmap_mode="r")
+        return self._S
+
+    def delta_local_pairs(self, pi, qi):
+        """Local temporal overlap: plant flowering curve restricted to the pair's shared bins vs the pollinator's activity curve."""
+        out = np.zeros(len(pi))
+        order = np.argsort(pi, kind="stable")
+        sp = pi[order]
+        starts = np.flatnonzero(np.r_[True, sp[1:] != sp[:-1]])
+        for s, e in zip(starts, np.r_[starts[1:], len(sp)]):
+            p = sp[s]
+            rows = order[s:e]
+            q = qi[rows]
+            masks = (self.P[q] * self.F[p][None, :]).astype(np.float32)
+            fl = masks @ self.surfaces[p].astype(np.float32)
+            sums = fl.sum(1, keepdims=True)
+            fl = np.divide(fl, sums, out=np.zeros_like(fl), where=sums > 0)
+            out[rows] = np.minimum(fl, self.AC[q]).sum(1)
+        return out
 
     def idx_plants(self, names):
         return np.fromiter((self.p2i[s] for s in names), dtype=np.int64, count=len(names))
@@ -79,6 +107,8 @@ class FeatureStore:
             return self.N_full[pi, qi].astype(np.float64)[:, None]
         if name == "delta":
             return np.minimum(self.FC[pi], self.AC[qi]).sum(1)[:, None]
+        if name == "delta_local":
+            return self.delta_local_pairs(pi, qi)[:, None]
         if name == "frs":
             return self.Frs[pi][:, None]
         if name == "prs":
@@ -103,6 +133,12 @@ class FeatureStore:
                 blocks.append(self.N_full[pi].astype(np.float64)[:, None])
             elif c == "delta":
                 blocks.append(np.minimum(self.FC[pi][None, :], self.AC).sum(1)[:, None])
+            elif c == "delta_local":
+                masks = (self.P * self.F[pi][None, :]).astype(np.float32)
+                fl = masks @ self.surfaces[pi].astype(np.float32)
+                sums = fl.sum(1, keepdims=True)
+                fl = np.divide(fl, sums, out=np.zeros_like(fl), where=sums > 0)
+                blocks.append(np.minimum(fl, self.AC).sum(1)[:, None])
             elif c == "frs":
                 blocks.append(np.full((n_po, 1), self.Frs[pi]))
             elif c == "prs":

@@ -11,6 +11,7 @@ MODELS = {
     "antheia_4d": ("vf", "vp", "n", "vd4"),
     "antheia_15d": ("vf", "vp", "n", "vd15"),
     "pmf": ("vfp", "vp", "n"),
+    "scalar_local": ("vf", "vp", "n", "delta_local"),
 }
 
 # Ranking specs use only pollinator-varying components: plant-side features cancel
@@ -21,6 +22,10 @@ RANK_SPECS = {
     "rank_spatial": ("vp", "n"),
     "rank_scalar": ("vp", "n", "delta"),
     "rank_full": ("vp", "n", "delta", "prs"),
+    "rank_ldelta": ("delta_local",),
+    "rank_n_ldelta": ("n", "delta_local"),
+    "rank_scalar_local": ("vp", "n", "delta_local"),
+    "rank_full_local": ("vp", "n", "delta", "delta_local", "prs"),
 }
 
 

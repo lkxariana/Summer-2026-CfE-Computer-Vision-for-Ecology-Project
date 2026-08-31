@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "antheia"
+version = "0.1.0"
+description = "ANTHEIA: plant-pollinator interaction link prediction"
+requires-python = ">=3.10"
+dependencies = ["numpy", "pandas", "scikit-learn", "pyarrow", "pyyaml"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

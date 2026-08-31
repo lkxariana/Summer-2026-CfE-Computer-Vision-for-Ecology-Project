@@ -3,3 +3,6 @@ rawpollinatordata/
 *.zip
 *.parquet
 *.gz
+__pycache__/
+*.egg-info/
+artifacts/cache/

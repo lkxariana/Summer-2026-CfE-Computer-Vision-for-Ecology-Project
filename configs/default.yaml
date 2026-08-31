@@ -1,0 +1,32 @@
+# Data root can be overridden with ANTHEIA_DATA_ROOT.
+data_root: /scratch/ariana.l
+
+paths:
+  f_matrix: Stage 4 Link Prediction Model/stage4_F_existence_phenofield.csv
+  vf: Stage 4 Link Prediction Model/stage4_Vf_phenofield.csv
+  p_matrix: New Stage 4 Link Prediction Model/stage4_P_existence_corrected.csv
+  vp: New Stage 4 Link Prediction Model/stage4_Vp_corrected.csv
+  a_curves: New Stage 4 Link Prediction Model/a_curves_corrected.csv
+  f_curves: New Stage 4 Link Prediction Model/f_curves_ppe.csv
+  f_curves_fallback: New Stage 4 Link Prediction Model/f_curves_corrected.csv
+  globi: Stage 4 Link Prediction Model/stage4_globi_conus_broad.csv
+  vdelta4: Stage 5 PPE Representation Study/stage5_Vdelta_ppe.csv
+  vdelta15: Stage 5 PPE Representation Study/stage5_Vdelta_15d.csv
+  vf_prob: Stage 5 PPE Representation Study/stage5_Vf_prob.csv
+
+edges: artifacts/edges_v1.parquet
+cache_dir: artifacts/cache
+
+split:
+  test_frac: 0.15
+  val_frac: 0.10
+  seed: 42
+
+negatives:
+  ratio: 10
+  mode: mixed      # uniform | cooc | mixed
+
+eval:
+  ks: [10, 50]
+  bootstrap_n: 1000
+  seed: 42

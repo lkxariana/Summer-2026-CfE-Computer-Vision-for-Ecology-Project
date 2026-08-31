@@ -2,6 +2,8 @@
 
 Ordered as a reading path from foundational framing to methods to extensions. All items are relevant to the paper's positioning, methodology, or future directions.
 
+> **See also `docs/08-methods-literature.md`** (added 2026-08-31): verified methods references for the evaluation redesign, alternative formulations, learned range representations, and additional data sources. It also corrects two citations below: the roadmap is **Strydom et al. 2021** (Poisot senior author), and the "Coelho et al. 2024" entry's finding and DOI belong to **Galiana et al. 2024**.
+
 ---
 
 ## 1. Framework — Read First

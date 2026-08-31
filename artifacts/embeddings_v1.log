@@ -1,0 +1,3 @@
+embeddings: plants (6348, 512), polls (24939, 512)
+components assembled (37s)
+models trained

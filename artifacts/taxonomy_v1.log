@@ -1,1 +1,31 @@
 test plants with genus seen in training: 75.6%
+contrasts + components: 468,970 rows (39s)
+  150/553 plants (16s)
+  300/553 plants (33s)
+  450/553 plants (49s)
+  rank_n             R@10 0.1171  hit@10 0.5045
+  rank_tax           R@10 0.1786  hit@10 0.6022
+  rank_n_tax         R@10 0.1988  hit@10 0.6510
+  rank_n_tax_ldelta  R@10 0.2085  hit@10 0.6582
+  rank_full_tax      R@10 0.1897  hit@10 0.6184
+  hyb_n_tax          R@10 0.1407  hit@10 0.5642
+  hyb_n_ldelta       R@10 0.1246  hit@10 0.5335
+  hyb_n_tax_ldelta   R@10 0.1281  hit@10 0.5389
+
+win/loss rank_n_tax vs rank_n (hit@10): both 233, only_rank_n_tax 127, only_n 46, neither 147
+
+win/loss hyb_n_tax vs rank_n (hit@10): both 267, only_hyb_n_tax 45, only_n 12, neither 229
+degree Q1 (n=173): rank_n 0.127 | n_tax 0.231 | hyb_n_tax 0.145
+degree Q2 (n=120): rank_n 0.162 | n_tax 0.255 | hyb_n_tax 0.216
+degree Q3 (n=128): rank_n 0.105 | n_tax 0.203 | hyb_n_tax 0.128
+degree Q4 (n=132): rank_n 0.074 | n_tax 0.101 | hyb_n_tax 0.079
+
+            model  recall@10     lo     hi  hit@10  r10_genus_seen  r10_genus_unseen
+           rank_n     0.1171 0.1005 0.1338  0.5045          0.1149            0.1240
+         rank_tax     0.1786    NaN    NaN  0.6022          0.1980            0.1186
+       rank_n_tax     0.1988 0.1790 0.2210  0.6510          0.2056            0.1778
+rank_n_tax_ldelta     0.2085    NaN    NaN  0.6582          0.2164            0.1840
+    rank_full_tax     0.1897    NaN    NaN  0.6184          0.2071            0.1358
+        hyb_n_tax     0.1407 0.1229 0.1585  0.5642          0.1370            0.1524
+     hyb_n_ldelta     0.1246    NaN    NaN  0.5335          0.1210            0.1357
+ hyb_n_tax_ldelta     0.1281 0.1100 0.1459  0.5389          0.1257            0.1358

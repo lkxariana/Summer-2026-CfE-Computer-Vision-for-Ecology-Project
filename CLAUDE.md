@@ -45,7 +45,11 @@ Known gaps (verified 2026-08-31):
 - `globiinteractions_conus.csv` (data/02's declared output) is also absent; the model/eval notebooks actually read `Stage 4 Link Prediction Model/stage4_globi_conus_broad.csv`.
 - The notebooks are post-hoc reconstructions and several cannot run as written: the PPE parquet schema uses `centroid_lat`/`centroid_lon` (not `lat`/`lon`), so `data/Full Scale/01_plant_flowering_full_scale.ipynb` and rep_03's V_δ/PMf cells crash on the real files. The on-disk F matrix is observation-derived (36–191 bins/species), not PPE-surface-derived as data/01 claims (each species' PPE surface covers all 3,162 bins). Trust on-disk artifacts over notebook provenance claims.
 
-## Critical Data Bug (found 2026-08-31, unresolved)
+## Package (branch antheia-package, 2026-08-31)
+
+The pipeline is being rebuilt as `src/antheia/` (installable; see `src/antheia/README.md`) with the orientation-corrected edge list (`scripts/rebuild_edges.py` → `artifacts/edges_v1.parquet`, 62,832 pairs), a frozen degree-stratified plant split (`artifacts/split_v1.json`), and a plant-grouped eval harness (`eval/`). Run everything with `/home/cher/miniconda3/envs/donuts/bin/python3`; tests: `python3 tests/test_invariants.py`. Corrected baselines: `artifacts/baselines_v1.csv`. New work should build on this package, not the notebooks.
+
+## Critical Data Bug (found 2026-08-31, resolved in antheia package)
 
 The GloBI file's three interaction types (`visitsFlowersOf`, `visits`, `pollinates`) are all pollinator→plant oriented, but every notebook renames `sourceTaxonName → plant_species` without swapping. Only 159 of 715,215 records (GloBI's own reversed/dirty entries) survive the coverage intersection, producing the reported 139 positive pairs. Membership-based orientation fixing (swap when source ∈ P-species and target ∈ F-species; F∩P species overlap is 0 so this is unambiguous) yields 60,702 positive pairs within existing feature coverage. Also verified: with the current 139-pair benchmark, an N-only logistic regression scores 0.9903 ROC-AUC, beating all published models (~0.96) — the current evaluation is dominated by range-size/effort shortcuts. Do not build on the 139-pair results without discussing this with Dan Cher.
 

@@ -1,0 +1,27 @@
+plants train/val/test: 2767/369/553 | positives train/test: 46,897/9,210
+  degree_rank  PR 0.5267 [0.4996,0.5492]  R@10 0.0796 [0.0671,0.0928]  hit@10 0.4575
+  n_only       PR 0.5011 [0.4693,0.5258]  R@10 0.1171 [0.1005,0.1338]  hit@10 0.5045
+  (n_only trained+evaluated in 4s)
+  range_only   PR 0.5197 [0.4944,0.5425]  R@10 0.0796 [0.0671,0.0928]  hit@10 0.4575
+  (range_only trained+evaluated in 5s)
+  spatial      PR 0.6357 [0.6060,0.6547]  R@10 0.0741 [0.0623,0.0865]  hit@10 0.4448
+  (spatial trained+evaluated in 8s)
+  scalar       PR 0.6517 [0.6239,0.6716]  R@10 0.0768 [0.0646,0.0889]  hit@10 0.4521
+  (scalar trained+evaluated in 10s)
+  antheia_4d   PR 0.6351 [0.6055,0.6538]  R@10 0.0740 [0.0623,0.0865]  hit@10 0.4448
+  (antheia_4d trained+evaluated in 9s)
+  antheia_15d  PR 0.6340 [0.6034,0.6537]  R@10 0.0741 [0.0625,0.0866]  hit@10 0.4448
+  (antheia_15d trained+evaluated in 8s)
+  pmf          PR 0.6331 [0.6035,0.6528]  R@10 0.0724 [0.0612,0.0838]  hit@10 0.4448
+  (pmf trained+evaluated in 7s)
+
+Saved /scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/artifacts/baselines_v1.csv
+      model  pr_auc  pr_lo  pr_hi  roc_auc  recall@10  r10_lo  r10_hi  recall@50  hit@10
+degree_rank  0.5267 0.4996 0.5492   0.8663     0.0796  0.0671  0.0928     0.2331  0.4575
+     n_only  0.5011 0.4693 0.5258   0.8806     0.1171  0.1005  0.1338     0.3438  0.5045
+ range_only  0.5197 0.4944 0.5425   0.8541     0.0796  0.0671  0.0928     0.2331  0.4575
+    spatial  0.6357 0.6060 0.6547   0.9041     0.0741  0.0623  0.0865     0.2227  0.4448
+     scalar  0.6517 0.6239 0.6716   0.9098     0.0768  0.0646  0.0889     0.2633  0.4521
+ antheia_4d  0.6351 0.6055 0.6538   0.9029     0.0740  0.0623  0.0865     0.2240  0.4448
+antheia_15d  0.6340 0.6034 0.6537   0.9015     0.0741  0.0625  0.0866     0.2236  0.4448
+        pmf  0.6331 0.6035 0.6528   0.9034     0.0724  0.0612  0.0838     0.2195  0.4448

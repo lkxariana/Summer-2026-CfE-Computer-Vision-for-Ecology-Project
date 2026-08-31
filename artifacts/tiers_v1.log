@@ -2,3 +2,27 @@ provenance join: 99.7% of edges matched | tier1 edges: 14,533
 train edges all/t1: 46,897/10,991 | test edges all/t1: 9,210/2,091
 test plants all/with-t1-partner: 553/222
 fitting rankers on both training sets...
+  100/553 plants (13s)
+  200/553 plants (25s)
+  300/553 plants (38s)
+  400/553 plants (51s)
+  500/553 plants (64s)
+
+Saved /scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/artifacts/tiers_v1.csv
+ training             model eval  n_plants  recall@10     lo     hi
+train_all         rank_full  all       553     0.0803 0.0680 0.0935
+train_all   rank_full_local  all       553     0.0793 0.0668 0.0921
+train_all            rank_n  all       553     0.1171 0.1005 0.1338
+train_all rank_scalar_local  all       553     0.0791 0.0666 0.0916
+ train_t1         rank_full  all       553     0.0627 0.0527 0.0742
+ train_t1   rank_full_local  all       553     0.0652 0.0549 0.0771
+ train_t1            rank_n  all       553     0.1171 0.1005 0.1338
+ train_t1 rank_scalar_local  all       553     0.0652 0.0549 0.0771
+train_all         rank_full   t1       222     0.0109 0.0063 0.0154
+train_all   rank_full_local   t1       222     0.0131 0.0077 0.0192
+train_all            rank_n   t1       222     0.1162 0.0840 0.1529
+train_all rank_scalar_local   t1       222     0.0130 0.0076 0.0189
+ train_t1         rank_full   t1       222     0.0754 0.0536 0.0996
+ train_t1   rank_full_local   t1       222     0.0792 0.0565 0.1037
+ train_t1            rank_n   t1       222     0.1162 0.0840 0.1529
+ train_t1 rank_scalar_local   t1       222     0.0792 0.0565 0.1037

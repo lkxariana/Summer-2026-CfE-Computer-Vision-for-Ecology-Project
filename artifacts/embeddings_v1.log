@@ -1,3 +1,19 @@
 embeddings: plants (6348, 512), polls (24939, 512)
 components assembled (37s)
 models trained
+  150/553 plants (28s)
+  300/553 plants (55s)
+  450/553 plants (83s)
+  rank_n                     R@10 0.1171 [0.1005,0.1338]  hit@10 0.5045
+  rank_n_embsim              R@10 0.1094 [0.0937,0.1268]  hit@10 0.5118
+  rank_n_tax_embsim          R@10 0.1956 [0.1756,0.2168]  hit@10 0.6420
+  rank_vq_n_tax_embsim_ld    R@10 0.1791 [0.1595,0.1988]  hit@10 0.6203
+  gbm_full_emb               R@10 0.1851 [0.1643,0.2069]  hit@10 0.6130
+  hyb_n_embsim               R@10 0.1333 [0.1156,0.1507]  hit@10 0.5497
+                  model  recall@10     lo     hi  hit@10
+                 rank_n     0.1171 0.1005 0.1338  0.5045
+          rank_n_embsim     0.1094 0.0937 0.1268  0.5118
+      rank_n_tax_embsim     0.1956 0.1756 0.2168  0.6420
+rank_vq_n_tax_embsim_ld     0.1791 0.1595 0.1988  0.6203
+           gbm_full_emb     0.1851 0.1643 0.2069  0.6130
+           hyb_n_embsim     0.1333 0.1156 0.1507  0.5497

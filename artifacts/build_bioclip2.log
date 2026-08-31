@@ -1,0 +1,9 @@
+embedding 6348 plants + 24939 pollinators on cuda:0
+model loaded (14s)
+  0/6348
+  5120/6348
+plants done
+  0/24939
+  5120/24939
+  10240/24939
+  15360/24939

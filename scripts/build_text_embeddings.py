@@ -32,6 +32,7 @@ def main():
     ap.add_argument("--device", default="cuda:0")
     ap.add_argument("--batch", type=int, default=256)
     ap.add_argument("--model", default="hf-hub:imageomics/bioclip")
+    ap.add_argument("--prefix", default="bioclip_text")
     args = ap.parse_args()
 
     import open_clip
@@ -49,9 +50,9 @@ def main():
 
     cache = cfg["cache_dir"]
     cache.mkdir(parents=True, exist_ok=True)
-    np.save(cache / "bioclip_text_plants.npy", embed(store.plants, model, tokenizer, args.device, args.batch))
+    np.save(cache / f"{args.prefix}_plants.npy", embed(store.plants, model, tokenizer, args.device, args.batch))
     print("plants done", flush=True)
-    np.save(cache / "bioclip_text_polls.npy", embed(store.polls, model, tokenizer, args.device, args.batch))
+    np.save(cache / f"{args.prefix}_polls.npy", embed(store.polls, model, tokenizer, args.device, args.batch))
     print(f"Saved embeddings to {cache} ({time.time() - t0:.0f}s total)")
 
 

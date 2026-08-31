@@ -1,0 +1,13 @@
+models trained
+  150/553
+  300/553
+  450/553
+            model eval  n_plants  recall@10     lo     hi
+          gbm_geo  all       553     0.2357 0.2121 0.2594
+           rank_n  all       553     0.1171 0.1005 0.1338
+       rank_n_tax  all       553     0.1988 0.1790 0.2210
+rank_n_tax_ldelta  all       553     0.2085 0.1876 0.2330
+          gbm_geo   t1       222     0.4702 0.4193 0.5234
+           rank_n   t1       222     0.1162 0.0840 0.1529
+       rank_n_tax   t1       222     0.3043 0.2615 0.3546
+rank_n_tax_ldelta   t1       222     0.3025 0.2598 0.3525

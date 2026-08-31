@@ -17,6 +17,19 @@ All experiments run on the frozen protocol unless noted: `edges_v1` (62,832 orie
 | 10 | 08-31 | BioCLIP text embeddings | Build learned species representations from names (imageomics/bioclip text tower, GPU). | Built: 6,348 plants + 24,939 pollinators × 512D unit-norm (13s on RTX 4090). | `cache/bioclip_text_*.npy` |
 | 11 | 08-31 | BioCLIP embedding features | Does plant↔pollinator name-embedding similarity (or PCA'd embeddings) add ranking signal? | **No — redundant with explicit taxonomy affinity.** embsim doesn't add to N (0.109) or to N+tax (0.196 vs 0.199); PCA'd embeddings hurt like Vp (0.179); GBM+emb 0.185 < gbm_geo 0.236. Text towers ≈ soft taxonomy; count-based affinity beats them. Non-name modalities (location/image encoders) remain the open representation angle. | `embeddings_v1.csv` |
 
-Backlog: SDM a_curves swap (blocked on full SDM, Sept); temporal-holdout validation (GloBI eventDate); paired-bootstrap significance for scalar_local vs spatial; TaxaBind encoders (verify HF model ids first); two-tower Stage B.
+| 12 | 08-31 | Transfer check + val-tuned GBM | Do gbm_geo/taxonomy survive Tier-1 eval? Proper val-based GBM selection. | RUNNING | `transfer_v1.csv`, `gbm_tune_v1.csv` |
+| 13 | 08-31 | BioCLIP-2 text embeddings | Stronger encoder (TreeOfLife-200M) as NN tower input. | BUILDING | `cache/bioclip2_text_*.npy` |
+| 14 | 08-31 | Two-tower wide&deep NN (v1, no emb) | Can a neural ranker (genus/family embeddings + curve towers + wide N/Δ/tax features, sampled softmax, val-selected) beat gbm_geo 0.236? Reported on all + Tier-1. | RUNNING (GPU 1) | `twotower_none.csv` |
+
+Backlog: two-tower + BioCLIP/BioCLIP2 tower inputs; SDM a_curves swap (blocked on full SDM, Sept); temporal-holdout validation (GloBI eventDate); paired-bootstrap significance table; TaxaBind encoders (verify HF model ids first).
+
+## Paper story (working sketch, updated 08-31 evening)
+
+1. **Data**: orientation-corrected GloBI CONUS plant-pollinator network — 62,832 edges (450× the prior extraction) with per-edge provenance tiers. Dataset contribution.
+2. **Benchmark**: cold-start (leave-plant-out) full-universe ranking + nulls; demonstration that prior-style evaluation (random pair split, uniform negatives) is solved by shortcuts (N-only 0.99 ROC) and cannot rank architectures.
+3. **Finding A — co-occurrence intensity is a documentation-process-invariant super-baseline** (R@10 0.117 on all labels, 0.116 on curated). The field should be required to report it.
+4. **Finding B — process leakage in learned features**: dense pollinator representations collapse 6× when evaluated across documentation processes (all→Tier-1). First feature-level quantification of the iNat-circularity concern.
+5. **Finding C — what beats the baseline**: "who" (taxonomic affinity, +78%), feature interactions (GBM on geometry/phenology, 2×), timing (local Δ) once "who" is present; embeddings-of-names redundant with taxonomy. Pending: tuned GBM, two-tower NN, tier transfer of the winners; September: SDM a_curves as the pollinator-side upgrade.
+6. **Application**: ranked candidate pollinators for unseen plants (hit@10 ≈ 0.69), tier-validated; downstream brittleness scoring.
 
 Ops note (08-31): tier 2×2 initially never launched — its wait-loop pgrep pattern matched the wrapper's own cmdline (self-match). Killed, relaunched directly (~1h lost). Lesson: chain on artifact files, not process names.

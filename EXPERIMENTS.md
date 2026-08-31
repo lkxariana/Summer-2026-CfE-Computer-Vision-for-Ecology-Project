@@ -14,4 +14,8 @@ All experiments run on the frozen protocol unless noted: `edges_v1` (62,832 orie
 | 8 | 08-31 | Taxonomy affinity + hybrids + segments | Does "who" (pollinator × plant-genus/family affinity from the training matrix) crack top-10? Do N-first hybrids beat pure N? Where does N fail? | QUEUED | `taxonomy_v1.csv` |
 | 9 | 08-31 | GBM contextual ranker | Is the linear probe the ceiling? Trees over all features (incl. taxonomy) with feature interactions. | QUEUED | `gbm_v1.csv` |
 
-Backlog: SDM a_curves swap (blocked on full SDM, Sept); temporal-holdout validation (GloBI eventDate); paired-bootstrap significance for scalar_local vs spatial; TaxaBind/SINR species embeddings as tower inputs (2× RTX 4090 available); two-tower Stage B.
+| 10 | 08-31 | BioCLIP text embeddings | Build learned species representations from names (imageomics/bioclip text tower, GPU). | Built: 6,348 plants + 24,939 pollinators × 512D unit-norm (13s on RTX 4090). Eval queued (embedding similarity + PCA-32 features, linear + GBM). | `cache/bioclip_text_*.npy` |
+
+Backlog: SDM a_curves swap (blocked on full SDM, Sept); temporal-holdout validation (GloBI eventDate); paired-bootstrap significance for scalar_local vs spatial; TaxaBind encoders (verify HF model ids first); two-tower Stage B.
+
+Ops note (08-31): tier 2×2 initially never launched — its wait-loop pgrep pattern matched the wrapper's own cmdline (self-match). Killed, relaunched directly (~1h lost). Lesson: chain on artifact files, not process names.

@@ -1,0 +1,4 @@
+provenance join: 99.7% of edges matched | tier1 edges: 14,533
+train edges all/t1: 46,897/10,991 | test edges all/t1: 9,210/2,091
+test plants all/with-t1-partner: 553/222
+fitting rankers on both training sets...

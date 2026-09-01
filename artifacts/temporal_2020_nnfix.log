@@ -1,0 +1,3 @@
+cutoff 2020: train edges 26,505 | newly documented test edges 27,662 on 2,179 known plants
+contrasts ready (16s)
+linear + gbm trained

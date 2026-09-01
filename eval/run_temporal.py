@@ -78,17 +78,31 @@ def main():
 
     nn = None
     if args.with_nn:
+        # Early-stop on held-out pre-cutoff plants so the neural model gets the same
+        # selection treatment as the sklearn models (which were tuned on the main val split).
         t0 = time.time()
-        fake_split = {"train": sorted(set(old["plant"])), "val": [], "test": []}
-        data = Data(store, old, fake_split, cfg, emb=None, seed=seed)
+        old_plants = sorted(set(old["plant"]))
+        rng_v = np.random.default_rng(seed)
+        val_plants = set(rng_v.choice(old_plants, size=max(50, len(old_plants) // 10), replace=False))
+        fit_edges = old[~old["plant"].isin(val_plants)].reset_index(drop=True)
+        val_edges = old[old["plant"].isin(val_plants)]
+        data = Data(store, fit_edges, {"train": sorted(set(fit_edges["plant"]))}, cfg, emb=None, seed=seed)
         ep = np.load(cfg["cache_dir"] / "bioclip_text_plants.npy").astype(np.float32)
         eq = np.load(cfg["cache_dir"] / "bioclip_text_polls.npy").astype(np.float32)
         data.p_dense = np.hstack([data.p_dense, ep])
         data.q_dense = np.hstack([data.q_dense, eq])
-        m, _ = train_model(data, args.device, seed=seed, max_epochs=2, val_eval=None,
-                           log=lambda s: print(f"  [nn] {s}", flush=True))
+        vp_partners = {sp: set(store.idx_polls(g["pollinator"])) for sp, g in val_edges.groupby("plant")}
+        vp_wide = {sp: data.wide_plant(store.p2i[sp]) for sp in vp_partners}
+
+        def nn_val(m):
+            sc = make_ranker(m, data, args.device)
+            return float(np.mean([len(part & set(np.argpartition(-sc(store.p2i[sp], vp_wide[sp]), 10)[:10].tolist())) / len(part)
+                                  for sp, part in vp_partners.items()]))
+
+        m, hist = train_model(data, args.device, seed=seed, val_eval=nn_val,
+                              log=lambda s: print(f"  [nn] {s}", flush=True))
         nn = (make_ranker(m, data, args.device), data)
-        print(f"nn trained ({time.time() - t0:.0f}s)", flush=True)
+        print(f"nn trained, best val {max(hist):.4f} ({time.time() - t0:.0f}s)", flush=True)
 
     old_partners = {sp: set(store.idx_polls(g["pollinator"])) for sp, g in old.groupby("plant")}
     new_partners = {sp: set(store.idx_polls(g["pollinator"])) for sp, g in new.groupby("plant")}

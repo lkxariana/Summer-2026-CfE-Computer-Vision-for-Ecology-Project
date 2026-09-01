@@ -1,0 +1,23 @@
+cutoff 2020: train edges 26,505 | newly documented test edges 27,662 on 2,179 known plants
+contrasts ready (17s)
+linear + gbm trained
+  [nn] epoch 0 loss 1.6587
+  [nn] epoch 1 loss 1.1630
+nn trained (123s)
+  300/2179 plants (94s)
+  600/2179 plants (187s)
+  900/2179 plants (281s)
+  1200/2179 plants (374s)
+  1500/2179 plants (468s)
+  1800/2179 plants (561s)
+  2100/2179 plants (655s)
+  rank_n               R@10 0.1041 [0.0965,0.1116]  R@50 0.3143  hit@10 0.5122
+  rank_n_tax_ldelta    R@10 0.1838 [0.1728,0.1950]  R@50 0.3897  hit@10 0.6462
+  gbm_geo_tuned        R@10 0.2146 [0.2042,0.2258]  R@50 0.4666  hit@10 0.7012
+  twotower_bioclip     R@10 0.2074 [0.1971,0.2183]  R@50 0.4373  hit@10 0.6847
+
+            model  recall@10     lo     hi  recall@50  hit@10  n_plants
+           rank_n     0.1041 0.0965 0.1116     0.3143  0.5122      2179
+rank_n_tax_ldelta     0.1838 0.1728 0.1950     0.3897  0.6462      2179
+    gbm_geo_tuned     0.2146 0.2042 0.2258     0.4666  0.7012      2179
+ twotower_bioclip     0.2074 0.1971 0.2183     0.4373  0.6847      2179

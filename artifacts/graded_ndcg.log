@@ -1,0 +1,20 @@
+models ready
+  150/553
+  300/553
+  450/553
+
+nDCG@10 under three gain definitions
+
+model                       binary     log n_records  curated-weighted
+N only                      0.1533               nan            0.1252
+N+tax+localD                0.2869               nan            0.2537
+GBM geo                     0.3278               nan            0.3112
+degree null                 0.1393               nan            0.1039
+
+ordering by gain definition:
+  binary             GBM geo > N+tax+localD > N only > degree null
+  log n_records      N only > N+tax+localD > GBM geo > degree null
+  curated-weighted   GBM geo > N+tax+localD > N only > degree null
+
+If 'log n_records' promotes the degree null, grading by documentation intensity
+reintroduces the popularity bias and binary/curated gains are safer.

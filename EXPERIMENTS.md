@@ -160,3 +160,24 @@ Backlog: SDM a_curves swap (blocked on full SDM, Sept); temporal-holdout validat
 8. **Application**: ranked candidate pollinators for unseen plants (hit@10 ≈ 0.74), tier- and time-validated; downstream brittleness scoring.
 
 Ops note (08-31): tier 2×2 initially never launched — its wait-loop pgrep pattern matched the wrapper's own cmdline (self-match). Killed, relaunched directly (~1h lost). Lesson: chain on artifact files, not process names.
+
+---
+
+## Experiment 22 (09-01) — External ecological baselines · **changes the reference point**
+
+`eval/run_eco_baselines.py` → `artifacts/eco_baselines_v1.csv`. Frozen split, same protocol.
+
+| baseline | R@10 [95% CI] | R@50 | hit@10 | Tier-1 R@10 |
+|---|---|---|---|---|
+| abundance null (pollinator observation counts; Vázquez/Dormann neutral model) | 0.051 [0.042–0.062] | 0.242 | 0.389 | 0.058 |
+| **congeneric transfer** (partners of same-genus training plants, family fallback) | **0.209 [0.188–0.233]** | 0.396 | 0.653 | 0.337 |
+| **latent-trait SVD, k=32** (Strydom-style RDPG + taxonomic imputation) | **0.204 [0.181–0.225]** | 0.400 | 0.647 | 0.362 |
+
+**Implications — the honest baseline is not N.**
+
+1. **Congeneric transfer (0.209) exactly matches our engineered linear model** (N + taxonomy + local Δ, 0.209). "Look at what this plant's congeners are visited by" is free, needs no model, and equals a fitted feature-based ranker. Any claim must be made against *this*, not against N-only (0.117).
+2. **Latent-trait SVD (0.204) is right behind it** — the ML-ecology incumbent is competitive out of the box, and has the best Tier-1 of the three (0.362).
+3. **The abundance null is weak here (0.051)** — worse than the degree null. Dormann et al. 2025 found abundance dominant for interaction *frequency* within local networks; for continental cold-start *retrieval* it is not, because ranking within a plant cannot use the plant's abundance term at all. Worth stating explicitly, since a reviewer will expect abundance to win.
+4. Our margin shrinks accordingly: best single model 0.261 and ensemble 0.277 vs **0.209** — a real but modest ~+0.07. The margin is much larger on curated labels (ensemble 0.504 vs SVD 0.362, +0.14), which is the more defensible headline.
+
+75.6% of test plants have a training congener; the rest fall back to family, which is why the baseline degrades gracefully rather than failing.

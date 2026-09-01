@@ -1,0 +1,7 @@
+abundance counts: 100.0% of pollinators covered (6s)
+congeneric: 75.6% of test plants have a training congener
+  abundance null (obs counts)    R@10 0.0512 [0.0417,0.0618]  R@50 0.2415 hit@10 0.3888  T1 0.0582
+  congeneric transfer            R@10 0.2093 [0.1875,0.2331]  R@50 0.3962 hit@10 0.6528  T1 0.3367
+  latent-trait SVD (k=32)        R@10 0.2035 [0.1806,0.2251]  R@50 0.3996 hit@10 0.6474  T1 0.3620
+
+Saved. (15s)

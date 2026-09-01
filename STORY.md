@@ -115,8 +115,12 @@ The bottleneck was the **features**: nothing encoded *who these species are*.
 1. **Taxonomic affinity** — per-pollinator affinity for plant genera/families, estimated from
    the training interaction matrix. First feature family to beat N (+78%). Works for plants
    whose genus was never seen, via family.
-2. **Feature interactions** — gradient boosting on the *original* geometry/phenology features
-   doubled N, no taxonomy needed. The linear probe was the ceiling, not the features.
+2. **Feature interactions** — gradient boosting doubled N using only the *original* features,
+   no taxonomy needed. `gbm_geo` sees 35 numbers per pair: plant and pollinator occupancy PCA
+   (15-D each), shared-bin count `N`, range-averaged Δ, local per-bin Δ, and the two range
+   sizes. It is trained pointwise (documented pairs vs sampled candidates) and then used to
+   rank. Exactly the inputs the linear models had — so the linear probe was the ceiling, not
+   the features.
 3. **Foundation-model embeddings as tower inputs.** BioCLIP cosine similarity as a feature
    was useless (0.109); the same embeddings fed to a learned tower gave the best single model
    (0.261). The network learns a task-specific projection that raw name-similarity cannot expose.

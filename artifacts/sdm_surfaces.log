@@ -1,0 +1,12 @@
+SDM species in our pollinator universe: 1,275
+  batch 5: 8,299,912 rows mapped, 494,260 out-of-grid (11s)
+  batch 10: 16,124,596 rows mapped, 968,136 out-of-grid (21s)
+  batch 15: 23,989,836 rows mapped, 1,394,852 out-of-grid (31s)
+  batch 20: 31,841,732 rows mapped, 1,833,936 out-of-grid (41s)
+  batch 25: 39,744,300 rows mapped, 2,212,912 out-of-grid (52s)
+  batch 30: 45,937,320 rows mapped, 2,553,564 out-of-grid (60s)
+
+Saved /scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/artifacts/cache/sdm_surfaces_1275x3162x52.npy (0.42 GB)
+rows mapped 47,187,244 | dropped out-of-grid 2,601,508 (5.2%)
+species with non-empty surface: 1,275/1,275
+occupied cells per species: median 674, min 7, max 1483

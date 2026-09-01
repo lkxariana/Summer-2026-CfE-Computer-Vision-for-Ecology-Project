@@ -1,0 +1,19 @@
+restricted universe: 1,275 candidate pollinators
+edges kept: 49,453/62,832 | train 36,932 | test 7,329 (517 plants)
+contrasts: 349,510
+train features built (65s)
+  100/517 plants (10s)
+  200/517 plants (19s)
+  300/517 plants (28s)
+  400/517 plants (37s)
+  500/517 plants (46s)
+
+model                                           R@10    Tier-1  fitted-head
+N only                              0.1688 [0.148,0.191]    0.1223       0.1779
+N + GBIF delta                      0.1071 [0.091,0.124]    0.1321       0.1139
+N + GBIF local delta                0.0975 [0.081,0.115]    0.0996       0.1029
+N + SDM delta                       0.0721 [0.060,0.087]    0.0590       0.0738
+N + SDM bilateral local delta       0.0920 [0.077,0.108]    0.0440       0.0969
+N + GBIF local + SDM bilateral      0.0962 [0.079,0.113]    0.0539       0.1038
+
+NOTE: candidate universe is 1,275 (SDM-covered) — NOT comparable to full-universe numbers.

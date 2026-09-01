@@ -90,6 +90,18 @@ Prospective (train ≤2020, rank pairs first documented 2021+, 2,179 plants): N 
 
 | 39 | 09-01 | **SDM on the ORIGINAL metric: pooled PR-AUC** (every prior SDM test used ranking; the project's original claim lives on PR-AUC) | Does SDM temporal beat GBIF temporal for pooled pair discrimination? Paired cluster bootstrap over test plants (2,000 resamples) since marginal CIs overlap ~95% but the arms are highly correlated. | **First positive SDM result — and it is metric-dependent.** Linear model: base 0.5181 → +GBIF 0.5439 → +SDM **0.5502** → +both 0.5547. Paired test: **SDM−GBIF +0.0063 [+0.0026,+0.0101], p=0.0005**; GBIF−base +0.0257, SDM−base +0.0320 (both p=0.0005). So on pooled discrimination, temporal features clearly help and **SDM significantly beats GBIF** — supporting the project's original hypothesis on its own metric. **Two caveats that bound the claim:** (a) the effect is small (+0.006 PR-AUC); (b) under a GBM the advantage disappears (SDM 0.4943 vs GBIF 0.4967), so SDM's benefit looks like its signal being more *linearly accessible* rather than containing more information. And it does not transfer to ranking, where SDM ≈ GBIF (exp 36/37). | `sdm_prauc_v1.csv`, `sdm_paired_v1.csv` |
 
+| 40 | 09-01 | **Plan step 5: permuted-SDM control on the exp-39 gain** (now warranted — there is finally a gain to attribute) | Shuffle species → SDM-surface assignment, keeping dimensionality and geometry identical. If the permuted arm reproduces the gain, exp 39 is capacity not phenology. | **Exp 39 CONFIRMED.** real−base **+0.0320** [+0.0254,+0.0389]; **permuted−base −0.0009** [−0.0014,−0.0004] — i.e. essentially nothing; real−permuted +0.0329, p=0.0005. The entire SDM temporal gain is attributable to the *correct species'* phenology; random surfaces of identical shape contribute zero. This is the strongest positive result of the SDM phase. | `sdm_permuted_v1.csv` |
+
+## SDM phase summary (2026-09-01) — all 5 plan steps complete
+
+**Positive, with controls:** SDM phenology adds **+0.032 PR-AUC** over a base of Vf/Vp/N/taxonomy, and a permuted-species control contributes **−0.001**, so the gain is genuine phenological signal (exp 39/40). SDM significantly beats GBIF on this metric: **+0.0063, p=0.0005** paired (exp 39). The project's original hypothesis is supported *on its original metric*.
+
+**Negative / bounded:** the advantage does not transfer to top-k ranking, where SDM ≈ GBIF and neither beats N+taxonomy (exp 36/37); it disappears under a GBM (0.4943 vs 0.4967), so SDM's benefit may be *linear accessibility* rather than extra information; bilateral per-bin Δ — computable for the first time — gave the largest within-arm localisation gain (0.0721→0.0920) but did not change the SDM-vs-GBIF verdict.
+
+**Untestable with this build (exp 38/38b):** the generalisation claim. SDM training data and GBIF density correlate at **r=0.865** (sparse tercile = 83.8% zero-shot, median 0 training obs), so "SDM wins where observation is thin" cannot be separated. Out-of-time and out-of-space variants are equally confounded because the SDM's training cutoff and spatial coverage are not ours to control. **Actionable ask: an SDM retrained with explicit spatial/temporal holdouts would make this decisive.**
+
+**Corrected during this phase:** exp 35/36 implied temporal features are harmful — that was a linear-model artifact; under trees they are mildly positive (exp 37).
+
 ## Candidate stories (kept deliberately plural; updated each loop tick)
 
 | # | Framing | Evidence FOR | Evidence AGAINST / risk | Status |

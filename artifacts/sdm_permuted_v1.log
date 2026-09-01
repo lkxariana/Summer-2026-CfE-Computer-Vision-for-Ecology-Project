@@ -1,0 +1,21 @@
+pairs: train_pos 36,932 test_pos 7,329
+pooled sets: train 406,252 test 80,619
+
+arm                               LR PR-AUC [95% CI]    GBM PR-AUC
+base (Vf,Vp,N,tax)          0.5181 [0.456,0.570]        0.4953
+base + GBIF temporal        0.5439 [0.485,0.593]        0.4967
+base + SDM temporal         0.5502 [0.491,0.598]        0.4943
+base + both                 0.5547 [0.497,0.602]        0.4987
+
+The project's original claim lives on this metric: does SDM temporal beat GBIF temporal here?
+building permuted SDM features...
+  trained base
+  trained base+SDM (real)
+  trained base+SDM (permuted)
+
+contrast             mean Δ PR-AUC                  95% CI         p
+real-base                  +0.0320   [+0.0254,+0.0389]    0.0005
+permuted-base              -0.0009   [-0.0014,-0.0004]    0.0005
+real-permuted              +0.0329   [+0.0263,+0.0398]    0.0005
+
+If permuted-base ~= real-base, exp 39's gain is capacity, not phenology.

@@ -19,7 +19,11 @@ from antheia.store import FeatureStore
 from antheia.taxonomy import TaxonomyAffinity
 
 GEO = ["vf", "vp", "n", "delta", "delta_local", "frs", "prs"]
-LINEAR = {"rank_n": ["n"], "rank_n_tax_ldelta": ["n", "tax", "delta_local"]}
+LINEAR = {"rank_n": ["n"], "rank_n_tax_ldelta": ["n", "tax", "delta_local"],
+          # The Vp-heavy models are the ones that collapsed 6x across provenance in exp 12 —
+          # they are the actual subject of the leakage claim, so they must face the within-order control.
+          "rank_full_vp": ["vp", "n", "delta", "prs"],
+          "rank_vp_only": ["vp"]}
 
 
 def main():

@@ -181,3 +181,37 @@ Ops note (08-31): tier 2×2 initially never launched — its wait-loop pgrep pat
 4. Our margin shrinks accordingly: best single model 0.261 and ensemble 0.277 vs **0.209** — a real but modest ~+0.07. The margin is much larger on curated labels (ensemble 0.504 vs SVD 0.362, +0.14), which is the more defensible headline.
 
 75.6% of test plants have a training congener; the rest fall back to family, which is why the baseline degrades gracefully rather than failing.
+
+---
+
+## Experiment 23 (09-01) — Two-head model (shared towers, retrieval + compatibility)
+
+`src/antheia/twohead.py`, `eval/run_twohead.py` → `artifacts/twohead_v1.csv`. Shared plant/pollinator
+towers + `τ⟨p,q⟩`; **head R** adds only candidate-varying pair features; **head C** additionally gets
+plant-only context (log range, flowering breadth) that is constant within a plant and therefore
+invisible to any within-plant ranking. Joint loss = sampled-softmax (R) + BCE (C) on the same candidates.
+
+| variant | head | R@10 | pooled PR | Tier-1 R@10 |
+|---|---|---|---|---|
+| joint | retrieval | 0.2574 | 0.8611 | 0.457 |
+| joint | compatibility | 0.2598 | 0.8582 | 0.498 |
+| rank_only (λ_C=0) | retrieval | **0.2612** | 0.8562 | 0.475 |
+| rank_only | compatibility | 0.0597 | 0.6225 | 0.117 |
+| comp_only (λ_R=0) | retrieval | 0.1053 | 0.7402 | 0.280 |
+| comp_only | compatibility | 0.2180 | **0.8191** | 0.485 |
+
+**1. Multi-task is worth it.** Joint training lifts the compatibility head substantially over
+training it alone (pooled PR 0.8582 vs 0.8191; R@10 0.260 vs 0.218) while costing retrieval
+nothing measurable (0.2574 vs 0.2612, overlapping CIs). One model serves both questions.
+
+**2. The heads genuinely specialize.** Train one objective and the other head collapses —
+rank_only's compatibility head falls to 0.060 R@10 / 0.62 PR; comp_only's retrieval head to 0.105.
+The two objectives are not interchangeable views of one score.
+
+**3. Δ scalars add nothing here — but this is NOT a test of temporal information.** Ablating the
+Δ / local-Δ columns changed nothing (noDelta 0.2631 vs both 0.2574 vs global 0.2451 vs local
+0.2438; pooled PR flat at 0.861–0.863, all CIs overlapping). **The towers already consume the raw
+52-week flowering and activity curves**, so removing the hand-computed overlap scalar only tests
+whether that scalar adds anything *beyond* what a neural encoder extracts from the curves itself.
+It does not. The real temporal ablation must also remove the curves from the tower inputs
+→ Experiment 24.

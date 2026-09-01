@@ -23,7 +23,21 @@ All experiments run on the frozen protocol unless noted: `edges_v1` (62,832 orie
 | 13 | 08-31 | BioCLIP-2 text embeddings | Stronger encoder (TreeOfLife-200M) as NN tower input. | Built: 768-D for all 31,287 species (22s, GPU 0). | `cache/bioclip2_text_*.npy` |
 | 14 | 08-31 | Two-tower wide&deep NN (v1, no emb) | Can a neural ranker (genus/family embeddings + curve towers + wide N/Δ/tax features, sampled softmax, val-selected) beat gbm_geo 0.236? | **Parity on first config: test 0.225 [0.202–0.250], hit@10 0.675, Tier-1 0.469 [0.42–0.52]** — matches GBM on both evals, transfers cleanly. Overfits by epoch ~2 (val peak 0.271) → regularization/negatives headroom. BioCLIP-2 and BioCLIP-1 tower variants queued next. | `twotower_none.csv` |
 
-Backlog: two-tower + BioCLIP/BioCLIP2 tower inputs; SDM a_curves swap (blocked on full SDM, Sept); temporal-holdout validation (GloBI eventDate); paired-bootstrap significance table; TaxaBind encoders (verify HF model ids first).
+| 16 | 08-31 | **Final roster + paired significance** | One reproducible table: all models refit, per-plant scores saved, paired plant-level bootstrap. | See table below. **twotower_bioclip best (0.2612 / R@50 0.546 / hit@10 0.736 / T1 0.475)**; sig. > two-tower-none (+0.036, p=.001) and > N+tax+localΔ (+0.053, p<.001); **statistically tied with tuned GBM** (Δ0.016, p=.11). All learned models >> N (p<.001). BioCLIP-2 tied with BioCLIP-1. | `final_table_v1.csv`, `final_significance_v1.csv`, `final_scores/` |
+
+### Final table (frozen split, 553 test plants; T1 = 222 curated-label plants)
+
+| model | R@10 all [95% CI] | R@50 | hit@10 | R@10 Tier-1 |
+|---|---|---|---|---|
+| degree null | 0.080 [0.067–0.093] | 0.233 | 0.458 | 0.029 |
+| N only | 0.115 [0.098–0.132] | 0.343 | 0.508 | 0.117 |
+| N + taxonomy + local Δ (linear) | 0.209 [0.188–0.233] | 0.431 | 0.658 | 0.303 |
+| GBM geo (val-tuned) | 0.245 [0.221–0.270] | 0.491 | 0.700 | 0.471 |
+| two-tower (no emb) | 0.225 [0.202–0.250] | 0.483 | 0.675 | 0.469 |
+| **two-tower + BioCLIP** | **0.261 [0.238–0.287]** | **0.546** | **0.736** | **0.475** |
+| two-tower + BioCLIP-2 | 0.251 [0.229–0.275] | 0.545 | 0.727 | 0.457 |
+
+Backlog: temporal holdout (GloBI eventDate) — last unblocked validation; SDM a_curves swap (blocked on full SDM, Sept); temporal-holdout validation (GloBI eventDate); paired-bootstrap significance table; TaxaBind encoders (verify HF model ids first).
 
 ## Paper story (working sketch, updated 08-31 evening)
 

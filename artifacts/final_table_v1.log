@@ -1,0 +1,62 @@
+linear + gbm ready (gbm params {'max_iter': 800, 'learning_rate': 0.05, 'min_samples_leaf': 100, 'l2_regularization': 5.0})
+base NN data (202s)
+wide caches built (288s)
+  [none] epoch 0 loss 1.7520 val R@10 0.2658
+  [none] epoch 1 loss 1.2924 val R@10 0.2706
+  [none] epoch 2 loss 0.9982 val R@10 0.2690
+  [none] epoch 3 loss 0.8222 val R@10 0.2677
+  [none] epoch 4 loss 0.7230 val R@10 0.2559
+  [none] epoch 5 loss 0.6572 val R@10 0.2518
+  [none] epoch 6 loss 0.6079 val R@10 0.2461
+  [none] epoch 7 loss 0.5635 val R@10 0.2371
+  [bioclip] epoch 0 loss 1.7318 val R@10 0.2543
+  [bioclip] epoch 1 loss 1.2293 val R@10 0.2561
+  [bioclip] epoch 2 loss 0.9302 val R@10 0.2557
+  [bioclip] epoch 3 loss 0.7226 val R@10 0.2668
+  [bioclip] epoch 4 loss 0.6076 val R@10 0.2650
+  [bioclip] epoch 5 loss 0.5359 val R@10 0.2766
+  [bioclip] epoch 6 loss 0.4912 val R@10 0.2601
+  [bioclip] epoch 7 loss 0.4533 val R@10 0.2659
+  [bioclip] epoch 8 loss 0.4207 val R@10 0.2550
+  [bioclip] epoch 9 loss 0.3875 val R@10 0.2470
+  [bioclip] epoch 10 loss 0.3654 val R@10 0.2493
+  [bioclip] epoch 11 loss 0.3416 val R@10 0.2615
+  [bioclip2] epoch 0 loss 1.6966 val R@10 0.2541
+  [bioclip2] epoch 1 loss 1.2115 val R@10 0.2608
+  [bioclip2] epoch 2 loss 0.9279 val R@10 0.2566
+  [bioclip2] epoch 3 loss 0.7451 val R@10 0.2695
+  [bioclip2] epoch 4 loss 0.6301 val R@10 0.2616
+  [bioclip2] epoch 5 loss 0.5641 val R@10 0.2720
+  [bioclip2] epoch 6 loss 0.5179 val R@10 0.2715
+  [bioclip2] epoch 7 loss 0.4806 val R@10 0.2661
+  [bioclip2] epoch 8 loss 0.4467 val R@10 0.2778
+  [bioclip2] epoch 9 loss 0.4095 val R@10 0.2524
+  [bioclip2] epoch 10 loss 0.3938 val R@10 0.2584
+  [bioclip2] epoch 11 loss 0.3647 val R@10 0.2766
+  [bioclip2] epoch 12 loss 0.3480 val R@10 0.2689
+  [bioclip2] epoch 13 loss 0.3320 val R@10 0.2858
+  [bioclip2] epoch 14 loss 0.3197 val R@10 0.2708
+  [bioclip2] epoch 15 loss 0.2963 val R@10 0.2697
+  [bioclip2] epoch 16 loss 0.2902 val R@10 0.2732
+  [bioclip2] epoch 17 loss 0.2754 val R@10 0.2616
+  [bioclip2] epoch 18 loss 0.2659 val R@10 0.2788
+  [bioclip2] epoch 19 loss 0.2597 val R@10 0.2576
+  eval 150/553
+  eval 300/553
+  eval 450/553
+  degree_rank          R@10 0.0796 [0.0671,0.0928]  R@50 0.2331  hit 0.4575  T1 0.0287
+  rank_n               R@10 0.1152 [0.0976,0.1322]  R@50 0.3426  hit 0.5081  T1 0.1169
+  rank_n_tax_ldelta    R@10 0.2085 [0.1876,0.2330]  R@50 0.4312  hit 0.6582  T1 0.3025
+  gbm_geo_tuned        R@10 0.2454 [0.2205,0.2701]  R@50 0.4914  hit 0.6998  T1 0.4711
+  twotower_none        R@10 0.2254 [0.2015,0.2495]  R@50 0.4832  hit 0.6745  T1 0.4685
+  twotower_bioclip     R@10 0.2612 [0.2378,0.2869]  R@50 0.5462  hit 0.7360  T1 0.4746
+  twotower_bioclip2    R@10 0.2512 [0.2286,0.2751]  R@50 0.5453  hit 0.7269  T1 0.4570
+
+            model  r10_all     lo     hi  r50_all  hit10_all  r10_t1  t1_lo  t1_hi
+      degree_rank   0.0796 0.0671 0.0928   0.2331     0.4575  0.0287 0.0159 0.0451
+           rank_n   0.1152 0.0976 0.1322   0.3426     0.5081  0.1169 0.0870 0.1534
+rank_n_tax_ldelta   0.2085 0.1876 0.2330   0.4312     0.6582  0.3025 0.2598 0.3525
+    gbm_geo_tuned   0.2454 0.2205 0.2701   0.4914     0.6998  0.4711 0.4195 0.5229
+    twotower_none   0.2254 0.2015 0.2495   0.4832     0.6745  0.4685 0.4202 0.5189
+ twotower_bioclip   0.2612 0.2378 0.2869   0.5462     0.7360  0.4746 0.4280 0.5259
+twotower_bioclip2   0.2512 0.2286 0.2751   0.5453     0.7269  0.4570 0.4067 0.5083

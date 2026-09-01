@@ -1,0 +1,103 @@
+  shard 240 failed: HfHubHTTPError
+  shard 241 failed: HfHubHTTPError
+  shard 242 failed: HfHubHTTPError
+  shard 243 failed: HfHubHTTPError
+  shard 244 failed: HfHubHTTPError
+  shard 245 failed: HfHubHTTPError
+  shard 246 failed: HfHubHTTPError
+  shard 247 failed: HfHubHTTPError
+  shard 248 failed: HfHubHTTPError
+  shard 249 failed: HfHubHTTPError
+  shard 250 failed: HfHubHTTPError
+  shard 251 failed: HfHubHTTPError
+  shard 252 failed: HfHubHTTPError
+  shard 253 failed: HfHubHTTPError
+  shard 254 failed: HfHubHTTPError
+  shard 255 failed: HfHubHTTPError
+  shard 256 failed: HfHubHTTPError
+  shard 257 failed: HfHubHTTPError
+  shard 258 failed: HfHubHTTPError
+  shard 259 failed: HfHubHTTPError
+  shard 260 failed: HfHubHTTPError
+  shard 261 failed: HfHubHTTPError
+  shard 262 failed: HfHubHTTPError
+  shard 263 failed: HfHubHTTPError
+  shard 264 failed: HfHubHTTPError
+  shard 265 failed: HfHubHTTPError
+  shard 266 failed: HfHubHTTPError
+  shard 267 failed: HfHubHTTPError
+  shard 268 failed: HfHubHTTPError
+  shard 269 failed: HfHubHTTPError
+  shard 270 failed: HfHubHTTPError
+  shard 271 failed: HfHubHTTPError
+  shard 272 failed: HfHubHTTPError
+  shard 273 failed: HfHubHTTPError
+  shard 274 failed: HfHubHTTPError
+  shard 275 failed: HfHubHTTPError
+  shard 276 failed: HfHubHTTPError
+  shard 277 failed: HfHubHTTPError
+  shard 278 failed: HfHubHTTPError
+  shard 279 failed: HfHubHTTPError
+  shard 280 failed: HfHubHTTPError
+  shard 281 failed: HfHubHTTPError
+  shard 282 failed: HfHubHTTPError
+  shard 283 failed: HfHubHTTPError
+  shard 284 failed: HfHubHTTPError
+  shard 285 failed: HfHubHTTPError
+  shard 286 failed: HfHubHTTPError
+  shard 287 failed: HfHubHTTPError
+  shard 288 failed: HfHubHTTPError
+  shard 289 failed: HfHubHTTPError
+  shard 290 failed: HfHubHTTPError
+  shard 291 failed: HfHubHTTPError
+  shard 292 failed: HfHubHTTPError
+  shard 293 failed: HfHubHTTPError
+  shard 294 failed: HfHubHTTPError
+  shard 295 failed: HfHubHTTPError
+  shard 296 failed: HfHubHTTPError
+  shard 297 failed: HfHubHTTPError
+  shard 298 failed: HfHubHTTPError
+  shard 299 failed: HfHubHTTPError
+  shard 300 failed: HfHubHTTPError
+  shard 301 failed: HfHubHTTPError
+  shard 302 failed: HfHubHTTPError
+  shard 303 failed: HfHubHTTPError
+  shard 304 failed: HfHubHTTPError
+  shard 305 failed: HfHubHTTPError
+  shard 306 failed: HfHubHTTPError
+  shard 307 failed: HfHubHTTPError
+  shard 308 failed: HfHubHTTPError
+  shard 309 failed: HfHubHTTPError
+  shard 310 failed: HfHubHTTPError
+  shard 311 failed: HfHubHTTPError
+  shard 312 failed: HfHubHTTPError
+  shard 313 failed: HfHubHTTPError
+  shard 314 failed: HfHubHTTPError
+  shard 315 failed: HfHubHTTPError
+  shard 316 failed: HfHubHTTPError
+  shard 317 failed: HfHubHTTPError
+  shard 318 failed: HfHubHTTPError
+  shard 319 failed: HfHubHTTPError
+  shard 320 failed: HfHubHTTPError
+  shard 321 failed: HfHubHTTPError
+  shard 322 failed: HfHubHTTPError
+  shard 323 failed: HfHubHTTPError
+  shard 324 failed: HfHubHTTPError
+  shard 325 failed: HfHubHTTPError
+  shard 326 failed: HfHubHTTPError
+  shard 327 failed: HfHubHTTPError
+  shard 328 failed: HfHubHTTPError
+  shard 329 failed: HfHubHTTPError
+  shard 330 failed: HfHubHTTPError
+  shard 331 failed: HfHubHTTPError
+  shard 332 failed: HfHubHTTPError
+Traceback (most recent call last):
+  File "/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/scripts/build_observation_profiles.py", line 64, in <module>
+    main()
+  File "/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/scripts/build_observation_profiles.py", line 60, in main
+    print(f"shards {args.start}-{args.end}: {len(df)} species, {df['n_images'].sum():,} images ({time.time() - t0:.0f}s)")
+  File "/home/cher/.local/lib/python3.10/site-packages/pandas/core/frame.py", line 4113, in __getitem__
+    indexer = self.columns.get_loc(key)
+  File "/home/cher/.local/lib/python3.10/site-packages/pandas/core/indexes/range.py", line 417, in get_loc
+    raise KeyError(key)
+KeyError: 'n_images'

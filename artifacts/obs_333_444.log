@@ -1,0 +1,101 @@
+  shard 353 failed: HfHubHTTPError
+  shard 354 failed: HfHubHTTPError
+  shard 355 failed: HfHubHTTPError
+  shard 356 failed: HfHubHTTPError
+  shard 357 failed: HfHubHTTPError
+  shard 358 failed: HfHubHTTPError
+  shard 359 failed: HfHubHTTPError
+  shard 360 failed: HfHubHTTPError
+  shard 361 failed: HfHubHTTPError
+  shard 362 failed: HfHubHTTPError
+  shard 363 failed: HfHubHTTPError
+  shard 364 failed: HfHubHTTPError
+  shard 365 failed: HfHubHTTPError
+  shard 366 failed: HfHubHTTPError
+  shard 367 failed: HfHubHTTPError
+  shard 368 failed: HfHubHTTPError
+  shard 369 failed: HfHubHTTPError
+  shard 370 failed: HfHubHTTPError
+  shard 371 failed: HfHubHTTPError
+  shard 372 failed: HfHubHTTPError
+  shard 373 failed: HfHubHTTPError
+  shard 374 failed: HfHubHTTPError
+  shard 375 failed: HfHubHTTPError
+  shard 376 failed: HfHubHTTPError
+  shard 377 failed: HfHubHTTPError
+  shard 378 failed: HfHubHTTPError
+  shard 379 failed: HfHubHTTPError
+  shard 380 failed: HfHubHTTPError
+  shard 381 failed: HfHubHTTPError
+  shard 382 failed: HfHubHTTPError
+  shard 383 failed: HfHubHTTPError
+  shard 384 failed: HfHubHTTPError
+  shard 385 failed: HfHubHTTPError
+  shard 386 failed: HfHubHTTPError
+  shard 387 failed: HfHubHTTPError
+  shard 388 failed: HfHubHTTPError
+  shard 389 failed: HfHubHTTPError
+  shard 390 failed: HfHubHTTPError
+  shard 391 failed: HfHubHTTPError
+  shard 392 failed: HfHubHTTPError
+  shard 393 failed: HfHubHTTPError
+  shard 394 failed: HfHubHTTPError
+  shard 395 failed: HfHubHTTPError
+  shard 396 failed: HfHubHTTPError
+  shard 397 failed: HfHubHTTPError
+  shard 398 failed: HfHubHTTPError
+  shard 399 failed: HfHubHTTPError
+  shard 400 failed: HfHubHTTPError
+  shard 401 failed: HfHubHTTPError
+  shard 402 failed: HfHubHTTPError
+  shard 403 failed: HfHubHTTPError
+  shard 404 failed: HfHubHTTPError
+  shard 405 failed: HfHubHTTPError
+  shard 406 failed: HfHubHTTPError
+  shard 407 failed: HfHubHTTPError
+  shard 408 failed: HfHubHTTPError
+  shard 409 failed: HfHubHTTPError
+  shard 410 failed: HfHubHTTPError
+  shard 411 failed: HfHubHTTPError
+  shard 412 failed: HfHubHTTPError
+  shard 413 failed: HfHubHTTPError
+  shard 414 failed: HfHubHTTPError
+  shard 415 failed: HfHubHTTPError
+  shard 416 failed: HfHubHTTPError
+  shard 417 failed: HfHubHTTPError
+  shard 418 failed: HfHubHTTPError
+  shard 419 failed: HfHubHTTPError
+  shard 420 failed: HfHubHTTPError
+  shard 421 failed: HfHubHTTPError
+  shard 422 failed: HfHubHTTPError
+  shard 423 failed: HfHubHTTPError
+  shard 424 failed: HfHubHTTPError
+  shard 425 failed: HfHubHTTPError
+  shard 426 failed: HfHubHTTPError
+  shard 427 failed: HfHubHTTPError
+  shard 428 failed: HfHubHTTPError
+  shard 429 failed: HfHubHTTPError
+  shard 430 failed: HfHubHTTPError
+  shard 431 failed: HfHubHTTPError
+  shard 432 failed: HfHubHTTPError
+  shard 433 failed: HfHubHTTPError
+  shard 434 failed: HfHubHTTPError
+  shard 435 failed: HfHubHTTPError
+  shard 436 failed: HfHubHTTPError
+  shard 437 failed: HfHubHTTPError
+  shard 438 failed: HfHubHTTPError
+  shard 439 failed: HfHubHTTPError
+  shard 440 failed: HfHubHTTPError
+  shard 441 failed: HfHubHTTPError
+  shard 442 failed: HfHubHTTPError
+  shard 443 failed: HfHubHTTPError
+Traceback (most recent call last):
+  File "/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/scripts/build_observation_profiles.py", line 64, in <module>
+    main()
+  File "/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/scripts/build_observation_profiles.py", line 60, in main
+    print(f"shards {args.start}-{args.end}: {len(df)} species, {df['n_images'].sum():,} images ({time.time() - t0:.0f}s)")
+  File "/home/cher/.local/lib/python3.10/site-packages/pandas/core/frame.py", line 4113, in __getitem__
+    indexer = self.columns.get_loc(key)
+  File "/home/cher/.local/lib/python3.10/site-packages/pandas/core/indexes/range.py", line 417, in get_loc
+    raise KeyError(key)
+KeyError: 'n_images'

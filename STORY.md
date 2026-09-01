@@ -35,21 +35,29 @@ zero names, so it is unambiguous), plus binomial name normalization.
 > **139 → 62,832 unique edges** (3,689 plants × 4,302 pollinators, 0.40% connectance).
 > `scripts/rebuild_edges.py` → `artifacts/edges_v1.parquet`.
 
-## Problem 2: the benchmark was solvable without ecology
+## Problem 2: the evaluation was solvable without ecology
 
-Re-running the published protocol exactly (it reproduces: Spatial Baseline 0.9571 ± 0.0375):
+This one is not a data bug, and it did not go away when the data was fixed. Re-run the
+original *style* of evaluation — pooled pair classification, sampled negatives — on the
+corrected 62,832-edge set and the models still look strong, while the nulls nearly match them:
 
-| model on the 139-pair benchmark | ROC-AUC |
-|---|---|
-| Spatial Baseline (published) | 0.957 |
-| ANTHEIA-4D (published best) | 0.960 |
-| **`N` alone — one feature** | **0.990** |
-| **range sizes only — no co-occurrence at all** | **0.976** |
+| on the corrected data | ROC-AUC | PR-AUC | recall@10 |
+|---|---|---|---|
+| degree null (rank by pollinator range size) | 0.866 | 0.527 | 0.080 |
+| **`N` alone — one feature** | 0.881 | 0.501 | **0.117** |
+| Spatial Baseline `[Vf, Vp, N]` | 0.904 | 0.636 | 0.074 |
+| ANTHEIA-Scalar (+Δ) | 0.910 | 0.652 | 0.077 |
+| ANTHEIA-4D / 15-D / PMf | 0.902–0.903 | 0.633–0.635 | 0.072–0.074 |
 
-A single scalar beat every 31–46-D model. With uniform negatives, positives are
-well-observed widespread species and negatives are random rare ones, so the task is
-solvable by popularity alone. With ~27 test positives, published gaps (~0.003) sat an
-order of magnitude below seed noise (~0.03) — the table could not rank architectures.
+Read the ROC column alone and the ladder looks healthy. But a null that knows nothing except
+how widespread a pollinator is scores 0.866 — the metric is dominated by easy negatives, so
+most of that number is not ecology. Uniform negative sampling makes it worse: positives are
+well-observed widespread species, negatives are random rare ones, so popularity alone
+separates the classes.
+
+And in the column that matches the actual task, the ordering inverts — **one feature beats all
+five ANTHEIA variants**: `N` at 0.117 against 0.072–0.077. That is the problem that persisted
+into the corrected data and drove the rest of this work.
 
 ---
 
@@ -74,12 +82,9 @@ Web of Life, CropPol, museums). Every model is scored on **all labels** and on
 
 ---
 
-## What happened when we re-measured
+## Why one feature beat the models
 
-Honest evaluation deflated everything: ROC-AUC ~0.95 → PR-AUC 0.65. And the ordering
-inverted — **`N` alone beat every trained model at ranking** (recall@10 0.117 vs ~0.074).
-
-Why: when ranking pollinators *for one plant*, every plant-side feature is constant and
+When ranking pollinators *for one plant*, every plant-side feature is constant and
 cancels. The classifier had spent its capacity on pooled prevalence — "boost common
 pollinators everywhere" — which helps a mixed-pile classification metric and actively hurts
 per-plant ranking.

@@ -135,7 +135,7 @@ class Data:
 
 
 def train_model(data, device, seed=42, batch=512, k_neg=63, max_epochs=50, patience=6,
-                lr=1e-3, val_eval=None, log=print):
+                lr=1e-3, val_eval=None, log=print, weights=None):
     """Trains the wide&deep two-tower ranker with sampled-softmax over within-plant pools; returns (model, history)."""
     torch.manual_seed(seed)
     m = WideDeep(data.p_dense.shape[1], data.q_dense.shape[1],
@@ -158,6 +158,8 @@ def train_model(data, device, seed=42, batch=512, k_neg=63, max_epochs=50, patie
         pos_b = torch.from_numpy(data.pos_bias).to(device)
         pool_b = torch.from_numpy(data.pool_bias).to(device)
     n_pos, pool_size = pools.shape
+    # Importance weights reweight the per-positive loss toward a target documentation process.
+    w_all = None if weights is None else torch.from_numpy(weights.astype(np.float32)).to(device)
     rng = np.random.default_rng(seed)
     best, best_state, bad, hist = -1.0, None, 0, []
 
@@ -180,7 +182,13 @@ def train_model(data, device, seed=42, batch=512, k_neg=63, max_epochs=50, patie
                 bfeat = torch.cat([pos_b[idx, None, :], torch.gather(
                     pool_b[idx], 1, cols[..., None].expand(-1, -1, data.bias_dim))], 1)
             logits = m.score(pv[:, None, :], qv, wide, bfeat)
-            loss = F.cross_entropy(logits, torch.zeros(len(idx), dtype=torch.long, device=device))
+            tgt = torch.zeros(len(idx), dtype=torch.long, device=device)
+            if w_all is None:
+                loss = F.cross_entropy(logits, tgt)
+            else:
+                per = F.cross_entropy(logits, tgt, reduction="none")
+                w = w_all[idx]
+                loss = (per * w).sum() / w.sum().clamp(min=1e-6)
             opt.zero_grad()
             loss.backward()
             opt.step()

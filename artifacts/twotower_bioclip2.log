@@ -1,0 +1,25 @@
+tower emb: bioclip2_text 768D
+data prepared (273s)
+val wide cache built (316s)
+epoch 0 loss 1.6966 val R@10 0.2541
+epoch 1 loss 1.2115 val R@10 0.2608
+epoch 2 loss 0.9279 val R@10 0.2566
+epoch 3 loss 0.7451 val R@10 0.2695
+epoch 4 loss 0.6301 val R@10 0.2616
+epoch 5 loss 0.5641 val R@10 0.2720
+epoch 6 loss 0.5179 val R@10 0.2715
+epoch 7 loss 0.4806 val R@10 0.2661
+epoch 8 loss 0.4467 val R@10 0.2778
+epoch 9 loss 0.4095 val R@10 0.2524
+epoch 10 loss 0.3938 val R@10 0.2584
+epoch 11 loss 0.3647 val R@10 0.2766
+epoch 12 loss 0.3480 val R@10 0.2689
+epoch 13 loss 0.3320 val R@10 0.2858
+epoch 14 loss 0.3197 val R@10 0.2708
+epoch 15 loss 0.2963 val R@10 0.2697
+epoch 16 loss 0.2902 val R@10 0.2732
+epoch 17 loss 0.2754 val R@10 0.2616
+epoch 18 loss 0.2659 val R@10 0.2788
+epoch 19 loss 0.2597 val R@10 0.2576
+
+FINAL twotower_bioclip2: test R@10 0.2512 [0.2286,0.2751] hit@10 0.7269 | Tier-1 R@10 0.4570 [0.4067,0.5083] (n=222)

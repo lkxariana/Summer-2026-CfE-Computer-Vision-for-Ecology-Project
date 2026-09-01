@@ -3,3 +3,13 @@
   geo grid2 val R@10 0.2547 (95s)
   geo grid3 val R@10 0.2698 (129s)
   geo grid4 val R@10 0.2585 (103s)
+  geo grid5 val R@10 0.2543 (115s)
+  geo_taxshare grid0 val R@10 0.1932 (75s)
+  geo_taxshare grid1 val R@10 0.1961 (91s)
+  geo_taxshare grid2 val R@10 0.1995 (101s)
+  geo_taxshare grid3 val R@10 0.2073 (115s)
+  geo_taxshare grid4 val R@10 0.1923 (86s)
+  geo_taxshare grid5 val R@10 0.2063 (122s)
+
+BEST on val: geo grid3 (val 0.2698)
+FINAL TEST recall@10: 0.2454 [0.2205,0.2701]

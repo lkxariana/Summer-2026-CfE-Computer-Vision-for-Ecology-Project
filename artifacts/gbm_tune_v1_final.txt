@@ -1,0 +1,1 @@
+best=geo grid3 val=0.2698 test_recall@10=0.2454 [0.2205,0.2701]

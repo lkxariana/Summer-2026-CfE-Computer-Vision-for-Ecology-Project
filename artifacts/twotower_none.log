@@ -1,0 +1,12 @@
+data prepared (277s)
+val wide cache built (320s)
+epoch 0 loss 1.7520 val R@10 0.2658
+epoch 1 loss 1.2924 val R@10 0.2706
+epoch 2 loss 0.9982 val R@10 0.2690
+epoch 3 loss 0.8222 val R@10 0.2677
+epoch 4 loss 0.7230 val R@10 0.2559
+epoch 5 loss 0.6572 val R@10 0.2518
+epoch 6 loss 0.6079 val R@10 0.2461
+epoch 7 loss 0.5635 val R@10 0.2371
+
+FINAL twotower_none: test R@10 0.2254 [0.2015,0.2495] hit@10 0.6745 | Tier-1 R@10 0.4685 [0.4202,0.5189] (n=222)

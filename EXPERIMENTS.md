@@ -19,7 +19,7 @@ All experiments run on the frozen protocol unless noted: `edges_v1` (62,832 orie
 
 | 12 | 08-31 | Tier-1 transfer of the winners | Do gbm_geo/taxonomy survive curated-label eval or collapse like Vp? | **They double: gbm_geo 0.470 [0.42–0.52] on Tier-1 (vs 0.236 all); N+tax 0.304 (vs 0.199); rank_n flat 0.116.** Taxonomy + geo/pheno interactions are ecology, not process; much of the all-label "error" is label noise. Eval reporting becomes two-row: all (conservative) + Tier-1 (skill). GBM val-tuning still running. | `transfer_v1.csv` |
 | 13 | 08-31 | BioCLIP-2 text embeddings | Stronger encoder (TreeOfLife-200M) as NN tower input. | Built: 768-D for all 31,287 species (22s, GPU 0). | `cache/bioclip2_text_*.npy` |
-| 14 | 08-31 | Two-tower wide&deep NN (v1, no emb) | Can a neural ranker (genus/family embeddings + curve towers + wide N/Δ/tax features, sampled softmax, val-selected) beat gbm_geo 0.236? Reported on all + Tier-1. | RUNNING (GPU 1) | `twotower_none.csv` |
+| 14 | 08-31 | Two-tower wide&deep NN (v1, no emb) | Can a neural ranker (genus/family embeddings + curve towers + wide N/Δ/tax features, sampled softmax, val-selected) beat gbm_geo 0.236? | **Parity on first config: test 0.225 [0.202–0.250], hit@10 0.675, Tier-1 0.469 [0.42–0.52]** — matches GBM on both evals, transfers cleanly. Overfits by epoch ~2 (val peak 0.271) → regularization/negatives headroom. BioCLIP-2 and BioCLIP-1 tower variants queued next. | `twotower_none.csv` |
 
 Backlog: two-tower + BioCLIP/BioCLIP2 tower inputs; SDM a_curves swap (blocked on full SDM, Sept); temporal-holdout validation (GloBI eventDate); paired-bootstrap significance table; TaxaBind encoders (verify HF model ids first).
 

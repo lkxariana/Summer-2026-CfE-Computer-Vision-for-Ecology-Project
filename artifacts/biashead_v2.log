@@ -1,0 +1,45 @@
+process features: 5 per species
+  [no_bias_head] epoch 0 loss 1.7318 val R@10 0.2543
+  [no_bias_head] epoch 1 loss 1.2293 val R@10 0.2561
+  [no_bias_head] epoch 2 loss 0.9302 val R@10 0.2557
+  [no_bias_head] epoch 3 loss 0.7226 val R@10 0.2668
+  [no_bias_head] epoch 4 loss 0.6076 val R@10 0.2650
+  [no_bias_head] epoch 5 loss 0.5359 val R@10 0.2766
+  [no_bias_head] epoch 6 loss 0.4912 val R@10 0.2601
+  [no_bias_head] epoch 7 loss 0.4533 val R@10 0.2659
+  [no_bias_head] epoch 8 loss 0.4207 val R@10 0.2550
+  [no_bias_head] epoch 9 loss 0.3875 val R@10 0.2470
+  [no_bias_head] epoch 10 loss 0.3654 val R@10 0.2493
+  [no_bias_head] epoch 11 loss 0.3416 val R@10 0.2615
+  [no_bias_head] R@10 0.2612 [0.2378,0.2869] | Hym curated 0.5387 vs iNat 0.4619 -> ratio 1.17 (303s)
+  [bias_head] epoch 0 loss 1.7291 val R@10 0.2485
+  [bias_head] epoch 1 loss 1.2238 val R@10 0.2512
+  [bias_head] epoch 2 loss 0.9268 val R@10 0.2485
+  [bias_head] epoch 3 loss 0.7197 val R@10 0.2670
+  [bias_head] epoch 4 loss 0.6034 val R@10 0.2503
+  [bias_head] epoch 5 loss 0.5339 val R@10 0.2519
+  [bias_head] epoch 6 loss 0.4880 val R@10 0.2402
+  [bias_head] epoch 7 loss 0.4513 val R@10 0.2212
+  [bias_head] epoch 8 loss 0.4164 val R@10 0.2345
+  [bias_head] epoch 9 loss 0.3870 val R@10 0.2063
+  [bias_head] R@10 0.2320 [0.2091,0.2560] | Hym curated 0.5281 vs iNat 0.4345 -> ratio 1.22 (269s)
+  [bias_head_permuted] epoch 0 loss 1.7337 val R@10 0.2538
+  [bias_head_permuted] epoch 1 loss 1.2298 val R@10 0.2586
+  [bias_head_permuted] epoch 2 loss 0.9306 val R@10 0.2623
+  [bias_head_permuted] epoch 3 loss 0.7223 val R@10 0.2781
+  [bias_head_permuted] epoch 4 loss 0.6062 val R@10 0.2669
+  [bias_head_permuted] epoch 5 loss 0.5358 val R@10 0.2798
+  [bias_head_permuted] epoch 6 loss 0.4920 val R@10 0.2626
+  [bias_head_permuted] epoch 7 loss 0.4542 val R@10 0.2653
+  [bias_head_permuted] epoch 8 loss 0.4200 val R@10 0.2555
+  [bias_head_permuted] epoch 9 loss 0.3890 val R@10 0.2521
+  [bias_head_permuted] epoch 10 loss 0.3677 val R@10 0.2471
+  [bias_head_permuted] epoch 11 loss 0.3411 val R@10 0.2520
+  [bias_head_permuted] R@10 0.2574 [0.2344,0.2826] | Hym curated 0.5288 vs iNat 0.4649 -> ratio 1.14 (261s)
+
+model                 R@10   Hym curated   Hym iNat   ratio
+no_bias_head        0.2612        0.5387     0.4619    1.17
+bias_head           0.2320        0.5281     0.4345    1.22
+bias_head_permuted    0.2574        0.5288     0.4649    1.14
+
+gap-to-parity change with bias head: +0.049  (negative = gap CLOSED -> S1 wrong)

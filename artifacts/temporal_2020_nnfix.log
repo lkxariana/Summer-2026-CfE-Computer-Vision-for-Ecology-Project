@@ -1,3 +1,20 @@
 cutoff 2020: train edges 26,505 | newly documented test edges 27,662 on 2,179 known plants
 contrasts ready (16s)
 linear + gbm trained
+  [nn] epoch 0 loss 1.7017 val R@10 0.2355
+  [nn] epoch 1 loss 1.1978 val R@10 0.2609
+  [nn] epoch 2 loss 0.9858 val R@10 0.2790
+  [nn] epoch 3 loss 0.8201 val R@10 0.2947
+  [nn] epoch 4 loss 0.6818 val R@10 0.2880
+  [nn] epoch 5 loss 0.5561 val R@10 0.3098
+  [nn] epoch 6 loss 0.4574 val R@10 0.2981
+  [nn] epoch 7 loss 0.4031 val R@10 0.3033
+  [nn] epoch 8 loss 0.3667 val R@10 0.3032
+  [nn] epoch 9 loss 0.3345 val R@10 0.3088
+  [nn] epoch 10 loss 0.3092 val R@10 0.2987
+  [nn] epoch 11 loss 0.2937 val R@10 0.3011
+nn trained, best val 0.3098 (125s)
+  300/2179 plants (92s)
+  600/2179 plants (184s)
+  900/2179 plants (276s)
+  1200/2179 plants (369s)

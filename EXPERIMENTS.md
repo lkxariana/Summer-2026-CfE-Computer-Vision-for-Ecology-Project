@@ -39,6 +39,9 @@ All experiments run on the frozen protocol unless noted: `edges_v1` (62,832 orie
 
 | 17 | 08-31 | **Temporal holdout (prospective discovery)** | Train only on interactions documented ≤2020; rank the pairs *first documented 2021+* for known plants, with already-known partners masked. | **Works — the ordering holds prospectively on 2,179 plants:** N 0.104, N+tax+localΔ 0.184, **GBM 0.2146 [0.204–0.226], hit@10 0.70**, two-tower+BioCLIP 0.2074 (under-trained: 2 epochs, no early stopping — rerun with val carve-out in progress). Models trained on 2020 knowledge put a later-documented partner in the top 10 for 70% of plants. | `temporal_2020_v1.csv` |
 
+| 18 | 08-31 | Error / segment / complementarity analysis | Where do models win and lose; is there ensemble headroom? | **(a) Generalization is fine: unseen-genus plants score as well as seen (0.265 vs 0.260)** — taxonomy features aren't memorizing. (b) Performance falls with plant degree (Q1 0.327 → Q4 0.129), largely a recall@10 ceiling artifact (a 40-partner plant caps at 0.25) → report degree-normalized recall. (c) Narrow-range plants easiest (0.314) vs wide (0.174). (d) **Ensemble headroom: GBM and two-tower disagree usefully (41 plants only-NN, 21 only-GBM); oracle hit@10 0.774 vs 0.736 best single.** (e) 88/553 plants missed by all models; 217 hit by all. | `error_analysis_v1.csv` |
+| 19 | 08-31 | Rank-average ensemble + normalized metrics | Can combining GBM + two-tower realize the oracle headroom? | RUNNING | `ensemble_v1.csv` |
+
 Backlog: SDM a_curves swap (blocked on full SDM, Sept); temporal-holdout validation (GloBI eventDate); paired-bootstrap significance table; TaxaBind encoders (verify HF model ids first).
 
 ## Paper story (working sketch, updated 08-31 evening)
@@ -48,6 +51,8 @@ Backlog: SDM a_curves swap (blocked on full SDM, Sept); temporal-holdout validat
 3. **Finding A — co-occurrence intensity is a documentation-process-invariant super-baseline** (R@10 0.117 on all labels, 0.116 on curated). The field should be required to report it.
 4. **Finding B — process leakage in learned features**: dense pollinator representations collapse 6× when evaluated across documentation processes (all→Tier-1). First feature-level quantification of the iNat-circularity concern.
 5. **Finding C — what beats the baseline**: "who" (taxonomic affinity, +78%), feature interactions (GBM on geometry/phenology, 2×), timing (local Δ) once "who" is present; embeddings-of-names redundant with taxonomy. Pending: tuned GBM, two-tower NN, tier transfer of the winners; September: SDM a_curves as the pollinator-side upgrade.
-6. **Application**: ranked candidate pollinators for unseen plants (hit@10 ≈ 0.69), tier-validated; downstream brittleness scoring.
+6. **Finding D — prospective validation**: models trained on pre-2021 documentation rank later-documented interactions (hit@10 0.70 on 2,179 plants), so top-ranked "false positives" behave like discovery candidates rather than errors.
+7. **Generalization**: performance holds on plants whose *genus* never appeared in training (0.265 vs 0.260), and is strongest for narrow-range, low-degree plants — the specialists that matter most for conservation.
+8. **Application**: ranked candidate pollinators for unseen plants (hit@10 ≈ 0.74), tier- and time-validated; downstream brittleness scoring.
 
 Ops note (08-31): tier 2×2 initially never launched — its wait-loop pgrep pattern matched the wrapper's own cmdline (self-match). Killed, relaunched directly (~1h lost). Lesson: chain on artifact files, not process names.

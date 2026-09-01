@@ -102,6 +102,8 @@ Prospective (train ≤2020, rank pairs first documented 2021+, 2,179 plants): N 
 
 **Corrected during this phase:** exp 35/36 implied temporal features are harmful — that was a linear-model artifact; under trees they are mildly positive (exp 37).
 
+| 41 | 09-01 | **Why does phenology help pooled PR-AUC but not recall@10?** Per-plant AUC of each feature against two negative sets: random species (filter-like) vs CO-OCCURRING non-partners (discriminator-like), 227 test plants. | Hypothesis: phenology is a feasibility *filter*, not a partner *discriminator*. | **Hypothesis too strong — refined.** Δ does NOT collapse against co-occurring candidates: AUC 0.866→**0.757** (drop 0.109); local Δ 0.919→**0.764** (drop 0.154); N 0.946→0.866 (drop 0.080). So phenology remains a genuine discriminator among co-occurring species, just a weaker one, and loses proportionally more power than N when co-occurrence is conditioned on. **The real reconciliation is AUC-vs-top-k**: Δ alone ranks at 0.757 AUC, i.e. it improves the *overall ordering*, but does not sharpen the *top of the list* — and once N and taxonomy are present its top-10 contribution is redundant. This explains the metric divergence (exp 36/37 vs 39) precisely. | `filter_vs_discriminator.csv` |
+
 ## Candidate stories (kept deliberately plural; updated each loop tick)
 
 | # | Framing | Evidence FOR | Evidence AGAINST / risk | Status |

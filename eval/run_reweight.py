@@ -63,8 +63,16 @@ def main():
         return float(np.mean([len(pp & set(np.argpartition(-sc(store.p2i[sp], val_w[sp]), 10)[:10].tolist())) / len(pp)
                               for sp, pp in val_p.items()]))
 
+    # ESS-matched control: a 0/1 mask keeping ESS positives has exactly ESS effective samples,
+    # so it isolates "does reweighting distort the ranking?" from "does it just shrink the sample?".
+    ess = int(w.sum() ** 2 / (w ** 2).sum())
+    rng_m = np.random.default_rng(seed)
+    mask = np.zeros(len(w), np.float64)
+    mask[rng_m.choice(len(w), ess, replace=False)] = 1.0
+    print(f"ESS of weights: {ess:,} ({ess/len(w):.1%} of n) -> matched random-subsample control", flush=True)
+
     res = {}
-    for tag, ww in [("unweighted", None), ("reweighted_to_curated", w)]:
+    for tag, ww in [("unweighted", None), ("reweighted_to_curated", w), ("ess_matched_subsample", mask)]:
         t0 = time.time()
         m, _ = train_model(data, args.device, seed=seed, val_eval=val_eval, weights=ww,
                            log=lambda s: print(f"  [{tag}] {s}", flush=True))
@@ -95,7 +103,11 @@ def main():
     for k, v in res.items():
         print(f"{k:<24}{v[0]:>10.4f}{v[5]:>8.2f}")
     d = abs(1 - res["reweighted_to_curated"][5]) - abs(1 - res["unweighted"][5])
-    print(f"\ngap-to-parity change: {d:+.3f}  (negative = remedy WORKED -> S1 wrong)")
+    print(f"\ngap-to-parity change (reweight vs unweighted): {d:+.3f}  (negative = remedy WORKED)")
+    rw, ctl = res["reweighted_to_curated"], res["ess_matched_subsample"]
+    print(f"reweighted R@10 {rw[0]:.4f} vs ESS-matched control {ctl[0]:.4f} -> "
+          f"{'accuracy loss is mostly SAMPLE SIZE' if abs(rw[0]-ctl[0])<0.02 else 'reweighting distorts BEYOND sample size'}")
+    print(f"ratio: reweighted {rw[5]:.2f} vs ESS-matched {ctl[5]:.2f} vs unweighted {res['unweighted'][5]:.2f}")
     pd.DataFrame([{"model": k, "r10": v[0], "lo": v[1], "hi": v[2], "hym_cur": v[3],
                    "hym_inat": v[4], "ratio": v[5]} for k, v in res.items()]).to_csv(
         cfg["edges"].parent / "reweight_v1.csv", index=False)

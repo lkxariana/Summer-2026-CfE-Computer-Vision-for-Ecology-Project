@@ -1,4 +1,5 @@
 importance weights: mean 0.89 median 0.35 p90 1.39 max 10.00
+ESS of weights: 8,685 (18.5% of n) -> matched random-subsample control
   [unweighted] epoch 0 loss 1.7318 val R@10 0.2543
   [unweighted] epoch 1 loss 1.2293 val R@10 0.2561
   [unweighted] epoch 2 loss 0.9302 val R@10 0.2557
@@ -11,7 +12,7 @@ importance weights: mean 0.89 median 0.35 p90 1.39 max 10.00
   [unweighted] epoch 9 loss 0.3875 val R@10 0.2470
   [unweighted] epoch 10 loss 0.3654 val R@10 0.2493
   [unweighted] epoch 11 loss 0.3416 val R@10 0.2615
-  [unweighted] R@10 0.2612 [0.2378,0.2869] | Hym cur 0.5387 vs iNat 0.4619 ratio 1.17 (60s)
+  [unweighted] R@10 0.2612 [0.2378,0.2869] | Hym cur 0.5387 vs iNat 0.4619 ratio 1.17 (61s)
   [reweighted_to_curated] epoch 0 loss 1.7654 val R@10 0.0425
   [reweighted_to_curated] epoch 1 loss 1.1491 val R@10 0.0400
   [reweighted_to_curated] epoch 2 loss 0.8337 val R@10 0.0735
@@ -24,10 +25,26 @@ importance weights: mean 0.89 median 0.35 p90 1.39 max 10.00
   [reweighted_to_curated] epoch 9 loss 0.3111 val R@10 0.1352
   [reweighted_to_curated] epoch 10 loss 0.2969 val R@10 0.1286
   [reweighted_to_curated] epoch 11 loss 0.2865 val R@10 0.1258
-  [reweighted_to_curated] R@10 0.1665 [0.1460,0.1882] | Hym cur 0.4689 vs iNat 0.3328 ratio 1.41 (58s)
+  [reweighted_to_curated] R@10 0.1665 [0.1460,0.1882] | Hym cur 0.4689 vs iNat 0.3328 ratio 1.41 (61s)
+  [ess_matched_subsample] epoch 0 loss 1.8332 val R@10 0.2586
+  [ess_matched_subsample] epoch 1 loss 1.3614 val R@10 0.2542
+  [ess_matched_subsample] epoch 2 loss 1.0962 val R@10 0.2524
+  [ess_matched_subsample] epoch 3 loss 0.8890 val R@10 0.2596
+  [ess_matched_subsample] epoch 4 loss 0.7208 val R@10 0.2459
+  [ess_matched_subsample] epoch 5 loss 0.6237 val R@10 0.2744
+  [ess_matched_subsample] epoch 6 loss 0.5624 val R@10 0.2508
+  [ess_matched_subsample] epoch 7 loss 0.5056 val R@10 0.2459
+  [ess_matched_subsample] epoch 8 loss 0.4740 val R@10 0.2397
+  [ess_matched_subsample] epoch 9 loss 0.4268 val R@10 0.2289
+  [ess_matched_subsample] epoch 10 loss 0.4011 val R@10 0.2111
+  [ess_matched_subsample] epoch 11 loss 0.3759 val R@10 0.2280
+  [ess_matched_subsample] R@10 0.2388 [0.2154,0.2632] | Hym cur 0.5123 vs iNat 0.4287 ratio 1.19 (60s)
 
 model                         R@10   ratio
 unweighted                  0.2612    1.17
 reweighted_to_curated       0.1665    1.41
+ess_matched_subsample       0.2388    1.19
 
-gap-to-parity change: +0.243  (negative = remedy WORKED -> S1 wrong)
+gap-to-parity change (reweight vs unweighted): +0.243  (negative = remedy WORKED)
+reweighted R@10 0.1665 vs ESS-matched control 0.2388 -> reweighting distorts BEYOND sample size
+ratio: reweighted 1.41 vs ESS-matched 1.19 vs unweighted 1.17

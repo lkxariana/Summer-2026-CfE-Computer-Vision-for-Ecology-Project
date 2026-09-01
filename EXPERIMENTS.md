@@ -77,6 +77,8 @@ Prospective (train ≤2020, rank pairs first documented 2021+, 2,179 plants): N 
 
 | 33 | 09-01 | **External robustness check** (Noori et al. 2026 Sci Data, 981,982 bee-plant records, 91 sources, global, CC BY) | Do the identifiability diagnostics replicate on an independently curated interaction database? (Caveat: GloBI-derived, so a differently-curated slice rather than a fully independent corpus.) | **Partial replication — thin bridges generalise, severity does not.** 165,418 edges; **18.8% documented by >1 source** (vs our 4.8% — 4× better, being global, bee-restricted and finer-grained in source labels). But the identifiability graph over 55 major sources is **still not connected** (2 components) and **61% of bridges rest on ≤13 shared edges** (median 7, min 1). So the "connected-but-vacuous" problem is a property of aggregated interaction databases generally, though our CONUS extraction is the more severe case. | `eval/replicate_noori.py` |
 
+| 34 | 09-01 | **Second remedy family: importance reweighting toward the curated process** + ESS-matched control | Exp 32 tested only an additive bias head. Reweight training positives by P(curated)/P(iNat) from species-level process features. Control: 0/1 mask with identical effective sample size but no distribution distortion. | **Also fails, and the control rules out the obvious confound.** unweighted R@10 0.2612 (ratio 1.17); reweighted **0.1665 (ratio 1.41)**; **ESS-matched subsample 0.2388 (ratio 1.19)**. Weights are skewed (median 0.35, max 10) giving ESS = 8,685 = 18.5% of n — but an undistorted subsample of the *same* effective size keeps baseline behaviour, so reweighting costs **0.072 R@10 beyond sample-size loss** and pushes the ratio away from parity while the control stays at it. **Two structurally distinct remedy families now fail, each with its own control (permuted features; ESS-matched subsample).** | `reweight_v1.csv` |
+
 ## Candidate stories (kept deliberately plural; updated each loop tick)
 
 | # | Framing | Evidence FOR | Evidence AGAINST / risk | Status |
@@ -91,9 +93,23 @@ Prospective (train ≤2020, rank pairs first documented 2021+, 2,179 plants): N 
 
 | S6 | **Detection does not factorize for citizen-science interaction data** — the p_i·q_j assumption behind every integrated/debiased interaction model (Kampe 2025, Young 2021, Anakok 2024) holds ~2× better for specimen data than for the photo-sourced data that dominates. Mechanism: one photo documents both partners in a single act. | Exp 26/28 raw contrast; **withdrawn by exp 29**. Residual: observed R² << parametric null in both strata (iNat 0.187 vs 0.283; curated 0.398 vs 0.675). | Needs an independent replication (e.g. on frugivory/EuPPollNet) to show it generalises beyond our dataset. | **KILLED as stated (exp 29).** Reduced claim survives: detection is non-multiplicative for interaction data in BOTH strata, contradicting the assumption in published integrated models. The source contrast — the novel part — is not evidential. |
 
-Kill criteria (updated 09-01): **S1** dies if any structurally different debiasing remedy closes the provenance transfer gap — one form (additive excluded bias head) failed with a permuted control (exp 32/32b); a second form (importance reweighting toward the curated process) is running. Testing ≥2 distinct remedy families is required before claiming the *class* fails. **S2** survives as a measurement result (exp 31: composition predicts provenance at 0.675, abundance-free, species graph 14× denser) but its *remedial* use failed (exp 32) — so it is a good covariate and a bad correction. **S3** stands as a supporting contribution. **S4/S6** are dead (exp 30, 29). **S5** blocked on Dan's SDM.
+Kill criteria (updated 09-01): **S1** dies if any structurally different debiasing remedy closes the provenance transfer gap — one form (additive excluded bias head) failed with a permuted control (exp 32/32b); a second form (importance reweighting) also failed with an ESS-matched control (exp 34). **Two distinct families with controls now support the class-level claim.** S1 would still die if a per-source-head / multi-annotator formulation, or a genuinely identified integrated model with an anchor dataset, closed the gap. **S2** survives as a measurement result (exp 31: composition predicts provenance at 0.675, abundance-free, species graph 14× denser) but its *remedial* use failed (exp 32) — so it is a good covariate and a bad correction. **S3** stands as a supporting contribution. **S4/S6** are dead (exp 30, 29). **S5** blocked on Dan's SDM.
 
 Standing risk: every framing here rests on ONE dataset lineage (GloBI). Exp 33 is only a partial external check because Noori et al. is itself GloBI-derived. A genuinely independent corpus (designed survey, e.g. RMBL) remains the single highest-value acquisition.
+
+## Session summary (2026-09-01) — what is established
+
+**Established (with controls):**
+1. The corrected dataset and cold-start benchmark (S3): 62,832 edges, nulls, prospective validation. Best model 0.277 R@10 / 0.741 hit@10 (rank-average ensemble).
+2. Documentation process is strongly measurable: features predict the documenting source at 0.91 AUC; species-level composition predicts edge provenance at 0.675 and is abundance-free (r=0.055); species-level identifiability is 14× denser than edge-level (68.8% vs 4.8%).
+3. Standard debiasing is not achievable here, shown three ways *before* fitting (rank-1 violated; identifiability graph connected-but-vacuous; detection non-multiplicative in both strata) and two ways *after* fitting (additive excluded bias head, and importance reweighting), each with its own control.
+4. Mechanism for the failure: documentation source is a descendant of the label — curated collections are genuinely enriched in true bee-plant edges — so regressing out process also regresses out ecology.
+
+**Retracted this session (kept for the record):** exp 25 (rate-limited run reported as complete); S6/exp 26 (source contrast in factorisation, killed by a parametric null in exp 29); the Tier-1 headline gains (composition-inflated, exp 24 Simpson's paradox); the first same-family embedding test (23 positives, redone in exp 30).
+
+**Blocked:** Dan's full SDM (Sept); RMBL anchor dataset (needs manual download — Dryad/EDI refuse automated fetch).
+
+**Highest-value next acquisition:** a designed-survey corpus supplying true non-detections. Everything here rests on one dataset lineage (GloBI); exp 33's external check is only partial because Noori et al. is GloBI-derived.
 
 ## Stopping point (2026-08-31, end of autonomous session)
 

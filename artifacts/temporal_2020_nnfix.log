@@ -18,3 +18,16 @@ nn trained, best val 0.3098 (125s)
   600/2179 plants (184s)
   900/2179 plants (276s)
   1200/2179 plants (369s)
+  1500/2179 plants (461s)
+  1800/2179 plants (554s)
+  2100/2179 plants (647s)
+  rank_n               R@10 0.1041 [0.0965,0.1116]  R@50 0.3143  hit@10 0.5122
+  rank_n_tax_ldelta    R@10 0.1838 [0.1728,0.1950]  R@50 0.3897  hit@10 0.6462
+  gbm_geo_tuned        R@10 0.2146 [0.2042,0.2258]  R@50 0.4666  hit@10 0.7012
+  twotower_bioclip     R@10 0.2435 [0.2322,0.2555]  R@50 0.4959  hit@10 0.7292
+
+            model  recall@10     lo     hi  recall@50  hit@10  n_plants
+           rank_n     0.1041 0.0965 0.1116     0.3143  0.5122      2179
+rank_n_tax_ldelta     0.1838 0.1728 0.1950     0.3897  0.6462      2179
+    gbm_geo_tuned     0.2146 0.2042 0.2258     0.4666  0.7012      2179
+ twotower_bioclip     0.2435 0.2322 0.2555     0.4959  0.7292      2179

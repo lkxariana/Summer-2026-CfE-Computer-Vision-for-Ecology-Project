@@ -36,11 +36,23 @@ All experiments run on the frozen protocol unless noted: `edges_v1` (62,832 orie
 | two-tower (no emb) | 0.225 [0.202–0.250] | 0.483 | 0.675 | 0.469 |
 | **two-tower + BioCLIP** | **0.261 [0.238–0.287]** | **0.546** | **0.736** | **0.475** |
 | two-tower + BioCLIP-2 | 0.251 [0.229–0.275] | 0.545 | 0.727 | 0.457 |
+| **rank-average ensemble (GBM + BioCLIP tower)** | **0.277 [0.251–0.302]** | 0.552 | 0.741 | **0.504** |
+
+Prospective (train ≤2020, rank pairs first documented 2021+, 2,179 plants): N 0.104 · linear 0.184 · GBM 0.215 · **two-tower+BioCLIP 0.244, hit@10 0.729**.
 
 | 17 | 08-31 | **Temporal holdout (prospective discovery)** | Train only on interactions documented ≤2020; rank the pairs *first documented 2021+* for known plants, with already-known partners masked. | **Works — the ordering holds prospectively on 2,179 plants:** N 0.104, N+tax+localΔ 0.184, **GBM 0.2146 [0.204–0.226], hit@10 0.70**, two-tower+BioCLIP 0.2074 (under-trained: 2 epochs, no early stopping — rerun with val carve-out in progress). Models trained on 2020 knowledge put a later-documented partner in the top 10 for 70% of plants. | `temporal_2020_v1.csv` |
 
 | 18 | 08-31 | Error / segment / complementarity analysis | Where do models win and lose; is there ensemble headroom? | **(a) Generalization is fine: unseen-genus plants score as well as seen (0.265 vs 0.260)** — taxonomy features aren't memorizing. (b) Performance falls with plant degree (Q1 0.327 → Q4 0.129), largely a recall@10 ceiling artifact (a 40-partner plant caps at 0.25) → report degree-normalized recall. (c) Narrow-range plants easiest (0.314) vs wide (0.174). (d) **Ensemble headroom: GBM and two-tower disagree usefully (41 plants only-NN, 21 only-GBM); oracle hit@10 0.774 vs 0.736 best single.** (e) 88/553 plants missed by all models; 217 hit by all. | `error_analysis_v1.csv` |
-| 19 | 08-31 | Rank-average ensemble + normalized metrics | Can combining GBM + two-tower realize the oracle headroom? | RUNNING | `ensemble_v1.csv` |
+| 19 | 08-31 | Rank-average ensemble + normalized metrics | Can combining GBM + two-tower realize the oracle headroom? | **Yes, partially: rank-average 0.2771 [0.251–0.302], hit@10 0.741, normalized R@10 0.394, and Tier-1 0.504 (first model past 0.50).** Δ vs best single +0.016, p=0.054 — suggestive, not significant. Score-z fusion is worse (0.253): rank-space fusion matters. | `ensemble_v1.csv` |
+| 17b | 08-31 | Temporal holdout, NN retrained | Fair prospective comparison (early stopping on held-out pre-2020 plants instead of 2 fixed epochs). | **Ordering reverses: two-tower+BioCLIP 0.2435 [0.232–0.256], hit@10 0.729 > GBM 0.2146.** The neural model is the best prospective discoverer; the earlier 0.207 was purely under-training. | `temporal_2020_v1.csv` |
+
+## Stopping point (2026-08-31, end of autonomous session)
+
+Every unblocked rung is complete: data correction → protocol → benchmark → objective → features → representations → architectures → ensembling → transfer, temporal and error analysis. Headline arc: **recall@10 0.117 → 0.277 (2.4×), hit@10 0.51 → 0.74, Tier-1 0.117 → 0.504 (4.3×)**, with prospective validation on later-documented interactions.
+
+**Blocked / needs Dan:** (a) SDM a_curves swap — the one remaining feature hypothesis, and now sharply testable: does SDM-derived pollinator timing beat GBIF-derived Δ inside the ranker? (b) Whether to promote `antheia-package` into `main` and treat `edges_v1` as the canonical dataset (the 139-pair results and everything downstream of them should be retired).
+
+**Next rungs when work resumes:** SDM swap; recalibration of scores → probabilities for brittleness thresholds (Direction 4); NN architecture/regularization search (val peaks early, ~epoch 2 for the no-emb tower); TaxaBind/SINR non-name modalities; paper drafting from this log.
 
 Backlog: SDM a_curves swap (blocked on full SDM, Sept); temporal-holdout validation (GloBI eventDate); paired-bootstrap significance table; TaxaBind encoders (verify HF model ids first).
 

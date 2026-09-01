@@ -1,0 +1,13 @@
+gbm refit
+/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/eval/run_ensemble.py:68: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  m.load_state_dict(torch.load(cfg["cache_dir"] / "twotower_bioclip.pt"))
+nn checkpoint loaded (168s)
+  150/553
+  300/553
+  450/553
+  gbm_geo_tuned      R@10 0.2454 [0.2205,0.2701] normR@10 0.3505 R@50 0.4914 hit 0.6998 T1 0.4711
+  twotower_bioclip   R@10 0.2612 [0.2378,0.2869] normR@10 0.3650 R@50 0.5462 hit 0.7360 T1 0.4746
+  ens_rank_avg       R@10 0.2771 [0.2507,0.3024] normR@10 0.3939 R@50 0.5524 hit 0.7414 T1 0.5038
+  ens_score_z        R@10 0.2533 [0.2275,0.2774] normR@10 0.3638 R@50 0.5146 hit 0.7143 T1 0.4961
+
+ensemble vs best single: Δ=+0.0159 [-0.0002,+0.0322] p=0.0542

@@ -217,3 +217,44 @@ The two objectives are not interchangeable views of one score.
 whether that scalar adds anything *beyond* what a neural encoder extracts from the curves itself.
 It does not. The real temporal ablation must also remove the curves from the tower inputs
 → Experiment 24.
+
+---
+
+## Experiment 24 (09-01) — **True temporal ablation** (3 seeds, paired bootstrap) · the temporal result
+
+`eval/run_temporal_ablation.py` → `artifacts/temporal_ablation_v2.csv`. Removes phenology from **both**
+places it enters: the 52-week curves in the tower inputs *and* the Δ / local-Δ scalars in the wide path.
+3 seeds, seed-averaged per-plant recall, paired bootstrap over the 553 test plants.
+
+| variant | curves | Δ | retrieval R@10 | compatibility R@10 | pooled PR |
+|---|---|---|---|---|---|
+| curves + Δ | ✓ | ✓ | 0.2526 | 0.2558 | 0.8611 |
+| curves only | ✓ | ✗ | 0.2539 | 0.2572 | 0.8609 |
+| Δ only | ✗ | ✓ | 0.2437 | 0.2351 | 0.8549 |
+| no temporal | ✗ | ✗ | 0.2436 | 0.2366 | 0.8578 |
+
+**Paired bootstrap (seed-averaged, 10k resamples):**
+
+| contrast | retrieval | compatibility |
+|---|---|---|
+| curves_only − no_temporal | +0.0103 [−0.003, +0.024] **p = 0.13** | **+0.0206 [+0.008, +0.033] p = 0.0014** |
+| curves+Δ − no_temporal | +0.0090 p = 0.14 | **+0.0192 p = 0.0002** |
+| curves+Δ − curves_only | −0.0013 p = 0.80 | −0.0014 p = 0.78 |
+| Δ_only − no_temporal | +0.0001 p = 0.997 | −0.0015 p = 0.71 |
+
+**Two clean findings.**
+
+1. **Temporal information is objective-specific.** Raw phenological curves significantly improve the
+   **compatibility** objective (+0.021, p = 0.001) but **not** retrieval (+0.010, p = 0.13). Ecologically
+   coherent: phenological overlap tells you whether two species *can* meet — a feasibility / forbidden-link
+   signal — but among candidates that already overlap in space and time it does not discriminate *which*
+   one actually interacts. Phenology rules things out; it does not rule things in.
+2. **The classical Δ carries essentially none of the usable signal.** `Σ min(f_t, a_t)` (Ridout & Linkie
+   overlap — the construct ANTHEIA was built on) adds nothing on top of the curves (p ≈ 0.8) and,
+   on its own, is indistinguishable from having no temporal information at all (p = 0.997 / 0.71).
+   The signal lives in the raw weekly curves and a learned encoder recovers it; the hand-computed
+   summary destroys it. This retroactively explains why Δ, V_δ (4-D/15-D) and PMf all hovered at
+   no-effect — they are all elaborations of the same lossy statistic.
+
+Note: single-seed numbers were noisier (retrieval gap 0.026); 3 seeds shrank the retrieval effect to
+non-significance and confirmed the compatibility one. Multi-seed was necessary.

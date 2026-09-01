@@ -27,7 +27,7 @@ def main():
     ap.add_argument("--config", default=None)
     ap.add_argument("--emb", default="bioclip", choices=["none", "bioclip", "bioclip2", "bioclip2img"])
     ap.add_argument("--device", default="cuda:1")
-    ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--seeds", default="42,0,1")
     ap.add_argument("--tag", default="temporal_ablation_v1")
     args = ap.parse_args()
 
@@ -39,7 +39,8 @@ def main():
     edges["tier1"] = edges["n_inat"].notna() & (edges["n_inat"] < edges["n"])
     known_pos = set(zip(edges["plant"], edges["pollinator"]))
     split = load_split(cfg["edges"].parent / "split_v1.json")
-    seed, nboot = args.seed, cfg["eval"]["bootstrap_n"]
+    seeds = [int(x) for x in args.seeds.split(",")]
+    seed, nboot = seeds[0], cfg["eval"]["bootstrap_n"]
     ratio, mode = cfg["negatives"]["ratio"], cfg["negatives"]["mode"]
 
     emb = None
@@ -113,6 +114,8 @@ def main():
         return np.array(r10), np.mean(r50), np.mean(hit)
 
     rows = []
+    per_plant = {}
+    plant_order = list(test_part)
     for name, use_curves, dmode in GRID:
         data.p_dense = p_full if use_curves else p_nocurve
         data.q_dense = q_full if use_curves else q_nocurve
@@ -124,12 +127,24 @@ def main():
             _, pc = pair_scores(m, vpi, vqi, vwide, dm)
             return r, f"val R@10 {r:.4f} pooledPR {pair_metrics(y_va, pc)['pr_auc']:.4f}"
 
-        m, _ = train_twohead(data, ctx, args.device, seed=seed, delta_mode=dmode,
-                             val_eval=val_eval, log=lambda s: print(f"  [{name}] {s}", flush=True))
-        rs, cs = make_scorers(m, data, ctx, args.device, dmode)
-        pr_r, pr_c = pair_scores(m, tpi, tqi, twide, dmode)
+        seed_r10, seed_stats = {h: [] for h in ("retrieval", "compatibility")}, []
+        for sd in seeds:
+            m, _ = train_twohead(data, ctx, args.device, seed=sd, delta_mode=dmode,
+                                 val_eval=val_eval, log=lambda s: None)
+            rs, cs = make_scorers(m, data, ctx, args.device, dmode)
+            pr_r, pr_c = pair_scores(m, tpi, tqi, twide, dmode)
+            seed_stats.append((rs, cs, pr_r, pr_c))
+            for h, sc in (("retrieval", rs), ("compatibility", cs)):
+                seed_r10[h].append(np.array([
+                    len(test_part[sp] & set(np.argpartition(-sc(store.p2i[sp], test_wide[sp]), 10)[:10].tolist()))
+                    / len(test_part[sp]) for sp in plant_order]))
+            print(f"  [{name}] seed {sd}: R@10 {seed_r10['retrieval'][-1].mean():.4f}", flush=True)
+        for h in seed_r10:
+            per_plant[(name, h)] = np.mean(seed_r10[h], axis=0)
+        rs, cs, pr_r, pr_c = seed_stats[0]
         for head, scorer, pooled in (("retrieval", rs, pr_r), ("compatibility", cs, pr_c)):
-            r10, r50, hit = rank_eval(scorer, test_part, test_wide)
+            _, r50, hit = rank_eval(scorer, test_part, test_wide)
+            r10 = per_plant[(name, head)]
             mm, lo, hi, _ = bootstrap_mean(r10, nboot, seed)
             t1 = []
             for sp, tp in t1_part.items():
@@ -150,6 +165,21 @@ def main():
     df = pd.DataFrame(rows)
     df.to_csv(cfg["edges"].parent / f"{args.tag}.csv", index=False)
     print("\n" + df.to_string(index=False, float_format=lambda x: f"{x:.4f}"))
+
+    # Paired bootstrap over plants (seed-averaged per-plant recall).
+    rng = np.random.default_rng(seed)
+    idx = rng.integers(0, len(plant_order), size=(10000, len(plant_order)))
+    print("\npaired bootstrap over test plants (seed-averaged):")
+    for h in ("retrieval", "compatibility"):
+        for a, b in (("curves_only", "no_temporal"), ("curves+delta", "curves_only"),
+                     ("curves+delta", "no_temporal"), ("delta_only", "no_temporal")):
+            d = per_plant[(a, h)] - per_plant[(b, h)]
+            bs = d[idx].mean(1)
+            pv = 2 * min((bs <= 0).mean(), (bs >= 0).mean())
+            print(f"  {h:<14} {a:<13} - {b:<13} = {d.mean():+.4f} "
+                  f"[{np.percentile(bs, 2.5):+.4f},{np.percentile(bs, 97.5):+.4f}] p={max(pv, 1e-4):.4f}")
+    np.savez(cfg["edges"].parent / f"{args.tag}_perplant.npz",
+             plants=np.array(plant_order), **{f"{k[0]}|{k[1]}": v for k, v in per_plant.items()})
 
 
 if __name__ == "__main__":

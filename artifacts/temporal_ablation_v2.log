@@ -1,0 +1,46 @@
+data ready (200s); tower dims with curves 565/565, without 513/513
+wide caches ready (281s)
+  [curves+delta] seed 42: R@10 0.2574
+  [curves+delta] seed 0: R@10 0.2548
+  [curves+delta] seed 1: R@10 0.2455
+  curves+delta   retrieval      R@10 0.2526 [0.2303,0.2741] pooledPR 0.8611 T1 0.4569
+  curves+delta   compatibility  R@10 0.2558 [0.2338,0.2781] pooledPR 0.8582 T1 0.4981
+  (curves+delta in 35s)
+  [curves_only] seed 42: R@10 0.2631
+  [curves_only] seed 0: R@10 0.2496
+  [curves_only] seed 1: R@10 0.2489
+  curves_only    retrieval      R@10 0.2539 [0.2317,0.2765] pooledPR 0.8609 T1 0.4800
+  curves_only    compatibility  R@10 0.2572 [0.2349,0.2805] pooledPR 0.8604 T1 0.5004
+  (curves_only in 43s)
+  [delta_only] seed 42: R@10 0.2356
+  [delta_only] seed 0: R@10 0.2523
+  [delta_only] seed 1: R@10 0.2432
+  delta_only     retrieval      R@10 0.2437 [0.2222,0.2651] pooledPR 0.8549 T1 0.4791
+  delta_only     compatibility  R@10 0.2351 [0.2131,0.2565] pooledPR 0.8363 T1 0.4597
+  (delta_only in 28s)
+  [no_temporal] seed 42: R@10 0.2371
+  [no_temporal] seed 0: R@10 0.2491
+  [no_temporal] seed 1: R@10 0.2445
+  no_temporal    retrieval      R@10 0.2436 [0.2212,0.2664] pooledPR 0.8578 T1 0.5060
+  no_temporal    compatibility  R@10 0.2366 [0.2153,0.2583] pooledPR 0.8518 T1 0.5030
+  (no_temporal in 28s)
+
+     variant  curves delta          head  recall@10     lo     hi  recall@50  hit@10  pooled_PR  t1_recall@10
+curves+delta    True  both     retrieval     0.2526 0.2303 0.2741     0.5399  0.7269     0.8611        0.4569
+curves+delta    True  both compatibility     0.2558 0.2338 0.2781     0.5395  0.7324     0.8582        0.4981
+ curves_only    True  none     retrieval     0.2539 0.2317 0.2765     0.5345  0.7233     0.8609        0.4800
+ curves_only    True  none compatibility     0.2572 0.2349 0.2805     0.5426  0.7197     0.8604        0.5004
+  delta_only   False  both     retrieval     0.2437 0.2222 0.2651     0.4993  0.6926     0.8549        0.4791
+  delta_only   False  both compatibility     0.2351 0.2131 0.2565     0.4311  0.6528     0.8363        0.4597
+ no_temporal   False  none     retrieval     0.2436 0.2212 0.2664     0.5103  0.6872     0.8578        0.5060
+ no_temporal   False  none compatibility     0.2366 0.2153 0.2583     0.4859  0.6763     0.8518        0.5030
+
+paired bootstrap over test plants (seed-averaged):
+  retrieval      curves_only   - no_temporal   = +0.0103 [-0.0033,+0.0238] p=0.1274
+  retrieval      curves+delta  - curves_only   = -0.0013 [-0.0105,+0.0079] p=0.7974
+  retrieval      curves+delta  - no_temporal   = +0.0090 [-0.0027,+0.0213] p=0.1364
+  retrieval      delta_only    - no_temporal   = +0.0001 [-0.0090,+0.0091] p=0.9966
+  compatibility  curves_only   - no_temporal   = +0.0206 [+0.0082,+0.0330] p=0.0014
+  compatibility  curves+delta  - curves_only   = -0.0014 [-0.0112,+0.0081] p=0.7842
+  compatibility  curves+delta  - no_temporal   = +0.0192 [+0.0084,+0.0296] p=0.0002
+  compatibility  delta_only    - no_temporal   = -0.0015 [-0.0099,+0.0064] p=0.7052

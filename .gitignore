@@ -6,3 +6,4 @@ rawpollinatordata/
 __pycache__/
 *.egg-info/
 artifacts/cache/
+artifacts/external/

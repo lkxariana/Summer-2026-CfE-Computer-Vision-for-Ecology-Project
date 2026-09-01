@@ -33,6 +33,35 @@ def rank_metrics(scorer, partners_by_plant, store, ks):
     return pd.DataFrame(rows)
 
 
+def ranking_metrics(scores, relevant, ks=(10, 50)):
+    """All per-query ranking metrics from one score vector and a relevant-index set.
+
+    recall@k  - fraction of KNOWN partners retrieved; degree-capped at k/|relevant|
+    nrecall@k - recall divided by its achievable maximum, removing the degree cap
+    hit@k     - was the shortlist worth opening at all
+    mrr       - 1/rank of the FIRST partner (ignores all others; single-answer metric)
+    map       - mean average precision: the multi-relevant generalisation of MRR
+    ndcg@k    - position-discounted, normalised by the ideal ranking (degree-fair)
+    """
+    order = np.argsort(-scores)
+    rel = np.fromiter((1.0 if i in relevant else 0.0 for i in order[:max(ks)]), float, max(ks))
+    R = len(relevant)
+    out = {}
+    for k in ks:
+        hits = rel[:k].sum()
+        out[f"recall@{k}"] = hits / R
+        out[f"nrecall@{k}"] = hits / min(R, k)
+        out[f"hit@{k}"] = float(hits > 0)
+        disc = 1.0 / np.log2(np.arange(2, k + 2))
+        idcg = disc[:min(R, k)].sum()
+        out[f"ndcg@{k}"] = float((rel[:k] * disc).sum() / idcg) if idcg > 0 else 0.0
+    ranks = np.flatnonzero(np.isin(order, list(relevant))) + 1
+    out["mrr"] = 1.0 / ranks[0] if len(ranks) else 0.0
+    out["map"] = float(np.mean([(j + 1) / r for j, r in enumerate(ranks)])) if len(ranks) else 0.0
+    out["median_rank_first"] = float(ranks[0]) if len(ranks) else np.nan
+    return out
+
+
 def bootstrap_mean(values, n, seed):
     """Bootstrap mean with 95% CI: returns (mean, lo, hi, std)."""
     values = np.asarray(values, dtype=np.float64)

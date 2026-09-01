@@ -26,21 +26,33 @@ class Tower(nn.Module):
 
 
 class WideDeep(nn.Module):
-    def __init__(self, p_dim, q_dim, n_pgen, n_pfam, n_qgen, n_qfam):
+    """Two-tower ranker, optionally with a shallow observation-process head.
+
+    The bias head consumes only species-level documentation-process descriptors (never the pair's
+    ecology) and is ADDED to the score during training, then DISCARDED at inference — the shallow-tower
+    construction from position-bias correction in recommenders, transplanted to documentation bias.
+    """
+
+    def __init__(self, p_dim, q_dim, n_pgen, n_pfam, n_qgen, n_qfam, bias_dim=0):
         super().__init__()
         self.pt = Tower(p_dim, n_pgen, n_pfam)
         self.qt = Tower(q_dim, n_qgen, n_qfam)
         self.wide = nn.Sequential(nn.Linear(WIDE_DIM, 64), nn.ReLU(), nn.Linear(64, 1))
         self.tau = nn.Parameter(torch.tensor(10.0))
+        self.bias_head = (nn.Sequential(nn.Linear(bias_dim, 32), nn.ReLU(), nn.Linear(32, 1))
+                          if bias_dim else None)
 
-    def score(self, p_vec, q_vec, wide):
-        return self.tau * (p_vec * q_vec).sum(-1) + self.wide(wide).squeeze(-1)
+    def score(self, p_vec, q_vec, wide, bias_feats=None):
+        s = self.tau * (p_vec * q_vec).sum(-1) + self.wide(wide).squeeze(-1)
+        if self.bias_head is not None and bias_feats is not None:
+            s = s + self.bias_head(bias_feats).squeeze(-1)
+        return s
 
 
 class Data:
     """Precomputes all tensors: tower inputs, per-positive negative pools, wide features, eval caches."""
 
-    def __init__(self, store, edges, split, cfg, emb=None, pool_size=200, seed=42):
+    def __init__(self, store, edges, split, cfg, emb=None, pool_size=200, seed=42, proc=None):
         self.store = store
         rng = np.random.default_rng(seed)
         known = set(zip(edges["plant"], edges["pollinator"]))
@@ -82,6 +94,16 @@ class Data:
         flat_pi = np.repeat(self.pos_pi, pool_size)
         self.pool_wide = self._wide(flat_pi, pools.ravel()).reshape(len(train_pos), pool_size, WIDE_DIM)
 
+        # Documentation-process descriptors, defined for EVERY species (so negatives are covered too).
+        self.proc_p, self.proc_q = (proc if proc is not None else (None, None))
+        self.bias_dim = 0 if proc is None else self.proc_p.shape[1] + self.proc_q.shape[1]
+        if proc is not None:
+            self.pos_bias = self._bias(self.pos_pi, self.pos_qi)
+            self.pool_bias = self._bias(flat_pi, pools.ravel()).reshape(len(train_pos), pool_size, self.bias_dim)
+
+    def _bias(self, pi, qi):
+        return np.hstack([self.proc_p[pi], self.proc_q[qi]]).astype(np.float32)
+
     def _cats(self, names, fam):
         gens = sorted({genus(n) for n in names})
         fams = sorted({fam.get(n, "UNK") for n in names} | {"UNK"})
@@ -117,7 +139,8 @@ def train_model(data, device, seed=42, batch=512, k_neg=63, max_epochs=50, patie
     """Trains the wide&deep two-tower ranker with sampled-softmax over within-plant pools; returns (model, history)."""
     torch.manual_seed(seed)
     m = WideDeep(data.p_dense.shape[1], data.q_dense.shape[1],
-                 data.n_pgen, data.n_pfam, data.n_qgen, data.n_qfam).to(device)
+                 data.n_pgen, data.n_pfam, data.n_qgen, data.n_qfam,
+                 bias_dim=getattr(data, "bias_dim", 0)).to(device)
     opt = torch.optim.AdamW(m.parameters(), lr=lr, weight_decay=1e-4)
     P = torch.from_numpy(data.p_dense).to(device)
     Q = torch.from_numpy(data.q_dense).to(device)
@@ -130,6 +153,10 @@ def train_model(data, device, seed=42, batch=512, k_neg=63, max_epochs=50, patie
     pools = torch.from_numpy(data.pools).to(device)
     pos_w = torch.from_numpy(data.pos_wide).to(device)
     pool_w = torch.from_numpy(data.pool_wide).to(device)
+    use_bias = getattr(data, "bias_dim", 0) > 0
+    if use_bias:
+        pos_b = torch.from_numpy(data.pos_bias).to(device)
+        pool_b = torch.from_numpy(data.pool_bias).to(device)
     n_pos, pool_size = pools.shape
     rng = np.random.default_rng(seed)
     best, best_state, bad, hist = -1.0, None, 0, []
@@ -148,7 +175,11 @@ def train_model(data, device, seed=42, batch=512, k_neg=63, max_epochs=50, patie
             pv = m.pt(P[pos_pi[idx]], pgi[pos_pi[idx]], pfi[pos_pi[idx]])
             qv = m.qt(Q[qcand.reshape(-1)], qgi[qcand.reshape(-1)],
                       qfi[qcand.reshape(-1)]).view(len(idx), 1 + k_neg, -1)
-            logits = m.score(pv[:, None, :], qv, wide)
+            bfeat = None
+            if use_bias:
+                bfeat = torch.cat([pos_b[idx, None, :], torch.gather(
+                    pool_b[idx], 1, cols[..., None].expand(-1, -1, data.bias_dim))], 1)
+            logits = m.score(pv[:, None, :], qv, wide, bfeat)
             loss = F.cross_entropy(logits, torch.zeros(len(idx), dtype=torch.long, device=device))
             opt.zero_grad()
             loss.backward()

@@ -1,0 +1,109 @@
+data ready (199s)
+wide caches ready (281s)
+pooled sets ready: val 73,975 test 101,310 (287s)
+  [joint] epoch 0 rank 1.7260 comp 0.0538 | val R@10 0.2549 pooledPR 0.7684
+  [joint] epoch 1 rank 1.2503 comp 0.0378 | val R@10 0.2650 pooledPR 0.8250
+  [joint] epoch 2 rank 0.9680 comp 0.0325 | val R@10 0.2572 pooledPR 0.8433
+  [joint] epoch 3 rank 0.7817 comp 0.0290 | val R@10 0.2677 pooledPR 0.8525
+  [joint] epoch 4 rank 0.6654 comp 0.0271 | val R@10 0.2753 pooledPR 0.8507
+  [joint] epoch 5 rank 0.5957 comp 0.0254 | val R@10 0.2556 pooledPR 0.8489
+  [joint] epoch 6 rank 0.5504 comp 0.0243 | val R@10 0.2726 pooledPR 0.8485
+  [joint] epoch 7 rank 0.5074 comp 0.0232 | val R@10 0.2616 pooledPR 0.8507
+  [joint] epoch 8 rank 0.4756 comp 0.0224 | val R@10 0.2793 pooledPR 0.8499
+  [joint] epoch 9 rank 0.4382 comp 0.0217 | val R@10 0.2518 pooledPR 0.8533
+  [joint] epoch 10 rank 0.4162 comp 0.0212 | val R@10 0.2464 pooledPR 0.8495
+  [joint] epoch 11 rank 0.3916 comp 0.0207 | val R@10 0.2590 pooledPR 0.8547
+  [joint] epoch 12 rank 0.3712 comp 0.0202 | val R@10 0.2670 pooledPR 0.8548
+  [joint] epoch 13 rank 0.3582 comp 0.0199 | val R@10 0.2705 pooledPR 0.8551
+  [joint] epoch 14 rank 0.3411 comp 0.0194 | val R@10 0.2633 pooledPR 0.8516
+  joint              retrieval      R@10 0.2496 [0.2273,0.2730] pooledPR 0.8621 T1 0.4314
+  joint              compatibility  R@10 0.2565 [0.2325,0.2807] pooledPR 0.8587 T1 0.4521
+  (joint done in 15s)
+  [rank_only] epoch 0 rank 1.7012 comp 0.1505 | val R@10 0.2526 pooledPR 0.7013
+  [rank_only] epoch 1 rank 1.2265 comp 0.2151 | val R@10 0.2664 pooledPR 0.6367
+  [rank_only] epoch 2 rank 0.9503 comp 0.2902 | val R@10 0.2654 pooledPR 0.5696
+  [rank_only] epoch 3 rank 0.7704 comp 0.2668 | val R@10 0.2806 pooledPR 0.6030
+  [rank_only] epoch 4 rank 0.6554 comp 0.2532 | val R@10 0.2572 pooledPR 0.6207
+  [rank_only] epoch 5 rank 0.5911 comp 0.2299 | val R@10 0.2557 pooledPR 0.5854
+  [rank_only] epoch 6 rank 0.5450 comp 0.2156 | val R@10 0.2642 pooledPR 0.6222
+  [rank_only] epoch 7 rank 0.5044 comp 0.2031 | val R@10 0.2751 pooledPR 0.6112
+  [rank_only] epoch 8 rank 0.4695 comp 0.1996 | val R@10 0.2824 pooledPR 0.6484
+  [rank_only] epoch 9 rank 0.4345 comp 0.1832 | val R@10 0.2543 pooledPR 0.6186
+  [rank_only] epoch 10 rank 0.4117 comp 0.1838 | val R@10 0.2523 pooledPR 0.6399
+  [rank_only] epoch 11 rank 0.3853 comp 0.1758 | val R@10 0.2635 pooledPR 0.6725
+  [rank_only] epoch 12 rank 0.3699 comp 0.1684 | val R@10 0.2647 pooledPR 0.6646
+  [rank_only] epoch 13 rank 0.3512 comp 0.1701 | val R@10 0.2743 pooledPR 0.6873
+  [rank_only] epoch 14 rank 0.3389 comp 0.1677 | val R@10 0.2607 pooledPR 0.6756
+  rank_only          retrieval      R@10 0.2553 [0.2311,0.2787] pooledPR 0.8547 T1 0.4432
+  rank_only          compatibility  R@10 0.0633 [0.0504,0.0774] pooledPR 0.6300 T1 0.1164
+  (rank_only done in 14s)
+  [comp_only] epoch 0 rank 2.4403 comp 0.0612 | val R@10 0.1368 pooledPR 0.7620
+  [comp_only] epoch 1 rank 1.9121 comp 0.0393 | val R@10 0.1509 pooledPR 0.8135
+  [comp_only] epoch 2 rank 2.0938 comp 0.0344 | val R@10 0.0833 pooledPR 0.8318
+  [comp_only] epoch 3 rank 2.3631 comp 0.0312 | val R@10 0.0061 pooledPR 0.8377
+  [comp_only] epoch 4 rank 2.5182 comp 0.0290 | val R@10 0.0063 pooledPR 0.8392
+  [comp_only] epoch 5 rank 2.5633 comp 0.0273 | val R@10 0.0057 pooledPR 0.8415
+  [comp_only] epoch 6 rank 2.5584 comp 0.0262 | val R@10 0.0066 pooledPR 0.8395
+  [comp_only] epoch 7 rank 2.5323 comp 0.0251 | val R@10 0.0088 pooledPR 0.8410
+  comp_only          retrieval      R@10 0.1130 [0.0983,0.1301] pooledPR 0.7299 T1 0.3059
+  comp_only          compatibility  R@10 0.2233 [0.2005,0.2484] pooledPR 0.8223 T1 0.4902
+  (comp_only done in 8s)
+  [joint_noDelta] epoch 0 rank 1.7142 comp 0.0530 | val R@10 0.2591 pooledPR 0.7810
+  [joint_noDelta] epoch 1 rank 1.2625 comp 0.0370 | val R@10 0.2605 pooledPR 0.8266
+  [joint_noDelta] epoch 2 rank 0.9877 comp 0.0321 | val R@10 0.2477 pooledPR 0.8407
+  [joint_noDelta] epoch 3 rank 0.7992 comp 0.0290 | val R@10 0.2715 pooledPR 0.8548
+  [joint_noDelta] epoch 4 rank 0.6837 comp 0.0268 | val R@10 0.2721 pooledPR 0.8504
+  [joint_noDelta] epoch 5 rank 0.6113 comp 0.0254 | val R@10 0.2601 pooledPR 0.8525
+  [joint_noDelta] epoch 6 rank 0.5644 comp 0.0244 | val R@10 0.2589 pooledPR 0.8535
+  [joint_noDelta] epoch 7 rank 0.5219 comp 0.0234 | val R@10 0.2679 pooledPR 0.8528
+  [joint_noDelta] epoch 8 rank 0.4905 comp 0.0228 | val R@10 0.2711 pooledPR 0.8516
+  [joint_noDelta] epoch 9 rank 0.4540 comp 0.0221 | val R@10 0.2410 pooledPR 0.8539
+  [joint_noDelta] epoch 10 rank 0.4315 comp 0.0215 | val R@10 0.2275 pooledPR 0.8530
+  joint_noDelta      retrieval      R@10 0.2369 [0.2118,0.2598] pooledPR 0.8580 T1 0.4354
+  joint_noDelta      compatibility  R@10 0.2363 [0.2113,0.2590] pooledPR 0.8526 T1 0.4544
+  (joint_noDelta done in 11s)
+  [joint_globalDelta] epoch 0 rank 1.7199 comp 0.0534 | val R@10 0.2554 pooledPR 0.7753
+  [joint_globalDelta] epoch 1 rank 1.2539 comp 0.0374 | val R@10 0.2642 pooledPR 0.8276
+  [joint_globalDelta] epoch 2 rank 0.9722 comp 0.0322 | val R@10 0.2566 pooledPR 0.8438
+  [joint_globalDelta] epoch 3 rank 0.7765 comp 0.0288 | val R@10 0.2767 pooledPR 0.8525
+  [joint_globalDelta] epoch 4 rank 0.6579 comp 0.0265 | val R@10 0.2662 pooledPR 0.8515
+  [joint_globalDelta] epoch 5 rank 0.5897 comp 0.0248 | val R@10 0.2591 pooledPR 0.8515
+  [joint_globalDelta] epoch 6 rank 0.5458 comp 0.0237 | val R@10 0.2768 pooledPR 0.8534
+  [joint_globalDelta] epoch 7 rank 0.5003 comp 0.0227 | val R@10 0.2675 pooledPR 0.8524
+  [joint_globalDelta] epoch 8 rank 0.4694 comp 0.0221 | val R@10 0.2809 pooledPR 0.8525
+  [joint_globalDelta] epoch 9 rank 0.4347 comp 0.0215 | val R@10 0.2500 pooledPR 0.8542
+  [joint_globalDelta] epoch 10 rank 0.4128 comp 0.0209 | val R@10 0.2310 pooledPR 0.8540
+  [joint_globalDelta] epoch 11 rank 0.3869 comp 0.0203 | val R@10 0.2562 pooledPR 0.8552
+  [joint_globalDelta] epoch 12 rank 0.3715 comp 0.0200 | val R@10 0.2511 pooledPR 0.8552
+  [joint_globalDelta] epoch 13 rank 0.3557 comp 0.0197 | val R@10 0.2620 pooledPR 0.8558
+  [joint_globalDelta] epoch 14 rank 0.3411 comp 0.0193 | val R@10 0.2601 pooledPR 0.8549
+  joint_globalDelta  retrieval      R@10 0.2477 [0.2254,0.2721] pooledPR 0.8634 T1 0.4546
+  joint_globalDelta  compatibility  R@10 0.2447 [0.2216,0.2683] pooledPR 0.8591 T1 0.4704
+  (joint_globalDelta done in 14s)
+  [joint_localDelta] epoch 0 rank 1.7200 comp 0.0534 | val R@10 0.2614 pooledPR 0.7753
+  [joint_localDelta] epoch 1 rank 1.2584 comp 0.0371 | val R@10 0.2657 pooledPR 0.8281
+  [joint_localDelta] epoch 2 rank 0.9709 comp 0.0322 | val R@10 0.2509 pooledPR 0.8453
+  [joint_localDelta] epoch 3 rank 0.7767 comp 0.0292 | val R@10 0.2724 pooledPR 0.8533
+  [joint_localDelta] epoch 4 rank 0.6661 comp 0.0272 | val R@10 0.2632 pooledPR 0.8516
+  [joint_localDelta] epoch 5 rank 0.5986 comp 0.0256 | val R@10 0.2566 pooledPR 0.8514
+  [joint_localDelta] epoch 6 rank 0.5534 comp 0.0245 | val R@10 0.2710 pooledPR 0.8526
+  [joint_localDelta] epoch 7 rank 0.5111 comp 0.0235 | val R@10 0.2630 pooledPR 0.8508
+  [joint_localDelta] epoch 8 rank 0.4783 comp 0.0229 | val R@10 0.2708 pooledPR 0.8507
+  [joint_localDelta] epoch 9 rank 0.4399 comp 0.0221 | val R@10 0.2444 pooledPR 0.8507
+  joint_localDelta   retrieval      R@10 0.2397 [0.2170,0.2632] pooledPR 0.8596 T1 0.4592
+  joint_localDelta   compatibility  R@10 0.2328 [0.2104,0.2557] pooledPR 0.8539 T1 0.4792
+  (joint_localDelta done in 10s)
+
+          variant          head  recall@10     lo     hi  recall@50  hit@10  pooled_PR  t1_recall@10
+            joint     retrieval     0.2496 0.2273 0.2730     0.5409  0.7161     0.8621        0.4314
+            joint compatibility     0.2565 0.2325 0.2807     0.5363  0.7251     0.8587        0.4521
+        rank_only     retrieval     0.2553 0.2311 0.2787     0.5290  0.7251     0.8547        0.4432
+        rank_only compatibility     0.0633 0.0504 0.0774     0.1782  0.3400     0.6300        0.1164
+        comp_only     retrieval     0.1130 0.0983 0.1301     0.3019  0.5353     0.7299        0.3059
+        comp_only compatibility     0.2233 0.2005 0.2484     0.4562  0.6872     0.8223        0.4902
+    joint_noDelta     retrieval     0.2369 0.2118 0.2598     0.5145  0.6980     0.8580        0.4354
+    joint_noDelta compatibility     0.2363 0.2113 0.2590     0.5115  0.6980     0.8526        0.4544
+joint_globalDelta     retrieval     0.2477 0.2254 0.2721     0.5458  0.7215     0.8634        0.4546
+joint_globalDelta compatibility     0.2447 0.2216 0.2683     0.5429  0.7125     0.8591        0.4704
+ joint_localDelta     retrieval     0.2397 0.2170 0.2632     0.5161  0.7016     0.8596        0.4592
+ joint_localDelta compatibility     0.2328 0.2104 0.2557     0.4988  0.6890     0.8539        0.4792

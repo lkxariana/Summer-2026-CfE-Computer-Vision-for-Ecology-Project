@@ -258,3 +258,33 @@ places it enters: the 52-week curves in the tower inputs *and* the Δ / local-Δ
 
 Note: single-seed numbers were noisier (retrieval gap 0.026); 3 seeds shrank the retrieval effect to
 non-significance and confirmed the compatibility one. Multi-seed was necessary.
+
+---
+
+## Experiment 25 (09-01) — BioCLIP-2 **image** embeddings (morphology as trait proxy)
+
+Built taxon-centroid image embeddings from `imageomics/TreeOfLife-200M-Embeddings` (CC0, precomputed;
+no images downloaded): **60.9M images, 94.8% of plants / 95.1% of pollinators covered, median 86
+images per species**, 768-D, streamed via 8 parallel workers over the taxonomically-sorted shards.
+`scripts/build_image_embeddings.py` + `scripts/merge_image_embeddings.py`.
+
+Two-head model, image embeddings substituted for text embeddings as tower inputs:
+
+| tower input | retrieval R@10 | compatibility R@10 | pooled PR | Tier-1 R@10 |
+|---|---|---|---|---|
+| BioCLIP **text** (names) | 0.2574 | 0.2598 | 0.8611 | **0.498** |
+| BioCLIP-2 **image** (morphology) | 0.2496 | 0.2565 | 0.8621 | 0.431 |
+
+**Negative result: images do not beat names.** Retrieval and compatibility are within overlapping CIs;
+Tier-1 is actually worse (0.431 vs 0.498). The morphology-as-trait-proxy hypothesis — "a long-tongued
+bee *looks* like one, so vision should recover trait matching without a trait database" — is not
+supported at species-centroid granularity.
+
+**Likely why, and it is a tidy explanation:** BioCLIP is *trained to predict taxonomic labels*. Both its
+text and image towers therefore converge on taxonomy-shaped representations, so neither supplies
+information independent of the taxonomy features we already have. This unifies experiments 11, 15 and
+25: name embeddings ≈ soft taxonomy, image embeddings ≈ soft taxonomy, count-based taxonomic affinity
+beats both. A foundation model trained on taxonomy returns taxonomy.
+
+Caveat: we used the mean embedding over ~86 images per species, which may wash out functional
+morphology. A trait-supervised or part-level image representation is a different (untested) proposition.

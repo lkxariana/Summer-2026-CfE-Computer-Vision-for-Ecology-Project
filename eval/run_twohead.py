@@ -26,7 +26,7 @@ VARIANTS = [
 def main():
     ap = argparse.ArgumentParser(description="Two-head model: retrieval + compatibility on shared towers")
     ap.add_argument("--config", default=None)
-    ap.add_argument("--emb", default="bioclip", choices=["none", "bioclip", "bioclip2"])
+    ap.add_argument("--emb", default="bioclip", choices=["none", "bioclip", "bioclip2", "bioclip2img"])
     ap.add_argument("--device", default="cuda:1")
     ap.add_argument("--seed", type=int, default=42)
     args = ap.parse_args()
@@ -44,7 +44,8 @@ def main():
 
     emb = None
     if args.emb != "none":
-        pre = {"bioclip": "bioclip_text", "bioclip2": "bioclip2_text"}[args.emb]
+        pre = {"bioclip": "bioclip_text", "bioclip2": "bioclip2_text",
+               "bioclip2img": "bioclip2_img"}[args.emb]
         emb = (np.load(cfg["cache_dir"] / f"{pre}_plants.npy"),
                np.load(cfg["cache_dir"] / f"{pre}_polls.npy"))
 
@@ -150,7 +151,7 @@ def main():
         print(f"  ({name} done in {time.time() - tv:.0f}s)", flush=True)
 
     df = pd.DataFrame(rows)
-    df.to_csv(cfg["edges"].parent / "twohead_v1.csv", index=False)
+    df.to_csv(cfg["edges"].parent / f"twohead_{args.emb}.csv", index=False)
     print("\n" + df.to_string(index=False, float_format=lambda x: f"{x:.4f}"))
 
 

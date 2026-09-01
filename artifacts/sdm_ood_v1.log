@@ -1,0 +1,22 @@
+GBIF records per SDM species: median 629, tercile cuts [ 206. 1662.]
+  tercile 0: 425 species, median records 44
+  tercile 1: 425 species, median records 629
+  tercile 2: 425 species, median records 6020
+trained base
+trained base+GBIF
+trained base+SDM
+  150/517
+  300/517
+  450/517
+
+arm              T0 (sparse→dense)     T1 (sparse→dense)     T2 (sparse→dense)
+base            0.0450 [0.02,0.07]    0.1066 [0.08,0.14]    0.2937 [0.26,0.32]
+base+GBIF       0.0359 [0.02,0.06]    0.1011 [0.07,0.13]    0.3067 [0.28,0.33]
+base+SDM        0.0308 [0.01,0.05]    0.0922 [0.07,0.12]    0.3098 [0.28,0.34]
+
+SDM minus GBIF by GBIF-density tercile:
+  T0: -0.0051
+  T1: -0.0089
+  T2: +0.0031
+
+Dan's hypothesis predicts a POSITIVE difference in T0 (GBIF-sparse) shrinking toward T2.

@@ -1,0 +1,15 @@
+trained base (N+tax+ranges)
+trained base + GBIF temporal
+trained base + SDM temporal
+trained base + both
+  150/517
+  300/517
+  450/517
+
+arm                                      R@10 [95% CI]
+base (N+tax+ranges)             0.2622 [0.235,0.289]
+base + GBIF temporal            0.2696 [0.243,0.295]
+base + SDM temporal             0.2673 [0.240,0.293]
+base + both                     0.2592 [0.232,0.284]
+
+If trees also find no SDM gain, the negative is not a linear-model limitation.

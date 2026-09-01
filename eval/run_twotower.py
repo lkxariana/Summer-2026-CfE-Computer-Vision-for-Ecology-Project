@@ -16,7 +16,7 @@ from antheia.twotower import Data, make_ranker, train_model
 def main():
     ap = argparse.ArgumentParser(description="Stage B: wide&deep two-tower neural ranker")
     ap.add_argument("--config", default=None)
-    ap.add_argument("--emb", default="none", choices=["none", "bioclip", "bioclip2"])
+    ap.add_argument("--emb", default="none", choices=["none", "bioclip", "bioclip2", "bioclip2img"])
     ap.add_argument("--device", default="cuda:1")
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--tag", default=None)
@@ -34,7 +34,7 @@ def main():
 
     emb = None
     if args.emb != "none":
-        prefix = {"bioclip": "bioclip_text", "bioclip2": "bioclip2_text"}[args.emb]
+        prefix = {"bioclip": "bioclip_text", "bioclip2": "bioclip2_text", "bioclip2img": "bioclip2_img"}[args.emb]
         emb = (np.load(cfg["cache_dir"] / f"{prefix}_plants.npy"),
                np.load(cfg["cache_dir"] / f"{prefix}_polls.npy"))
         print(f"tower emb: {prefix} {emb[0].shape[1]}D", flush=True)

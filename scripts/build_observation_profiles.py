@@ -1,4 +1,5 @@
 import argparse
+import random
 import sys
 import time
 from collections import defaultdict
@@ -26,15 +27,24 @@ def main():
     targets = set(store.plants) | set(store.polls)
     fs = HfFileSystem()
     rows = defaultdict(lambda: defaultdict(int))
+    n_failed = 0
     t0 = time.time()
 
     for i in range(args.start, args.end):
         path = f"{BASE}/train-{i:05d}-of-00666.parquet"
-        try:
-            with fs.open(path, "rb") as fh:
-                tb = pq.ParquetFile(fh).read(columns=COLS)
-        except Exception as ex:
-            print(f"  shard {i} failed: {type(ex).__name__}", flush=True)
+        tb = None
+        for attempt in range(6):
+            try:
+                with HfFileSystem().open(path, "rb") as fh:
+                    tb = pq.ParquetFile(fh).read(columns=COLS)
+                break
+            except Exception as ex:
+                if attempt == 5:
+                    print(f"  shard {i} FAILED after retries: {type(ex).__name__}", flush=True)
+                else:
+                    time.sleep(2 ** attempt + random.random())
+        if tb is None:
+            n_failed += 1
             continue
         d = tb.to_pandas()
         d = d[d["scientific_name"].isin(targets)]
@@ -57,7 +67,8 @@ def main():
     df = pd.DataFrame.from_dict(rows, orient="index").fillna(0).astype(int)
     df.index.name = "species"
     df.to_parquet(out / f"obs_{args.start:05d}_{args.end:05d}.parquet")
-    print(f"shards {args.start}-{args.end}: {len(df)} species, {df['n_images'].sum():,} images ({time.time() - t0:.0f}s)")
+    n_img = int(df["n_images"].sum()) if "n_images" in df else 0
+    print(f"shards {args.start}-{args.end}: {len(df)} species, {n_img:,} images, {n_failed} shards failed ({time.time() - t0:.0f}s)")
 
 
 if __name__ == "__main__":

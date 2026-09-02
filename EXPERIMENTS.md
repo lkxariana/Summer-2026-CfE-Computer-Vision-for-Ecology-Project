@@ -566,3 +566,31 @@ interactions (+34,907, a 42% increase)**.
 already held, and recovers 35k interactions; rebuilding features from the current source recovers 203.
 The remaining gap — roughly 6,300 pollinator taxa the network documents but the occurrence extract
 never covered — is a data-acquisition task, not a processing one.
+
+---
+
+## Ecological verification of the built network (window 2, 09-02) — passes every check
+
+`eval/eda_selfcheck.py` → `data/network/selfcheck.log`. The checks specified in
+`docs/paper/eda-questions.md`, run against the build.
+
+**Wind-pollinated plants behave correctly, and the tier system is what makes them behave.**
+In the flower-visitation tier, wind-pollinated families average degree 4.6 against 16.3 for
+insect-pollinated ones (ratio 0.28); Poaceae is 0.27% of the tier with mean degree 3.9. Adding the
+general-association tier raises the ratio to 0.64 and quadruples Poaceae's share to 1.07%, with oaks
+(Fagaceae, degree 32.8) and birches rising sharply — these are insects recorded *on* trees, not
+pollinating them. This is direct empirical support for tiering rather than merging the interaction
+terms, and it gives the A-vs-A+B ablation a concrete interpretation.
+
+**The fauna matches expectation.** Flower-visitation tier: Hymenoptera 46%, Lepidoptera 30%,
+Diptera 13%, Coleoptera 7%, hummingbirds 1%. Adding tier B brings Hemiptera to 11%.
+
+**Genus-only identifications sit where they should.** Concentrated in taxonomically difficult groups —
+Asteraceae (229 genus-rank taxa), Poaceae (18.9% of its taxa), and among pollinators the mites
+(Mesostigmata 88% genus-only, Trombidiformes 64%). Bees and butterflies are 8% and lower, consistent
+with them being determinable from photographs.
+
+**Known specialist mutualisms are present with the correct partners:** *Peponapis pruinosa* ×
+*Cucurbita pepo* (squash bee), *Tegeticula synthetica* × *Yucca brevifolia* (Joshua tree yucca moth),
+*Habropoda laboriosa* × *Vaccinium corymbosum* (southeastern blueberry bee), *Andrena vicina* ×
+*Salix* — 305 interactions across the four checks. Real ecological structure survived the pipeline.

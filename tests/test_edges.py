@@ -3,7 +3,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-OUT = Path("artifacts/v2")
+OUT = Path("data/network")
 PLANT_RANKS = {"species", "genus"}
 e = pd.read_parquet(OUT / "edges.parquet")
 pl = pd.read_parquet(OUT / "nodes_plants.parquet")

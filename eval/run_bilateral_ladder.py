@@ -18,7 +18,8 @@ from antheia.twotower import Tower
 
 # Symmetric ladder, restricted to SDM-covered pollinators so BOTH sides have a
 # (location x week) surface. Each arm adds one level of temporal representation.
-ARMS = ["spatial", "curves", "global_delta", "local_delta_hand", "local_learned"]
+ARMS = ["spatial", "curves", "curves_sdm", "global_delta", "global_delta_sdm",
+        "local_delta_hand", "local_learned"]
 N_BINS = 8
 
 
@@ -43,6 +44,7 @@ def main():
     ap.add_argument("--device", default="cuda:0")
     ap.add_argument("--seeds", default="42,0")
     ap.add_argument("--epochs", type=int, default=8)
+    ap.add_argument("--tag", default="bilateral_ladder_v2")
     args = ap.parse_args()
 
     cfg = load_config(args.config)
@@ -85,6 +87,9 @@ def main():
     emb_p = np.load(cfg["cache_dir"] / "bioclip_text_plants.npy").astype(np.float32)
     emb_q = np.load(cfg["cache_dir"] / "bioclip_text_polls.npy").astype(np.float32)[poll_idx]
     FC, AC = store.FC.astype(np.float32), store.AC.astype(np.float32)[poll_idx]
+    # SDM curves marginalized over space: the same granularity as GBIF a_curves, different source.
+    AC_SDM = Q_SURF.astype(np.float32).sum(1)
+    AC_SDM /= np.clip(AC_SDM.sum(1, keepdims=True), 1e-9, None)
     N_sub = store.N_full[:, poll_idx].astype(np.float32)
     Frs, Prs = store.Frs.astype(np.float32), store.Prs.astype(np.float32)[poll_idx]
 
@@ -106,6 +111,8 @@ def main():
         b = [np.log1p(N_sub[pi, qj])[:, None], aff.pairs(pi, np.array([poll_idx[j] for j in qj]))[:, [1, 3]].astype(np.float32)]
         if arm == "global_delta":
             b.append(np.minimum(FC[pi], AC[qj]).sum(1)[:, None].astype(np.float32))
+        elif arm == "global_delta_sdm":
+            b.append(np.minimum(FC[pi], AC_SDM[qj]).sum(1)[:, None].astype(np.float32))
         elif arm == "local_delta_hand":
             b.append(local_delta_hand(pi, qj)[:, None])
         return np.hstack(b).astype(np.float32)
@@ -118,10 +125,11 @@ def main():
 
     rows, per_plant = [], {}
     for arm in ARMS:
-        n_wide = 3 + (1 if arm in ("global_delta", "local_delta_hand") else 0)
+        n_wide = 3 + (1 if arm in ("global_delta", "global_delta_sdm", "local_delta_hand") else 0)
         use_curves = arm != "spatial"
+        q_curve = AC_SDM if arm == "curves_sdm" else AC
         pdense = np.hstack([FC, np.log1p(Frs)[:, None], emb_p]) if use_curves else np.hstack([np.log1p(Frs)[:, None], emb_p])
-        qdense = np.hstack([AC, np.log1p(Prs)[:, None], emb_q]) if use_curves else np.hstack([np.log1p(Prs)[:, None], emb_q])
+        qdense = np.hstack([q_curve, np.log1p(Prs)[:, None], emb_q]) if use_curves else np.hstack([np.log1p(Prs)[:, None], emb_q])
         seed_r = []
         tv = time.time()
         for sd in seeds:
@@ -212,7 +220,7 @@ def main():
         print(f"  {nm:<18} R@10 {mm:.4f} [{lo:.4f},{hi:.4f}]", flush=True)
 
     df = pd.DataFrame(rows)
-    df.to_csv(cfg["edges"].parent / "bilateral_ladder_v1.csv", index=False)
+    df.to_csv(cfg["edges"].parent / f"{args.tag}.csv", index=False)
     print("\n" + df.to_string(index=False, float_format=lambda x: f"{x:.4f}"))
     rng = np.random.default_rng(seeds[0])
     ix = rng.integers(0, len(plant_order), size=(10000, len(plant_order)))

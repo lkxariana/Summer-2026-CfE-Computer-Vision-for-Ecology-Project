@@ -1,0 +1,49 @@
+restricted universe: 1275 pollinators (0s)
+edges in universe: train 36,932 test 7,329
+  [spatial] seed 42 R@10 0.3383 (6s)
+  [spatial] seed 0 R@10 0.3349 (11s)
+  spatial            R@10 0.3366 [0.3093,0.3625]
+  [curves] seed 42 R@10 0.3435 (5s)
+  [curves] seed 0 R@10 0.3518 (10s)
+  curves             R@10 0.3476 [0.3203,0.3744]
+  [curves_sdm] seed 42 R@10 0.3446 (5s)
+  [curves_sdm] seed 0 R@10 0.3481 (10s)
+  curves_sdm         R@10 0.3464 [0.3178,0.3733]
+  [global_delta] seed 42 R@10 0.3416 (5s)
+  [global_delta] seed 0 R@10 0.3575 (11s)
+  global_delta       R@10 0.3496 [0.3220,0.3756]
+  [global_delta_sdm] seed 42 R@10 0.3460 (5s)
+  [global_delta_sdm] seed 0 R@10 0.3445 (11s)
+  global_delta_sdm   R@10 0.3452 [0.3173,0.3706]
+  [local_delta_hand] seed 42 R@10 0.3531 (232s)
+  [local_delta_hand] seed 0 R@10 0.3555 (455s)
+  local_delta_hand   R@10 0.3543 [0.3274,0.3801]
+  [local_learned] seed 42 R@10 0.3658 (82s)
+  [local_learned] seed 0 R@10 0.3463 (163s)
+  local_learned      R@10 0.3560 [0.3270,0.3819]
+  N only             R@10 0.1705 [0.1503,0.1934]
+  congeneric transfer R@10 0.1716 [0.1479,0.1943]
+  latent-trait SVD   R@10 0.2538 [0.2265,0.2792]
+
+                arm  recall@10     lo     hi
+            spatial     0.3366 0.3093 0.3625
+             curves     0.3476 0.3203 0.3744
+         curves_sdm     0.3464 0.3178 0.3733
+       global_delta     0.3496 0.3220 0.3756
+   global_delta_sdm     0.3452 0.3173 0.3706
+   local_delta_hand     0.3543 0.3274 0.3801
+      local_learned     0.3560 0.3270 0.3819
+             N only     0.1705 0.1503 0.1934
+congeneric transfer     0.1716 0.1479 0.1943
+   latent-trait SVD     0.2538 0.2265 0.2792
+
+paired bootstrap vs spatial:
+  curves               +0.0110 [+0.0002,+0.0222] p=0.0438
+  curves_sdm           +0.0098 [-0.0005,+0.0207] p=0.0670
+  global_delta         +0.0130 [+0.0012,+0.0254] p=0.0276
+  global_delta_sdm     +0.0086 [-0.0022,+0.0200] p=0.1246
+  local_delta_hand     +0.0177 [+0.0048,+0.0313] p=0.0056
+  local_learned        +0.0194 [+0.0059,+0.0336] p=0.0058
+  N only               -0.1661 [-0.1953,-0.1367] p=0.0001
+  congeneric transfer  -0.1650 [-0.1924,-0.1388] p=0.0001
+  latent-trait SVD     -0.0828 [-0.1079,-0.0582] p=0.0001

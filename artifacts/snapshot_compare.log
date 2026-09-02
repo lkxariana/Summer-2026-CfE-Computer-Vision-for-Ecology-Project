@@ -1,0 +1,43 @@
+june_local: rows 24,590,679 | CONUS 5,333,308 | bytes 2,733,758,583
+aug26_pinned: rows 24,563,644 | CONUS 5,837,514 | bytes 2,418,045,792
+
+=== CONUS records by interaction type ===
+type                                      june       aug26       delta      pct
+interactsWith                        1,821,085   2,112,531    +291,446  +16.0%  <-- tier B
+hasHost                                849,396     938,444     +89,048  +10.5%
+hasArbuscularMycorrhizalHost           615,925     619,645      +3,720   +0.6%
+visitsFlowersOf                        575,792     631,823     +56,031   +9.7%  <-- TIER A
+symbiontOf                             348,253     348,254          +1   +0.0%
+eats                                   343,966     347,872      +3,906   +1.1%
+adjacentTo                             335,891     374,916     +39,025  +11.6%
+parasiteOf                             120,316     122,024      +1,708   +1.4%
+preysOn                                 88,679      90,355      +1,676   +1.9%
+visits                                  71,476      82,140     +10,664  +14.9%  <-- tier B
+pollinates                              65,334      65,334          +0   +0.0%  <-- TIER A
+coOccursWith                            48,209      49,955      +1,746   +3.6%
+mutualistOf                             16,462      16,614        +152   +0.9%
+ectomycorrhizalHostOf                    6,498       6,498          +0   +0.0%
+kills                                    5,944       6,058        +114   +1.9%
+pathogenOf                               5,641       9,454      +3,813  +67.6%
+endoparasiteOf                           5,375       5,375          +0   +0.0%
+
+TIER A total: june 641,126 -> aug26 697,157  (+8.7%)
+
+=== Tier A+B CONUS records by source namespace (top 10 by june) ===
+namespace                                                  june      aug26      delta
+globalbioticinteractions/inaturalist                    762,429    806,045    +43,616
+globalbioticinteractions/arthropodEasyCaptureAMNH       600,540    600,540         +0
+globalbioticinteractions/gbif-us-bees                   247,793    247,793         +0
+globalbioticinteractions/usgs-bison                     160,498    160,498         +0
+globalbioticinteractions/ecdysis                        129,246    438,087   +308,841
+globalbioticinteractions/scan                            88,885     88,885         +0
+globalbioticinteractions/ku-semc                         75,996     75,996         +0
+globalbioticinteractions/psuc-ento                       68,066     68,066         +0
+globalbioticinteractions/mycoportal                      56,582     56,625        +43
+globalbioticinteractions/yale-peabody                    41,648     41,648         +0
+
+namespaces REMOVED since june (>100 recs): none
+namespaces ADDED since june (>100 recs):   none
+
+sha256(first 256MB) june : 297e577a4ee911839c546683e7a80ae4b472493f858cec07f78eaecb11a9d704
+sha256(first 256MB) aug26: 3f17995097027e364a7d720431204bbf90771161bcacda4b4ce9daacf59c0138

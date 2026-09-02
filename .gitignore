@@ -7,3 +7,6 @@ __pycache__/
 *.egg-info/
 artifacts/cache/
 artifacts/external/
+
+# built data products (regenerate with scripts/run_build_pipeline.sh)
+data/network/*.parquet

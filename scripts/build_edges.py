@@ -62,7 +62,7 @@ class Ledger:
 def main():
     ap = argparse.ArgumentParser(description="Build the CONUS plant-pollinator interaction network")
     ap.add_argument("--globi", default="artifacts/external/globi_2026-08-26.csv.gz")
-    ap.add_argument("--out", default="artifacts/v2")
+    ap.add_argument("--out", default="data/network")
     ap.add_argument("--chunk", type=int, default=1_500_000)
     args = ap.parse_args()
     out = Path(args.out)

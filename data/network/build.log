@@ -1,0 +1,12 @@
+[ 1] read snapshot                in=  24,563,644 out=  24,563,644  
+[ 2] interaction-type selection   in=  24,563,644 out=   5,612,865  
+[ 3] region filter                in=   5,612,865 out=   2,891,828  no_coordinates=1,308,212
+[ 4] role + orientation           in=   2,891,828 out=   1,695,350  orientation_violations=33,177  unresolved_roles=1,948,530
+[ 5] identifier resolution        in=   1,695,350 out=   1,410,616  
+[5.5] identifier disambiguation    in=   1,410,616 out=   1,410,616  ambiguous_ids=918  cross_kingdom_homonyms=2
+[ 6] rank policy (lowest available) in=   1,410,616 out=   1,362,035  plant_genus_rows=445,971  pollinator_genus_rows=87,375
+[ 7] deduplication                in=   1,362,035 out=     996,982  after_exact_dedup=1,212,006  removed_pct=26.8%
+[ 8] life-stage filter            in=     996,982 out=     958,129  immature_dropped=38,853  lifestage_annotated=46.2%
+[ 9] aggregate to edges           in=     958,129 out=     958,129  edges=198,327  plants=12,347  pollinators=15,921
+[10] metaweb (no coordinates)     in=     488,481 out=     229,469  
+wrote 198,327 edges to artifacts/v2 in 322s

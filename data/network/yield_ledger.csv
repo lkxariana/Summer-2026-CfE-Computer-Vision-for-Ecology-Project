@@ -1,0 +1,12 @@
+step,operation,records_in,records_out,no_coordinates,orientation_violations,unresolved_roles,ambiguous_ids,cross_kingdom_homonyms,plant_genus_rows,pollinator_genus_rows,after_exact_dedup,removed_pct,immature_dropped,lifestage_annotated,edges,plants,pollinators
+1.0,read snapshot,24563644,24563644,,,,,,,,,,,,,,
+2.0,interaction-type selection,24563644,5612865,,,,,,,,,,,,,,
+3.0,region filter,5612865,2891828,1308212.0,,,,,,,,,,,,,
+4.0,role + orientation,2891828,1695350,,33177.0,1948530.0,,,,,,,,,,,
+5.0,identifier resolution,1695350,1410616,,,,,,,,,,,,,,
+5.5,identifier disambiguation,1410616,1410616,,,,918.0,2.0,,,,,,,,,
+6.0,rank policy (lowest available),1410616,1362035,,,,,,445971.0,87375.0,,,,,,,
+7.0,deduplication,1362035,996982,,,,,,,,1212006.0,26.8%,,,,,
+8.0,life-stage filter,996982,958129,,,,,,,,,,38853.0,46.2%,,,
+9.0,aggregate to edges,958129,958129,,,,,,,,,,,,198327.0,12347.0,15921.0
+10.0,metaweb (no coordinates),488481,229469,,,,,,,,,,,,,,

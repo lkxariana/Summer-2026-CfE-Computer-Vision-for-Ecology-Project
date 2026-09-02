@@ -1,0 +1,14 @@
+PASS test_counts_coherent
+PASS test_edges_unique
+PASS test_ledger_monotone
+PASS test_no_records_invented
+PASS test_no_self_pairs
+PASS test_node_degree_matches_edges
+PASS test_node_sets_disjoint
+PASS test_ranks_are_species_or_genus
+PASS test_referential_integrity
+PASS test_sources_consistent_with_count
+PASS test_tier_reflects_best_evidence
+PASS test_years_plausible
+
+12/12 passed

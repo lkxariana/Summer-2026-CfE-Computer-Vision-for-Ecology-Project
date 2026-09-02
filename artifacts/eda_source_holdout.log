@@ -1,0 +1,85 @@
+/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/eval/eda_source_holdout.py:30: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  s_pl = s.where(s.isin(plants)).fillna(s.map(binomial).map(pl_b))
+/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/eval/eda_source_holdout.py:33: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  t_po = t.where(t.isin(polls)).fillna(t.map(binomial).map(po_b))
+/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/eval/eda_source_holdout.py:30: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  s_pl = s.where(s.isin(plants)).fillna(s.map(binomial).map(pl_b))
+/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/eval/eda_source_holdout.py:33: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  t_po = t.where(t.isin(polls)).fillna(t.map(binomial).map(po_b))
+/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/eval/eda_source_holdout.py:30: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  s_pl = s.where(s.isin(plants)).fillna(s.map(binomial).map(pl_b))
+/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/eval/eda_source_holdout.py:33: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  t_po = t.where(t.isin(polls)).fillna(t.map(binomial).map(po_b))
+/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/eval/eda_source_holdout.py:30: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  s_pl = s.where(s.isin(plants)).fillna(s.map(binomial).map(pl_b))
+/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/eval/eda_source_holdout.py:33: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  t_po = t.where(t.isin(polls)).fillna(t.map(binomial).map(po_b))
+/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/eval/eda_source_holdout.py:30: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  s_pl = s.where(s.isin(plants)).fillna(s.map(binomial).map(pl_b))
+/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/eval/eda_source_holdout.py:33: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  t_po = t.where(t.isin(polls)).fillna(t.map(binomial).map(po_b))
+/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/eval/eda_source_holdout.py:30: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  s_pl = s.where(s.isin(plants)).fillna(s.map(binomial).map(pl_b))
+/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/eval/eda_source_holdout.py:33: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  t_po = t.where(t.isin(polls)).fillna(t.map(binomial).map(po_b))
+/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/eval/eda_source_holdout.py:30: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  s_pl = s.where(s.isin(plants)).fillna(s.map(binomial).map(pl_b))
+/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/eval/eda_source_holdout.py:33: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  t_po = t.where(t.isin(polls)).fillna(t.map(binomial).map(po_b))
+/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/eval/eda_source_holdout.py:30: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  s_pl = s.where(s.isin(plants)).fillna(s.map(binomial).map(pl_b))
+/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/eval/eda_source_holdout.py:33: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  t_po = t.where(t.isin(polls)).fillna(t.map(binomial).map(po_b))
+/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/eval/eda_source_holdout.py:30: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  s_pl = s.where(s.isin(plants)).fillna(s.map(binomial).map(pl_b))
+/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/eval/eda_source_holdout.py:31: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  s_po = s.where(s.isin(polls)).fillna(s.map(binomial).map(po_b))
+/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/eval/eda_source_holdout.py:33: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  t_po = t.where(t.isin(polls)).fillna(t.map(binomial).map(po_b))
+/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/eval/eda_source_holdout.py:30: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  s_pl = s.where(s.isin(plants)).fillna(s.map(binomial).map(pl_b))
+/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/eval/eda_source_holdout.py:33: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  t_po = t.where(t.isin(polls)).fillna(t.map(binomial).map(po_b))
+/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/eval/eda_source_holdout.py:30: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  s_pl = s.where(s.isin(plants)).fillna(s.map(binomial).map(pl_b))
+/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/eval/eda_source_holdout.py:31: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  s_po = s.where(s.isin(polls)).fillna(s.map(binomial).map(po_b))
+/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/eval/eda_source_holdout.py:32: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  t_pl = t.where(t.isin(plants)).fillna(t.map(binomial).map(pl_b))
+/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/eval/eda_source_holdout.py:33: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  t_po = t.where(t.isin(polls)).fillna(t.map(binomial).map(po_b))
+/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/eval/eda_source_holdout.py:30: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  s_pl = s.where(s.isin(plants)).fillna(s.map(binomial).map(pl_b))
+/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/eval/eda_source_holdout.py:31: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  s_po = s.where(s.isin(polls)).fillna(s.map(binomial).map(po_b))
+/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/eval/eda_source_holdout.py:33: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  t_po = t.where(t.isin(polls)).fillna(t.map(binomial).map(po_b))
+/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/eval/eda_source_holdout.py:30: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  s_pl = s.where(s.isin(plants)).fillna(s.map(binomial).map(pl_b))
+/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/eval/eda_source_holdout.py:33: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  t_po = t.where(t.isin(polls)).fillna(t.map(binomial).map(po_b))
+/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/eval/eda_source_holdout.py:30: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  s_pl = s.where(s.isin(plants)).fillna(s.map(binomial).map(pl_b))
+/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/eval/eda_source_holdout.py:33: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  t_po = t.where(t.isin(polls)).fillna(t.map(binomial).map(po_b))
+/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/eval/eda_source_holdout.py:30: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  s_pl = s.where(s.isin(plants)).fillna(s.map(binomial).map(pl_b))
+/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/eval/eda_source_holdout.py:33: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  t_po = t.where(t.isin(polls)).fillna(t.map(binomial).map(po_b))
+total edges: 62,625
+                                          source  edges_touched  edges_UNIQUE_to_source  pct_of_all_edges
+            globalbioticinteractions/inaturalist          50544                   47847             0.807
+            globalbioticinteractions/web-of-life           6312                    5975             0.101
+           globalbioticinteractions/gbif-us-bees           5372                    3181             0.086
+             globalbioticinteractions/guzman2022           2044                    1529             0.033
+            globalbioticinteractions/lamanna2020            782                     592             0.012
+                              ibartomeus/CropPol            298                     239             0.005
+globalbioticinteractions/usgs-pollinator-library            292                     149             0.005
+               globalbioticinteractions/ucsb-izc             66                      33             0.001
+                   globalbioticinteractions/scan             52                      30             0.001
+                   millerse/Plant-Pollinator-Web             45                       0             0.001
+                 millerse/Pollination-Collection             35                      21             0.001
+        Big-Bee-Network/bee-interaction-database             33                       0             0.001
+
+Leave-source-out feasibility: 'edges_UNIQUE_to_source' is the size of the held-out
+test set if that source is dropped from training (edges seen ONLY via that source).

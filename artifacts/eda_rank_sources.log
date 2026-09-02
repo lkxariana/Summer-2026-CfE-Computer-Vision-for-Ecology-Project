@@ -1,0 +1,36 @@
+=== EDGES (Tier A+B, CONUS, role-valid) ===
+species-rank both sides : 146,218
+lowest-available rank   : 201,855   (+55,637 = 27.6% gained by allowing genus)
+
+=== RANK PAIRS (plant|pollinator), top 8 ===
+     937,971   63.7%  plant=species      pollinator=species
+     361,539   24.6%  plant=genus        pollinator=species
+      40,684    2.8%  plant=species      pollinator=genus
+      24,921    1.7%  plant=species      pollinator=subspecies
+      24,044    1.6%  plant=variety      pollinator=species
+      18,720    1.3%  plant=genus        pollinator=genus
+      14,895    1.0%  plant=family       pollinator=species
+       8,535    0.6%  plant=genus        pollinator=subspecies
+
+=== SOURCE NAMESPACES: records, unique edges, dominant order ===
+namespace                                           records     edges  dominant pollinator orders
+  globalbioticinteractions/inaturalist              645,414   123,024  Hymenoptera 41%, Lepidoptera 32%, Diptera 11%
+  globalbioticinteractions/arthropodEasyCaptureA    390,451    29,061  Hemiptera 79%, Hymenoptera 20%, (none) 0%
+  globalbioticinteractions/gbif-us-bees             110,443    13,083  Hymenoptera 100%
+  globalbioticinteractions/usgs-bison                61,262     5,819  Hymenoptera 95%, Cyprinodontiformes 1%, Centrarchiformes 0%
+  globalbioticinteractions/ku-semc                   47,464     7,511  Hymenoptera 98%, Coleoptera 1%, Hemiptera 0%
+  globalbioticinteractions/scan                      41,465    12,666  Hymenoptera 76%, Coleoptera 7%, Diptera 6%
+  globalbioticinteractions/ecdysis                   36,451     2,794  Hymenoptera 78%, Coleoptera 8%, Lepidoptera 7%
+  globalbioticinteractions/psuc-ento                 30,239     1,414  Hymenoptera 93%, Coleoptera 2%, Hemiptera 1%
+  globalbioticinteractions/guzman2022                23,145     3,478  Hymenoptera 86%, Diptera 11%, Lepidoptera 1%
+  globalbioticinteractions/web-of-life               10,153    10,021  Hymenoptera 56%, Diptera 27%, Coleoptera 10%
+
+=== POLLINATOR ORDER composition overall ===
+     725,645   49.3%  Hymenoptera
+     342,636   23.3%  Hemiptera
+     222,362   15.1%  Lepidoptera
+      88,006    6.0%  Diptera
+      51,499    3.5%  Coleoptera
+       6,411    0.4%  Apodiformes
+       6,240    0.4%  Passeriformes
+       5,601    0.4%  Araneae

@@ -22,9 +22,6 @@ plant–pollinator pairs with provenance and temporal metadata, (ii) node tables
 
 ## 2. Source data and versioning
 
-The input is the GloBI interpreted interaction table (`interactions.csv.gz`, 92 fields). We pin a
-single dated snapshot and record its SHA-256 digest, byte size and row count in the dataset card.
-
 Version pinning follows GloBI's own recommended practice. Elliott, Poelen & Fortes (2020,
 *Ecological Informatics* 57:101077, doi:10.1016/j.ecoinf.2020.101077) document that between 5% and
 70% of biodiversity-data provider URLs become unresponsive over time, and introduce content-based
@@ -211,18 +208,23 @@ kingdom, and feature-coverage flags.
 
 Recorded during execution; reported in the paper as a data-flow table.
 
-| step | operation | records in | records out | edges | plants | pollinators |
-|---|---|---|---|---|---|---|
-| 1 | region filter | | | | | |
-| 2 | interaction-type selection | | | | | |
-| 3 | role assignment | | | | | |
-| 4 | orientation | | | | | |
-| 5 | identifier resolution | | | | | |
-| 6 | rank policy | | | | | |
-| 7 | deduplication | | | | | |
-| 8 | life-stage filter | | | | | |
-| 9 | aggregation | | | | | |
-| 10 | feature intersection | | | | | |
+| step | operation | records in | records out |
+|---|---|---|---|
+| 1 | read snapshot | 24,563,644 | 24,563,644 |
+| 2 | interaction-type selection | 24,563,644 | 5,612,865 |
+| 3 | region filter | 5,612,865 | 2,891,828 |
+| 4 | role assignment and orientation | 2,891,828 | 1,695,350 |
+| 5 | identifier resolution | 1,695,350 | 1,410,616 |
+| 6 | rank policy | 1,410,616 | 1,362,035 |
+| 7 | deduplication | 1,362,035 | 996,982 |
+| 8 | life-stage filter | 996,982 | 958,129 |
+| 9 | aggregation | 958,129 | 198,327 interactions |
+
+1,308,212 records without coordinates are retained separately as the regional metaweb. Step 4 discards
+33,177 records whose taxonomic roles contradict the canonical interaction direction. Deduplication
+removes 26.8% of records. The resulting network holds **198,327 interactions among 12,347 plant taxa
+and 15,921 pollinator taxa** (connectance 0.10%); the flower-visitation tier alone holds 103,697
+interactions. Genus-rank taxa contribute 56,285 interactions.
 
 ---
 

@@ -3,7 +3,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-OUT = Path(sys.argv[1] if len(sys.argv) > 1 else "artifacts/v2")
+OUT = Path(sys.argv[1] if len(sys.argv) > 1 else "data/network")
 e = pd.read_parquet(OUT / "edges.parquet")
 pl = pd.read_parquet(OUT / "nodes_plants.parquet")
 po = pd.read_parquet(OUT / "nodes_pollinators.parquet")

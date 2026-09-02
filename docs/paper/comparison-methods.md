@@ -320,3 +320,109 @@ be checked before we claim novelty against it.
 3. **The expected honest finding** is "curves beat scalars, per-cell ≈ curves, all modest relative to
    co-occurrence." That is publishable as a representation benchmark with a clean protocol; it is not
    publishable as a claim that phenology drives interactions.
+
+---
+
+# PRETRAINED REPRESENTATIONS AS INPUTS
+
+## R. Species-level representations
+
+| model | citation | supervision | dim | weights |
+|---|---|---|---|---|
+| BioCLIP | Stevens et al., CVPR 2024 (arXiv:2311.18803) | CLIP on 10M images × **Linnaean taxonomy strings** | 512 | `imageomics/bioclip`, MIT |
+| BioCLIP 2 | Gu et al., NeurIPS 2025 (arXiv:2505.23883) | same objective, TreeOfLife-200M | 768 | `imageomics/bioclip-2`, MIT |
+| **TaxaBind** | Sastry, Khanal, Dhakal, Ahmad & Jacobs, **WACV 2025** (arXiv:2411.00683) | six encoders bound to BioCLIP image space | 512 | `MVRL/taxabind-vit-b-16`, Apache-2.0 |
+| ProM3E | Sastry, Khanal, Dhakal, Lin, Cher, Jarosz & Jacobs (arXiv:2511.02946, CVPR'26) | masked-modality reconstruction over TaxaBind modalities | — | pending release |
+
+**The supervision determines the content.** BioCLIP's training label *is* the Linnaean string, so
+embeddings that behave like taxonomy are the expected outcome, not a defect. TaxaBind inherits BioCLIP
+as teacher, so its image and text arms carry the same signal — its **location and environmental arms**
+are the non-taxonomic parts and the reason to test it.
+
+## S. Location and range representations
+
+- **SINR** — Cole, Van Horn, Lange, Shepard, Leary, Perona, Loarie & Mac Aodha, ICML 2023
+  ([arXiv:2306.02564](https://arxiv.org/abs/2306.02564)). Location encoder gives a 256-d per-coordinate
+  feature **and** a per-species 256-d class embedding for 47K species, readable directly off the
+  classifier weight matrix. **The most directly usable artifact for us** — a free implicit counterpart
+  to our occupancy PCA.
+- **LE-SINR** — Hamilton et al., NeurIPS 2024 ([arXiv:2410.10931](https://arxiv.org/abs/2410.10931)).
+  Species vector from free-form habitat text; covers species with zero occurrences.
+- **FS-SINR** — Lange et al., ICML 2025 ([arXiv:2502.14977](https://arxiv.org/abs/2502.14977)).
+  Few-shot species encoding — relevant for rare pollinators.
+- **RANGE** — Dhakal, Sastry, Khanal, Ahmad, Xing & Jacobs, **CVPR 2025**
+  ([arXiv:2502.19781](https://arxiv.org/abs/2502.19781)), MIT. 1280-d location embeddings, reported to
+  beat SatCLIP/GeoCLIP/CSP.
+- **SatCLIP** (Klemmer et al., AAAI 2025), **GeoCLIP** (NeurIPS 2023), **CSP** (ICML 2023),
+  **MOSAIKS** (Rolf et al., *Nat Commun* 12:4392) — per-location encoders.
+
+**Deriving a per-species vector**: pool location embeddings over a species' occupied cells. This makes
+any location encoder a drop-in replacement for our occupancy PCA with no architecture change — exactly
+the substitution the explicit→implicit axis calls for.
+
+## T. Environmental representations
+
+**TaxaBind's environmental encoder** (MLP over WorldClim 2.1: 19 bioclim variables + elevation,
+projected into the shared 512-d space) is the closest ready-made bioclim embedding, already aligned
+with species images and text. **AlphaEarth Foundations** (arXiv:2507.22291) gives 64-d per-pixel
+annual embeddings via Earth Engine; cheap to aggregate to 0.5°.
+
+## U. The gap
+
+**No published work feeds BioCLIP, TaxaBind, SINR, SatCLIP, GeoCLIP or RANGE embeddings into a
+species-interaction predictor.** Adjacent work uses embeddings learned *from the interaction graph
+itself* (Strydom et al. 2022, 2023) or hand-crafted traits (Pichler et al. 2020). LLM work in this
+space is interaction *extraction* from text, not prediction.
+
+**"Pretrained representations as inputs to interaction prediction" is unclaimed**, and it is the
+natural home for the explicit→implicit axis.
+
+## V. Trait recovery — the one direct probe
+
+BioCLIP 2 (§5.4 of arXiv:2505.23883) reports that embedding geometry aligns with functional meaning —
+beak size emerges along a principal axis, habitat classes separate. **But taxonomy and morphology are
+confounded, and the paper does not partial out phylogeny.** That control is exactly what a reviewer
+would demand, and running it is a contribution we could make cheaply.
+
+## W. Recommended representations to test, ordered
+
+1. **SINR species embeddings** — free, 47K species, occurrence-supervised. *Expected failure:* it is a
+   compressed range descriptor and may simply re-encode the range-size shortcut. Must be tested against
+   the co-occurrence null explicitly.
+2. **TaxaBind** — species, location and environment in one aligned space; in-house. *Expected failure:*
+   image/text arms collapse to taxonomy, as BioCLIP did; the environmental arm may add nothing over raw
+   bioclim.
+3. **LE-SINR text→species vectors** — habitat semantics from language. *Expected failure:* thin
+   Wikipedia coverage across our pollinator taxa.
+4. **RANGE location embeddings pooled per species** — best-reported location encoder. *Expected
+   failure:* 1280-d pooled over 3,162 cells is high-variance, and pooling reintroduces range size.
+5. **BioCLIP 2 image embeddings** — as the taxonomy control arm. Expect it to match a taxonomic-distance
+   baseline; report that as the negative result it is.
+
+---
+
+# CONSOLIDATED SHORTLIST
+
+Ordered by how strongly each is expected, with who expects it.
+
+| # | method | expected by | cold-start | cost |
+|---|---|---|---|---|
+| 1 | Popularity / degree null | both | yes | 1 h |
+| 2 | Co-occurrence null | both | yes | 1 h |
+| 3 | Abundance neutral model (Vázquez 2009) | ecology | yes* | 2 h |
+| 4 | Congeneric / taxonomic transfer | ecology | yes | 2 h |
+| 5 | t-SVD + taxonomic imputation (Strydom 2022) | ecology | yes | 1 d |
+| 6 | Two-step Kronecker KRR (Stock 2021) | both | yes | 1 d |
+| 7 | Pichler-style RF/BRT on pair features | ecology | yes | 4 h |
+| 8 | Phenology × abundance likelihood (Vizentin-Bugoni 2014) | ecology | yes | 4 h |
+| 9 | LightFM (WARP) | ML | yes | 4 h |
+| 10 | Two-tower + logQ + mixed negatives | ML | yes | 2 d |
+| 11 | BPR-MF / iALS *(warm-only reference)* | ML | **no** | 2 h |
+| 12 | LightGCN or GraphSAGE *(warm-only reference)* | ML | **no** | 2 d |
+
+*The degree-marginal variant is not cold-start capable; occupancy or record count must be substituted.
+
+**Also cite without benchmarking:** Blanchet et al. 2020 (co-occurrence ≠ interaction — address
+directly), Poisot 2023 (adopt its metrics), Seo & Hutchinson AAAI-18 (closest prior framing),
+Aiyappa et al. ICML 2025 (the degree-shortcut result), Dormann et al. 2025 (phenology adds little
+over abundance).

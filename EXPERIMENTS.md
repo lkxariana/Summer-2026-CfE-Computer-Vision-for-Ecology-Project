@@ -542,3 +542,27 @@ Plant side covered 59.4%, pollinator side 68.3%.
 caches would need rebuilding from source occurrence data for roughly 7,700 additional pollinator taxa
 and 6,400 additional plant taxa. Until then the modelled subgraph is 82,973 interactions over
 4,243 plants — still larger than any previous version, but 42% of what was constructed.
+
+---
+
+## Feature-gap diagnosis (window 2, 09-02) — genus aggregation is worth ~35k interactions; feature rebuild is not
+
+`eval/eda_feature_gap.py` → `data/network/feature_gap.log`. Two questions, both settled empirically.
+
+**Q1 — can the missing pollinator features be rebuilt from the existing occurrence source? No.**
+Of 6,361 species-rank pollinator taxa absent from the feature matrix, only **28** appear in the raw
+occurrence file; the other 6,333 are absent from it entirely. The 28 recoverable taxa have a median of
+2 occurrence records — too sparse to build a 52-week activity curve — and unlock just **203**
+interactions. Closing the pollinator gap therefore requires a **new GBIF download** covering ~6,300
+species, not a re-derivation from what we hold.
+
+**Q2 — is genus-level feature aggregation feasible? Yes, and it is the largest available gain.**
+64% of genus-rank plant nodes (998 of 1,548) and 46% of genus-rank pollinator nodes (607 of 1,313)
+have at least one feature-covered congener, with a median of 2 and 6 covered species respectively.
+Aggregating features over constituent species raises the modellable set from **82,973 to 117,880
+interactions (+34,907, a 42% increase)**.
+
+**Implication.** The two candidate remedies are very unequal. Genus aggregation is cheap, uses data
+already held, and recovers 35k interactions; rebuilding features from the current source recovers 203.
+The remaining gap — roughly 6,300 pollinator taxa the network documents but the occurrence extract
+never covered — is a data-acquisition task, not a processing one.

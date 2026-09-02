@@ -46,9 +46,6 @@ Genus-only identifications should cluster in groups that are genuinely hard to i
 
 Look for relationships we know exist: squash bees (Peponapis, Xenoglossa) on Cucurbita, yucca moths (Tegeticula) on Yucca, specialist Andrena on their host families. Then pull 20 edges at random and see whether they're believable.
 
-The first part confirms real ecological structure survived the pipeline. The second gives us a rough
-sense of how noisy the labels are, which matters because the models will be judged against them.
-
 
 
 What to hand back: a short write-up, a figure or table for each question, and for each one a plain

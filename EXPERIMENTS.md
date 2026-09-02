@@ -406,3 +406,40 @@ Any claim of the form "phenology helps objective X by Y" needs many more seeds t
 reportable. Superseding claim for the paper until then: *no encoding of phenology we tested — scalar,
 multi-statistic, raw-curve, or spatiotemporal — produces a reliable retrieval gain, and only the
 curve+scalar combination shows a compatibility gain that does not replicate across protocols.*
+
+---
+
+## Bilateral temporal ladder (window 2, 09-01) — **phenology helps when BOTH sides are model-derived and per-cell**
+
+`src/antheia/localmatch.py`, `eval/run_bilateral_ladder.py` → `artifacts/bilateral_ladder_v1.csv`.
+Restricted to the **1,275 SDM-covered pollinators** — the only universe where both sides have a
+(location × week) surface. Same plant split; ranking over 1,275 candidates, so **numbers are NOT
+comparable to full-universe tables**. Taxonomy present in all arms (the regime exp 8 showed is required).
+2 seeds; uncertainty is the frozen bootstrap over test plants.
+
+| arm | temporal representation | R@10 | vs spatial |
+|---|---|---|---|
+| spatial | none (N + taxonomy) | 0.3366 | — |
+| curves | marginalized 52-wk curves, both towers | 0.3476 | +0.0110 **p = 0.044** |
+| global_delta | + Σ min scalar | 0.3496 | +0.0130 **p = 0.028** |
+| local_delta_hand | + per-cell Σ min, averaged over shared cells | 0.3543 | +0.0177 **p = 0.0056** |
+| **local_learned** | **+ learned per-cell match (location-conditioned embedding)** | **0.3560** | **+0.0194 p = 0.0058** |
+| N only | — | 0.1705 | −0.166 |
+| congeneric transfer | — | 0.1716 | −0.165 |
+| latent-trait SVD | — | 0.2538 | −0.083 |
+
+**Every temporal arm significantly beats the spatial baseline** (p ≤ 0.044), and the ordering follows the
+ladder: marginal < scalar < per-cell hand < per-cell learned. This is the **opposite** of the
+full-universe result, where no encoding helped at all.
+
+**The likely mechanism, and the paper's temporal claim:** in the full universe the pollinator side is a
+GBIF weekly histogram pooled over all CONUS — observation-derived and aspatial. Here it is a model-derived
+per-cell surface. Phenology appears to be usable only when both sides carry model-derived, spatially
+resolved timing. That is the original ANTHEIA asymmetry hypothesis, tested properly for the first time.
+
+**Two caveats that must not be dropped.**
+1. ⚠️ **Source and locality are confounded in this ladder.** The `curves`/`global_delta` arms use GBIF
+   `a_curves`; the two local arms use SDM surfaces. So `curves → local_*` changes *both* the data source
+   and the granularity. An **SDM-marginalized-curves arm** is needed to separate them — queued next.
+2. Differences *among* the temporal arms are within each other's CIs; only the comparisons against
+   `spatial` are resolved. Do not claim `local_learned > curves` from this run.

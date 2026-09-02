@@ -473,3 +473,35 @@ the flag actually denotes; until then the PU framing stands and negatives remain
 
 Artifacts: `refuted_negatives_interp_v1.csv` (16,203 refuted pairs not among our positives) is retained
 for inspection only, NOT for training or evaluation.
+
+---
+
+## Dataset rebuild (window 2, 09-02) — network constructed under the documented protocol
+
+Built from the pinned GloBI snapshot (2026-08-26) following `docs/paper/dataset-construction.md`.
+`scripts/build_edges.py` → `artifacts/v2/`, with `eval/eda_edges_v2.py` and `tests/test_edges_v2.py`
+chained behind it (`scripts/run_build_pipeline.sh`).
+
+**Network:** ~198k interactions, ~12.3k plant taxa, ~15.9k pollinator taxa, connectance ~0.11%.
+Tier A (flower-visitation terms) is ~102k interactions with a clean profile — Hymenoptera 46%,
+Lepidoptera 30%, Diptera 13%; Tier B adds the general-association records where Hemiptera enters.
+
+**Yield ledger** (records in → out): 24.56M read → 5.61M after interaction-type selection → 2.89M in
+region (1.31M coordinate-less, retained as metaweb) → 1.70M after role assignment and orientation
+(33,177 orientation violations dropped) → 1.41M after identifier resolution → 1.36M after rank policy
+→ **997k after deduplication (−26.8%)** → 958k after life-stage filter (38,853 immature dropped).
+
+Genus-rank nodes contribute ~55k interactions (28% of the network). Source-holdout capacity improved
+substantially: expert field networks 10,414 uniquely-sourced edges, specimen records 6,206.
+
+**The test suite did its job.** Three failures on the first run, each a different kind of problem:
+one bug (identifier collisions — `GBIF:1346141` denoted both *Calamagrostis* and the wasp genus
+*Ammophila*, because GloBI identifier lists can carry several ids per record); one data-quality issue
+(future-dated records); one incorrect test (tier semantics — `tier` is the best evidence supporting an
+edge, so a Tier-A edge may legitimately also carry Tier-B records). After fixes, 11/12, with the two
+remaining collisions being genuine cross-kingdom homonyms (*Lucilia* is both an Asteraceae genus and a
+blowfly genus; likewise *Trifolium*). Those are distinct taxa sharing a name and are now keyed by
+kingdom, which is the correct resolution rather than a suppression of the test.
+
+Superseded results from the earlier name-matched network are archived under
+`artifacts/archive/2026-08-31_superseded/` with a README stating why the numbers do not carry over.

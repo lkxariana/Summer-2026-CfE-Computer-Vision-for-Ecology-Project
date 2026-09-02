@@ -1,0 +1,68 @@
+data[base] wide_dim=3 (215s)
+data[delta] wide_dim=4 (403s)
+data[summaries] wide_dim=10 (593s)
+wide cache[base] ready (594s)
+wide cache[delta] ready (595s)
+wide cache[summaries] ready (639s)
+  [none] seed 42 R@10 0.2304
+  [none] seed 0 R@10 0.2542
+  [none] seed 1 R@10 0.2468
+  none               retrieval      R@10 0.2438 [0.2217,0.2663] pooledPR 0.8605 T1 0.4607
+  none               compatibility  R@10 0.2481 [0.2256,0.2706] pooledPR 0.8606 T1 0.4988
+  (none in 34s)
+  [delta_scalar] seed 42 R@10 0.2440
+  [delta_scalar] seed 0 R@10 0.2378
+  [delta_scalar] seed 1 R@10 0.2617
+  delta_scalar       retrieval      R@10 0.2478 [0.2264,0.2695] pooledPR 0.8646 T1 0.4743
+  delta_scalar       compatibility  R@10 0.2480 [0.2261,0.2694] pooledPR 0.8619 T1 0.5019
+  (delta_scalar in 32s)
+  [summaries_7] seed 42 R@10 0.2438
+  [summaries_7] seed 0 R@10 0.2522
+  [summaries_7] seed 1 R@10 0.2491
+  summaries_7        retrieval      R@10 0.2483 [0.2271,0.2707] pooledPR 0.8611 T1 0.4925
+  summaries_7        compatibility  R@10 0.2338 [0.2129,0.2545] pooledPR 0.8537 T1 0.4908
+  (summaries_7 in 36s)
+  [curves] seed 42 R@10 0.2556
+  [curves] seed 0 R@10 0.2420
+  [curves] seed 1 R@10 0.2460
+  curves             retrieval      R@10 0.2479 [0.2262,0.2694] pooledPR 0.8573 T1 0.5029
+  curves             compatibility  R@10 0.2492 [0.2270,0.2707] pooledPR 0.8480 T1 0.4786
+  (curves in 32s)
+  [curves+delta] seed 42 R@10 0.2472
+  [curves+delta] seed 0 R@10 0.2544
+  [curves+delta] seed 1 R@10 0.2530
+  curves+delta       retrieval      R@10 0.2515 [0.2288,0.2742] pooledPR 0.8654 T1 0.4584
+  curves+delta       compatibility  R@10 0.2616 [0.2398,0.2847] pooledPR 0.8642 T1 0.4991
+  (curves+delta in 37s)
+  [curves+trajectory] seed 42 R@10 0.2409
+  [curves+trajectory] seed 0 R@10 0.2488
+  [curves+trajectory] seed 1 R@10 0.2447
+  curves+trajectory  retrieval      R@10 0.2448 [0.2242,0.2671] pooledPR 0.8580 T1 0.4775
+  curves+trajectory  compatibility  R@10 0.2403 [0.2186,0.2626] pooledPR 0.8523 T1 0.4872
+  (curves+trajectory in 29s)
+
+              arm      wide  curves  trajectory          head  recall@10     lo     hi  pooled_PR  t1_recall@10
+             none      base   False       False     retrieval     0.2438 0.2217 0.2663     0.8605        0.4607
+             none      base   False       False compatibility     0.2481 0.2256 0.2706     0.8606        0.4988
+     delta_scalar     delta   False       False     retrieval     0.2478 0.2264 0.2695     0.8646        0.4743
+     delta_scalar     delta   False       False compatibility     0.2480 0.2261 0.2694     0.8619        0.5019
+      summaries_7 summaries   False       False     retrieval     0.2483 0.2271 0.2707     0.8611        0.4925
+      summaries_7 summaries   False       False compatibility     0.2338 0.2129 0.2545     0.8537        0.4908
+           curves      base    True       False     retrieval     0.2479 0.2262 0.2694     0.8573        0.5029
+           curves      base    True       False compatibility     0.2492 0.2270 0.2707     0.8480        0.4786
+     curves+delta     delta    True       False     retrieval     0.2515 0.2288 0.2742     0.8654        0.4584
+     curves+delta     delta    True       False compatibility     0.2616 0.2398 0.2847     0.8642        0.4991
+curves+trajectory      base    True        True     retrieval     0.2448 0.2242 0.2671     0.8580        0.4775
+curves+trajectory      base    True        True compatibility     0.2403 0.2186 0.2626     0.8523        0.4872
+
+paired bootstrap vs 'none' (seed-averaged per-plant recall@10):
+  retrieval      delta_scalar       = +0.0040 [-0.0040,+0.0119] p=0.3228
+  retrieval      summaries_7        = +0.0045 [-0.0035,+0.0128] p=0.2952
+  retrieval      curves             = +0.0041 [-0.0050,+0.0135] p=0.3710
+  retrieval      curves+delta       = +0.0077 [-0.0020,+0.0177] p=0.1220
+  retrieval      curves+trajectory  = +0.0010 [-0.0095,+0.0115] p=0.8476
+  compatibility  delta_scalar       = -0.0002 [-0.0069,+0.0062] p=0.9652
+  compatibility  summaries_7        = -0.0143 [-0.0236,-0.0054] p=0.0008
+  compatibility  curves             = +0.0011 [-0.0077,+0.0097] p=0.8114
+  compatibility  curves+delta       = +0.0135 [+0.0042,+0.0233] p=0.0040
+  compatibility  curves+trajectory  = -0.0078 [-0.0186,+0.0026] p=0.1568

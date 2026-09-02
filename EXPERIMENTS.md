@@ -369,3 +369,40 @@ Two candidate explanations, and they are distinguishable in principle:
    "does plant-side spatial detail help when the partner is aspatial" — and the answer is no. Consistent
    with exp 35, where making *both* sides local (SDM) was the only arm where localisation gained (+0.020).
 2. **Capacity** — 260 mostly-redundant dims over 46,897 training positives.
+
+---
+
+## Unified encoding ladder (window 2, 09-01) — **⚠️ corrects exps 24 and the overlap-summary test**
+
+`eval/run_encoding_ladder.py` → `artifacts/encoding_ladder_v1.csv`. All six arms under ONE protocol:
+identical wide base `[log N, tax_genus, tax_family]`, identical towers, identical val early-stopping,
+3 seeds, paired bootstrap vs `none`. Built because exps 24 / overlap-summaries / trajectory each used
+a different training configuration, so their rows were never strictly comparable.
+
+**Paired bootstrap vs `none` (seed-averaged per-plant recall@10):**
+
+| arm | retrieval | compatibility |
+|---|---|---|
+| delta_scalar | +0.0040 p = 0.32 | −0.0002 p = 0.97 |
+| summaries_7 | +0.0045 p = 0.30 | **−0.0143 p = 0.0008** |
+| curves | +0.0041 p = 0.37 | +0.0011 p = 0.81 |
+| curves + delta | +0.0077 p = 0.12 | **+0.0135 p = 0.004** |
+| curves + trajectory | +0.0010 p = 0.85 | −0.0078 p = 0.16 |
+
+**What survives, and what does not.**
+
+- **Nothing significantly helps retrieval.** Every arm p ≥ 0.12. The +0.010 curve gain measured in the
+  overlap-summaries run (p = 0.012) and the +0.008 in the trajectory run (p = 0.013) do **not** replicate
+  under this protocol.
+- **On compatibility, only `curves + delta` helps** (+0.0135, p = 0.004). Curves *alone* are null here
+  (+0.001, p = 0.81) — directly contradicting exp 24, which measured +0.021 (p = 0.0014) for the same
+  nominal contrast under a 5-column wide path.
+- **Two negatives replicate cleanly**: scalar summaries never help retrieval and *hurt* compatibility
+  (−0.014, p = 0.0008, matching the earlier −0.016); the trajectory never helps.
+
+**Honest conclusion: the positive temporal effect is small and protocol-dependent.** Its sign and
+significance move with the wide-path configuration. The negatives are robust; the positives are not.
+Any claim of the form "phenology helps objective X by Y" needs many more seeds than 3 before it is
+reportable. Superseding claim for the paper until then: *no encoding of phenology we tested — scalar,
+multi-statistic, raw-curve, or spatiotemporal — produces a reliable retrieval gain, and only the
+curve+scalar combination shows a compatibility gain that does not replicate across protocols.*

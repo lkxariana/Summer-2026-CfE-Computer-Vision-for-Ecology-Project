@@ -27,13 +27,13 @@ class TwoHead(nn.Module):
       asymmetry made architectural: plant-side signal can only ever move the pooled objective.
     """
 
-    def __init__(self, p_dim, q_dim, n_pgen, n_pfam, n_qgen, n_qfam):
+    def __init__(self, p_dim, q_dim, n_pgen, n_pfam, n_qgen, n_qfam, wide_dim=WIDE_DIM):
         super().__init__()
         self.pt = Tower(p_dim, n_pgen, n_pfam)
         self.qt = Tower(q_dim, n_qgen, n_qfam)
         self.tau = nn.Parameter(torch.tensor(10.0))
-        self.head_r = nn.Sequential(nn.Linear(WIDE_DIM, 64), nn.ReLU(), nn.Linear(64, 1))
-        self.head_c = nn.Sequential(nn.Linear(WIDE_DIM + CTX_DIM, 64), nn.ReLU(), nn.Linear(64, 1))
+        self.head_r = nn.Sequential(nn.Linear(wide_dim, 64), nn.ReLU(), nn.Linear(64, 1))
+        self.head_c = nn.Sequential(nn.Linear(wide_dim + CTX_DIM, 64), nn.ReLU(), nn.Linear(64, 1))
 
     def interaction(self, p_vec, q_vec):
         return self.tau * (p_vec * q_vec).sum(-1)
@@ -62,7 +62,8 @@ def train_twohead(data, ctx, device, seed=42, batch=512, k_neg=63, max_epochs=40
     """Joint training: sampled softmax (retrieval head) + BCE (compatibility head) on the same candidates."""
     torch.manual_seed(seed)
     m = TwoHead(data.p_dense.shape[1], data.q_dense.shape[1],
-                data.n_pgen, data.n_pfam, data.n_qgen, data.n_qfam).to(device)
+                data.n_pgen, data.n_pfam, data.n_qgen, data.n_qfam,
+                wide_dim=getattr(data, "wide_dim", WIDE_DIM)).to(device)
     opt = torch.optim.AdamW(m.parameters(), lr=lr, weight_decay=1e-4)
     P = torch.from_numpy(data.p_dense).to(device)
     Q = torch.from_numpy(data.q_dense).to(device)
@@ -74,6 +75,7 @@ def train_twohead(data, ctx, device, seed=42, batch=512, k_neg=63, max_epochs=40
     pools = torch.from_numpy(data.pools).to(device)
     pos_w = torch.from_numpy(data.pos_wide).to(device)
     pool_w = torch.from_numpy(data.pool_wide).to(device)
+    wd = getattr(data, "wide_dim", WIDE_DIM)
     n_pos, pool_size = pools.shape
     rng = np.random.default_rng(seed)
     best, best_state, bad, hist = -1e9, None, 0, []
@@ -87,7 +89,7 @@ def train_twohead(data, ctx, device, seed=42, batch=512, k_neg=63, max_epochs=40
             cols = torch.from_numpy(rng.integers(0, pool_size, (len(idx), k_neg))).to(device)
             qcand = torch.cat([pos_qi[idx, None], torch.gather(pools[idx], 1, cols)], 1)
             wide = torch.cat([pos_w[idx, None, :], torch.gather(
-                pool_w[idx], 1, cols[..., None].expand(-1, -1, WIDE_DIM))], 1)
+                pool_w[idx], 1, cols[..., None].expand(-1, -1, wd))], 1)
             wide = mask_delta(wide, delta_mode)
             pv = m.pt(P[pos_pi[idx]], pgi[pos_pi[idx]], pfi[pos_pi[idx]])
             qv = m.qt(Q[qcand.reshape(-1)], qgi[qcand.reshape(-1)],

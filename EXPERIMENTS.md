@@ -443,3 +443,33 @@ resolved timing. That is the original ANTHEIA asymmetry hypothesis, tested prope
    and the granularity. An **SDM-marginalized-curves arm** is needed to separate them — queued next.
 2. Differences *among* the temporal arms are within each other's CIs; only the comparisons against
    `spatial` are resolved. Do not claim `local_learned > curves` from this run.
+
+---
+
+## GloBI refuted-claims file (window 2, 09-02) — **DO NOT use as negatives**
+
+Research recommended anti-joining GloBI's `refuted-interactions.tsv.gz` and using it as labelled
+negatives — which would have solved our positive-unlabeled problem. **Verified against our data: the
+file does not support that use.** (`eval/eda_refuted.py`; file at
+`depot.globalbioticinteractions.org/snapshot/target/data/tsv/`, 525,879 rows, all `argumentTypeId=refute`.)
+
+- 518,208 of 525,879 rows are `visitsFlowersOf` — our exact type. 248,059 distinct name pairs.
+- **50.4% of our 62,832 positive edges also appear in the refuted set** (31,657 pairs). Identical result
+  from the verbatim and interpreted files, so it is not an orientation artifact of our mapping.
+- **The refuted rows are overwhelmingly correctly oriented animal→plant**: source/target kingdom is
+  Animalia-or-Metazoa → Archaeplastida for 395,977 rows (76%). Only ~7,300 are genuine role violations
+  (Metazoa→Metazoa or →Animalia).
+- The stated reason for 517,498 of them is a single boilerplate string from a single 2020 EOL curation
+  pass: *"Records of organisms other than plants having flower visitors are probably errors."* That
+  reason does not describe the rows it is attached to.
+- Contested pairs are ordinary plausible visits: *Bombus vosnesenskii* on *Lathyrus hirsutus*,
+  *Coelioxys dolichos* on *Helenium autumnale*, a tachinid on *Daucus carota*. The research agent
+  independently spotted *Trochilidae visitsFlowersOf Monarda fistulosa* (hummingbirds on bee balm).
+
+**Conclusion:** this looks like a bulk flag — plausibly provider- or annotation-level rather than a
+per-pair judgement — not a curated negative set. Treating it as negatives would label roughly half our
+true positives as non-interactions. **Not adopted.** Worth one email to the GloBI maintainers to ask what
+the flag actually denotes; until then the PU framing stands and negatives remain sampled.
+
+Artifacts: `refuted_negatives_interp_v1.csv` (16,203 refuted pairs not among our positives) is retained
+for inspection only, NOT for training or evaluation.

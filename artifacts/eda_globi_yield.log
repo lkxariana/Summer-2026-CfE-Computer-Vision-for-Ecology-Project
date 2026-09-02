@@ -1,0 +1,47 @@
+=== CONUS records: 5,333,308
+
+=== all interaction types (top 12):
+   1,821,085  interactsWith
+     849,396  hasHost
+     615,925  hasArbuscularMycorrhizalHost
+     575,792  visitsFlowersOf
+     348,253  symbiontOf
+     343,966  eats
+     335,891  adjacentTo
+     120,316  parasiteOf
+      88,679  preysOn
+      71,476  visits
+      65,334  pollinates
+      48,209  coOccursWith
+
+=== flower-visitation records (3 types): 660,766
+=== argumentTypeId (SUPPORTS vs REFUTES):
+     660,766  https://en.wiktionary.org/wiki/support
+
+=== source|target taxon rank pairs (top 8):
+     408,620  species|species
+     142,341  species|genus
+      52,033  species|(none)
+      11,109  genus|species
+       8,416  subspecies|species
+       6,059  (none)|species
+       5,790  species|family
+       3,702  genus|genus
+
+=== id namespaces on targetTaxonIds (sampled):
+    24,426   GBIF
+    14,328   WFO
+    13,858   WD
+    12,358   ITIS
+    11,976  COL
+    11,934   EOL
+    11,180   NCBI
+     7,930   WORMS
+
+=== usable under current logic: 328,324
+  dropped_total: 332,442
+  target_genus_only: 207,319
+  source_genus_only: 23,997
+  rescuable by GENUS-level plant match: 167,533
+
+=== duplicate sourceOccurrenceId rows: 0 extra rows over 0 unique ids

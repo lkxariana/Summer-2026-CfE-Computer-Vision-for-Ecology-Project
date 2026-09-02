@@ -1,0 +1,13 @@
+source,edges_touched,edges_UNIQUE_to_source,pct_of_all_edges
+globalbioticinteractions/inaturalist,50544,47847,0.8070898203592815
+globalbioticinteractions/web-of-life,6312,5975,0.10079041916167665
+globalbioticinteractions/gbif-us-bees,5372,3181,0.0857804391217565
+globalbioticinteractions/guzman2022,2044,1529,0.03263872255489022
+globalbioticinteractions/lamanna2020,782,592,0.012487025948103792
+ibartomeus/CropPol,298,239,0.004758483033932136
+globalbioticinteractions/usgs-pollinator-library,292,149,0.004662674650698603
+globalbioticinteractions/ucsb-izc,66,33,0.0010538922155688623
+globalbioticinteractions/scan,52,30,0.0008303393213572854
+millerse/Plant-Pollinator-Web,45,0,0.000718562874251497
+millerse/Pollination-Collection,35,21,0.0005588822355289421
+Big-Bee-Network/bee-interaction-database,33,0,0.0005269461077844312

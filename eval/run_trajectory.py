@@ -164,7 +164,7 @@ def main():
                 if others:
                     s[others] = -np.inf
                 t1.append(len(tp & set(np.argpartition(-s, 10)[:10].tolist())) / len(tp))
-            rows.append({"variant": name, "curves": use_curves, "delta": dmode, "head": head,
+            rows.append({"variant": name, "plant_input": pvar, "delta": dmode, "head": head,
                          "recall@10": mm, "lo": lo, "hi": hi, "recall@50": r50, "hit@10": hit,
                          "pooled_PR": pair_metrics(y_te, pooled)["pr_auc"], "t1_recall@10": np.mean(t1)})
             print(f"  {name:<14} {head:<14} R@10 {mm:.4f} [{lo:.4f},{hi:.4f}] "

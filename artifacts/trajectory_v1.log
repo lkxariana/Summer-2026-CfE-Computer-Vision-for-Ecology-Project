@@ -1,0 +1,46 @@
+data ready (201s); plant tower dims none=513, curve=565, traj=773, both=825
+wide caches ready (284s)
+  [none] seed 42: R@10 0.2442
+  [none] seed 0: R@10 0.2477
+  [none] seed 1: R@10 0.2450
+  none           retrieval      R@10 0.2456 [0.2240,0.2680] pooledPR 0.8580 T1 0.4563
+  none           compatibility  R@10 0.2534 [0.2315,0.2753] pooledPR 0.8560 T1 0.4926
+  (none in 38s)
+  [curve] seed 42: R@10 0.2631
+  [curve] seed 0: R@10 0.2496
+  [curve] seed 1: R@10 0.2489
+  curve          retrieval      R@10 0.2539 [0.2317,0.2765] pooledPR 0.8609 T1 0.4800
+  curve          compatibility  R@10 0.2572 [0.2349,0.2805] pooledPR 0.8604 T1 0.5004
+  (curve in 42s)
+  [trajectory] seed 42: R@10 0.2457
+  [trajectory] seed 0: R@10 0.2438
+  [trajectory] seed 1: R@10 0.2519
+  trajectory     retrieval      R@10 0.2472 [0.2260,0.2697] pooledPR 0.8567 T1 0.4913
+  trajectory     compatibility  R@10 0.2329 [0.2121,0.2547] pooledPR 0.8503 T1 0.4992
+  (trajectory in 30s)
+  [curve+trajectory] seed 42: R@10 0.2345
+  [curve+trajectory] seed 0: R@10 0.2345
+  [curve+trajectory] seed 1: R@10 0.2444
+  curve+trajectory retrieval      R@10 0.2378 [0.2159,0.2611] pooledPR 0.8589 T1 0.4511
+  curve+trajectory compatibility  R@10 0.2485 [0.2276,0.2722] pooledPR 0.8555 T1 0.4624
+  (curve+trajectory in 35s)
+
+         variant plant_input delta          head  recall@10     lo     hi  recall@50  hit@10  pooled_PR  t1_recall@10
+            none        none  none     retrieval     0.2456 0.2240 0.2680     0.5373  0.7215     0.8580        0.4563
+            none        none  none compatibility     0.2534 0.2315 0.2753     0.5252  0.7125     0.8560        0.4926
+           curve       curve  none     retrieval     0.2539 0.2317 0.2765     0.5345  0.7233     0.8609        0.4800
+           curve       curve  none compatibility     0.2572 0.2349 0.2805     0.5426  0.7197     0.8604        0.5004
+      trajectory        traj  none     retrieval     0.2472 0.2260 0.2697     0.4963  0.7052     0.8567        0.4913
+      trajectory        traj  none compatibility     0.2329 0.2121 0.2547     0.4510  0.6673     0.8503        0.4992
+curve+trajectory        both  none     retrieval     0.2378 0.2159 0.2611     0.5113  0.6799     0.8589        0.4511
+curve+trajectory        both  none compatibility     0.2485 0.2276 0.2722     0.4874  0.6817     0.8555        0.4624
+
+paired bootstrap over test plants (seed-averaged):
+  retrieval      curve         - none          = +0.0082 [+0.0017,+0.0148] p=0.0126
+  retrieval      trajectory    - none          = +0.0015 [-0.0095,+0.0127] p=0.7866
+  retrieval      trajectory    - curve         = -0.0067 [-0.0188,+0.0053] p=0.2706
+  retrieval      curve+trajectory - curve         = -0.0161 [-0.0282,-0.0045] p=0.0062
+  compatibility  curve         - none          = +0.0038 [-0.0031,+0.0107] p=0.2860
+  compatibility  trajectory    - none          = -0.0205 [-0.0318,-0.0096] p=0.0001
+  compatibility  trajectory    - curve         = -0.0243 [-0.0368,-0.0123] p=0.0001
+  compatibility  curve+trajectory - curve         = -0.0087 [-0.0189,+0.0014] p=0.0932

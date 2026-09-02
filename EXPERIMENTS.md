@@ -331,3 +331,41 @@ field's conventions you pick.
 absolute values are not comparable across experiments; only the within-experiment contrasts are valid.
 That is also why `curves − no_temporal` on compatibility is n.s. here (+0.002) while exp 24 measured
 +0.021 with early stopping and a richer wide path.
+
+---
+
+## Phenology trajectory (window 2, 09-01) — **the encoding ladder has a peak, not a slope**
+
+`scripts/build_phenology_trajectory.py` (6,348 × 260: per week, flowering mass + lat/lon centroid of that
+mass + spatial spread + occupied extent, aligned across species by construction so it cannot repeat the
+V_δ misalignment bug) → `eval/run_trajectory.py` → `artifacts/trajectory_v1.csv`. Plant-side temporal
+representation varied; pollinator side held constant. 3 seeds, paired bootstrap.
+
+| plant temporal input | dims | retrieval R@10 | compatibility R@10 |
+|---|---|---|---|
+| none | 0 | 0.2456 | 0.2534 |
+| **52-week curve** | 52 | **0.2539** | **0.2572** |
+| spatiotemporal trajectory | 260 | 0.2472 | 0.2329 |
+| curve + trajectory | 312 | 0.2378 | 0.2485 |
+
+| contrast | retrieval | compatibility |
+|---|---|---|
+| curve − none | **+0.0082 p = 0.013** | +0.0038 p = 0.29 |
+| trajectory − none | +0.0015 p = 0.79 | **−0.0205 p = 0.0001** |
+| trajectory − curve | −0.0067 p = 0.27 | **−0.0243 p = 0.0001** |
+| curve+trajectory − curve | **−0.0161 p = 0.006** | −0.0087 p = 0.09 |
+
+**Negative result: more spatial resolution does not help — it hurts.** The trajectory is no better than
+no temporal information on retrieval (p = 0.79) and significantly *worse* than nothing on compatibility
+(−0.021, p = 0.0001); adding it on top of the curve degrades retrieval (−0.016, p = 0.006).
+
+**So the ladder is not monotone.** Scalar summaries (1–7 dims) carry nothing; the 52-week curve carries
+a real, significant gain; 260-dim spatiotemporal structure adds noise. **The curve is the sweet spot.**
+
+Two candidate explanations, and they are distinguishable in principle:
+1. **Structural — the likely one.** The pollinator side has no spatial dimension (`a_curves` are pooled
+   over all CONUS), so plant-side spatial detail has nothing to align against. A dot product cannot
+   compute spatiotemporal matching when only one side carries space. This experiment therefore tests
+   "does plant-side spatial detail help when the partner is aspatial" — and the answer is no. Consistent
+   with exp 35, where making *both* sides local (SDM) was the only arm where localisation gained (+0.020).
+2. **Capacity** — 260 mostly-redundant dims over 46,897 training positives.

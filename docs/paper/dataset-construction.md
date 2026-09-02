@@ -40,8 +40,8 @@ download date makes the dataset reconstructible.
 Retain records whose `decimalLatitude` and `decimalLongitude` fall within the CONUS bounding box
 (24.0°–49.5° N, 125.0°–66.0° W).
 
-Records lacking coordinates are retained in a separate *metaweb* edge list and excluded only from the
-spatially-modelled set. Regional subsetting of GloBI by coordinate box is standard; Reji Chacko et al.
+Records lacking coordinates are retained in the released edge list, which represents the regional
+metaweb, and are excluded only from the spatially-modelled subgraph. Regional subsetting of GloBI by coordinate box is standard; Reji Chacko et al.
 (2025, *Scientific Data* 12:1164, doi:10.1038/s41597-025-05487-7) apply the same geographic filtering
 step when deriving a regional interaction network from GloBI.
 
@@ -56,10 +56,10 @@ Interaction types are Relations Ontology (RO) terms. We retain four and assign e
 | B | `visits` | RO_0002618 |
 | B | `interactsWith` | RO_0002437 |
 
-Tier A terms denote flower visitation explicitly. Tier B terms are retained but flagged: `visits`
-carries no floral semantics, and `interactsWith` is the root of the RO interaction hierarchy. All
-results are reported for Tier A and for Tier A+B, so the effect of the weaker terms is measurable
-rather than assumed.
+Tier A terms denote flower visitation explicitly. Tier B terms are retained and flagged: `visits`
+carries no floral semantics, and `interactsWith` is the root of the RO interaction hierarchy.
+**Tier A+B is the default network**; Tier A is reported alongside it so the contribution of the
+weaker terms is measurable rather than assumed.
 
 Terms denoting other ecological relations — `hasHost`, `parasiteOf`, `preysOn`, `eats`, `symbiontOf`,
 `hasArbuscularMycorrhizalHost`, `adjacentTo`, `coOccursWith`, `ecologicallyRelatedTo` — are excluded.
@@ -114,9 +114,11 @@ Where identifiers are absent, standard resolvers apply: TNRS (Boyle et al. 2013,
 
 ### Step 6 — Set taxonomic resolution
 
-Nodes are retained at species and genus rank. A genus-rank taxon is a node in its own right and is
-never merged into a constituent species. Records identified only to family or coarser are excluded.
-Every headline result is reported at both species-only and species-plus-genus resolution.
+Nodes are retained at the **lowest available rank**: a taxon identified to species becomes a species
+node, and a taxon identified only to genus becomes a genus node in its own right, never merged into a
+constituent species. Records identified only to family or coarser are excluded. Each node carries its
+rank, so any analysis may restrict to species-rank nodes without rebuilding the network, and headline
+results are reported at both resolutions.
 
 Retaining genus-level nodes follows Noori et al. (2026), whose curated bee–plant dataset keeps
 genus-rank plant taxa alongside species-rank ones. The dual reporting is motivated by two findings:
@@ -171,9 +173,10 @@ quality — the evidence by which an animal is determined to interact with a pla
 
 ### Step 10 — Intersect with feature coverage
 
-The modelled network is the subgraph whose species carry the spatial and phenological features used by
-the models. The full edge list from Step 9 is released alongside it, since the interaction network is
-useful independently of feature availability.
+The network is constructed without reference to the modelling feature sets, so that its taxonomic
+scope is a property of the source data rather than of feature availability. The modelled subgraph is
+then defined as the induced subgraph over taxa carrying the required spatial and phenological
+features, and the taxa excluded at this step are characterised and reported (Section 6).
 
 ---
 
@@ -238,6 +241,18 @@ Recorded during execution; reported in the paper as a data-flow table.
 8. Life-stage value counts.
 9. Degree distributions, connectance, source counts per edge, temporal span.
 10. Composition of the loss at feature intersection, tested for taxonomic bias.
+
+### Post-construction analyses
+
+**Taxonomic scope of the modelled subgraph.** Because the network is built without reference to
+feature coverage (Step 10), the taxa excluded at intersection can be characterised directly: their
+order- and family-level composition, the number of records and edges they carry, and whether they are
+concentrated in particular source datasets. This determines whether the modelled universe should be
+widened.
+
+**Evaluation partitions.** The edge list carries the fields needed to define held-out partitions
+without recomputation: `sources` supports leave-one-source-out validation, `first_year` supports
+temporal holdout, and `plant_rank` / `pollinator_rank` support resolution-stratified reporting.
 
 ### Automated tests
 

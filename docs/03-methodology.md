@@ -89,7 +89,7 @@ For a given (plant, pollinator) pair:
 Δ = Σ_t min(f̃_plant(t), ã_pollinator(t))
 ```
 
-where `f̃` and `ã` are the normalized 52-week curves. This is the coefficient of overlapping (Ridout & Linkie 2009) — the shared area under the two normalized curves. Δ = 0 means phenologically incompatible; Δ = 1 means perfectly synchronized.
+where `f̃` and `ã` are the normalized 52-week curves. This is the shared area under the two normalized curves. NOTE: earlier drafts attributed this to Ridout & Linkie (2009), which is a *diel* activity-overlap method for camera-trap data and is not the correct citation for seasonal phenological overlap. The established formulation in pollination networks is the outer-product phenology matrix of Vizentin-Bugoni et al. (2014, Proc R Soc B) and Gonzalez & Loiselle (2016, PeerJ 4:e2789). Δ = 0 means phenologically incompatible; Δ = 1 means perfectly synchronized.
 
 Δ encodes per-pair phenological alignment directly: a value the model cannot reconstruct from species embeddings alone, since Vf and Vp encode geographic distribution, not timing.
 

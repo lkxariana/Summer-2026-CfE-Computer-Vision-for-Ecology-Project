@@ -60,7 +60,7 @@ Citizen science vs. expert interaction data: fewer than 40% of partners are shar
 
 ## 7. Overlap Metric
 
-**Ridout & Linkie 2009.** *Estimating overlap of daily activity patterns from camera trap data.* Journal of Agricultural, Biological, and Environmental Statistics, 14(3), 322–337. https://doi.org/10.1198/jabes.2009.08038
+**Ridout & Linkie 2009.** *(Cited historically for Δ; note this is a DIEL activity-overlap method for camera-trap data, not a seasonal phenology method — see Vizentin-Bugoni et al. 2014 and Gonzalez & Loiselle 2016 for the correct pollination-network precedent.)* *Estimating overlap of daily activity patterns from camera trap data.* Journal of Agricultural, Biological, and Environmental Statistics, 14(3), 322–337. https://doi.org/10.1198/jabes.2009.08038
 
 The source for the coefficient of overlapping Δ = Σ min(f̃, ã) used as ANTHEIA's temporal overlap scalar. Defined for circular activity data, which day-of-year is (December wraps to January). The correct metric for phenological synchrony — not linear KDE.
 

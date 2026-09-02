@@ -255,8 +255,9 @@ places it enters: the 52-week curves in the tower inputs *and* the Δ / local-Δ
    coherent: phenological overlap tells you whether two species *can* meet — a feasibility / forbidden-link
    signal — but among candidates that already overlap in space and time it does not discriminate *which*
    one actually interacts. Phenology rules things out; it does not rule things in.
-2. **The classical Δ carries essentially none of the usable signal.** `Σ min(f_t, a_t)` (Ridout & Linkie
-   overlap — the construct ANTHEIA was built on) adds nothing on top of the curves (p ≈ 0.8) and,
+2. **The classical Δ carries essentially none of the usable signal.** `Σ min(f_t, a_t)` (the construct ANTHEIA was built on;
+   the correct precedent is the phenology probability matrix of Vizentin-Bugoni et al. 2014, not
+   Ridout & Linkie 2009, which is a diel camera-trap method) adds nothing on top of the curves (p ≈ 0.8) and,
    on its own, is indistinguishable from having no temporal information at all (p = 0.997 / 0.71).
    The signal lives in the raw weekly curves and a learned encoder recovers it; the hand-computed
    summary destroys it. This retroactively explains why Δ, V_δ (4-D/15-D) and PMf all hovered at

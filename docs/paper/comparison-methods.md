@@ -244,3 +244,79 @@ comparator, and infeasible to fit jointly at our scale.
 | **Poisot 2023**, *Methods Ecol. Evol.* 14:1333–1345, DOI [10.1111/2041-210X.14071](https://doi.org/10.1111/2041-210X.14071) | — | mandates **PR-AUC, MCC, informedness**; states ROC-AUC is uninformative at this imbalance |
 
 At connectance 0.1%, a headline ROC-AUC will draw an objection. Report PR-AUC, recall@k, and MCC.
+
+---
+
+# PHENOLOGY: WHAT IS ALREADY ESTABLISHED
+
+## M. How phenological overlap is actually formulated in this field
+
+The standard operationalisation is the **outer-product phenology probability matrix**: presence or
+abundance vectors over sampling periods for each species, outer product, normalised to sum to one.
+Used this way by Vizentin-Bugoni, Maruyama & Sazima 2014, *Proc. R. Soc. B* 281:20132397, and
+Gonzalez & Loiselle 2016, *PeerJ* 4:e2789, DOI [10.7717/peerj.2789](https://doi.org/10.7717/peerj.2789).
+Related niche-overlap statistics: **Schoener's index** (Schoener 1970, *Ecology* 51:408–418) and
+**Pianka's index** (Pianka 1974, *PNAS* 71:2141–2145) — both established for niche overlap, neither
+established as a link predictor.
+
+⚠️ **Citation correction.** Earlier drafts attributed Δ to Ridout & Linkie 2009, *JABES* 14:322–337.
+That paper estimates overlap of **daily (diel) activity patterns from camera-trap data** — its
+worked example is Sumatran felids. It is not a seasonal-phenology method, and citing it for a 52-week
+seasonal overlap is a misattribution. Corrected throughout the repository.
+
+For a 52-week curve the principled treatment is **circular statistics** (von Mises; Morellato et al.,
+*Phenological Research*, Springer, DOI 10.1007/978-90-481-3335-2_16) — which is notably *not* what the
+interaction-prediction literature does.
+
+## N. Forbidden links — the reported magnitudes
+
+- **Olesen, Bascompte, Dupont, Elberling, Rasmussen & Jordano 2011**, *Proc. R. Soc. B* 278:725–732,
+  DOI [10.1098/rspb.2010.1371](https://doi.org/10.1098/rspb.2010.1371): **phenological uncoupling
+  explains 22–28% of possible-but-unobserved links.**
+- **Duchenne et al. 2025**, *Ecology Letters* 28:e70073,
+  DOI [10.1111/ele.70073](https://doi.org/10.1111/ele.70073): probabilistic reanalysis across 32
+  plant–hummingbird communities puts forbidden links at **3–29%** — lower than the deterministic
+  literature implies.
+- **Jordano 2016**, *Functional Ecology* 30:1883–1893, DOI 10.1111/1365-2435.12763: much apparent
+  forbiddenness is undersampling. Cite alongside any forbidden-link claim.
+
+## O. Does phenology improve prediction? The record is split by system
+
+**Phenology wins — vertebrate pollinators, local networks.** Gonzalez & Loiselle 2016 (Andean
+bird–flower): phenology model ΔAIC = 0, abundance ΔAIC = 428.2, null ΔAIC = 588.6.
+Vizentin-Bugoni et al. 2014 reach the same conclusion for hummingbirds.
+
+**Phenology adds little — insect visitation, once abundance is controlled.** Dormann et al. 2025
+(14 networks) find abundance dominant and trait/phylogenetic information adding nothing substantial
+beyond it, with overall predictive power low (ρ ≈ 0.4). Benadi et al. 2022 (tapnet) find traits +
+phylogeny + abundance on a par with abundance alone.
+
+**Resolution-dependent.** "Seasonal Variation Mediates the Importance of Species Attributes in
+Plant–Pollinator Interactions," bioRxiv 2026.07.21.739935 (*authors unverified*): abundance explains
+most variation, trait matching secondary, and **phenology plays a minor role at broad temporal
+resolution but becomes more important at finer resolution.** This is the closest paper to our framing
+and must be cited.
+
+## P. Time-resolved prediction — a genuine gap
+
+CaraDonna et al. 2017, *Ecology Letters* 20:385–394, DOI 10.1111/ele.12740, show week-to-week
+interaction turnover is dominated by rewiring, constrained by phenology and abundance. But almost all
+link-prediction work **aggregates over time entirely** (Pichler 2020; Terry & Lewis 2020; Biton 2025).
+Dormann et al. 2025 test transfer across years; the botanical-gardens preprint varies temporal
+resolution. Time-resolved prediction remains rare.
+
+**NECTAR** — bioRxiv 2026.03.30.715389 — builds a spatially explicit Californian metaweb from
+distributions, phenometrics and phylogeny: 1,247,081 interactions over 5,131 pollinators × 5,178
+plants. The closest existing system to ours; its internal phenology encoding is unverified and should
+be checked before we claim novelty against it.
+
+## Q. Positioning consequences
+
+1. **Our claim is a representation claim, not an ecological one.** "Phenology drives interactions" is
+   contradicted by Dormann et al. 2025 for insect networks. What is open is that **nobody has compared
+   encodings of the same phenological signal — scalar vs. raw curve vs. learned per-cell — holding
+   data, split and model class fixed.** The literature varies the predictor set, not the representation.
+2. **A co-occurrence-only baseline is mandatory**, or any phenology effect reads as an abundance proxy.
+3. **The expected honest finding** is "curves beat scalars, per-cell ≈ curves, all modest relative to
+   co-occurrence." That is publishable as a representation benchmark with a clean protocol; it is not
+   publishable as a claim that phenology drives interactions.

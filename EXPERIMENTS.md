@@ -505,3 +505,40 @@ kingdom, which is the correct resolution rather than a suppression of the test.
 
 Superseded results from the earlier name-matched network are archived under
 `artifacts/archive/2026-08-31_superseded/` with a README stating why the numbers do not carry over.
+
+---
+
+## Feature-coverage analysis (window 2, 09-02) — **the modelled subgraph is 42% of the network**
+
+`eval/eda_coverage.py` → `data/network/coverage_report.log`. Intersecting the constructed network with
+the existing feature universes (6,466 plants from PhenoField/PPE; 24,939 pollinators from the GBIF
+occurrence extract).
+
+| | interactions | plants | pollinators |
+|---|---|---|---|
+| network | 198,327 | 11,031 | 15,012 |
+| **both sides feature-covered** | **82,973 (41.8%)** | 4,243 | 6,217 |
+| excluded at intersection | 115,354 | 9,839 | 12,874 |
+
+Plant side covered 59.4%, pollinator side 68.3%.
+
+**Three distinct causes, needing different responses.**
+
+1. **Genus-rank taxa are 0% covered.** The feature files are keyed to species, so the 56,285
+   interactions contributed by genus nodes cannot enter the modelled set as things stand. Either
+   aggregate features over constituent species (a genus's occupancy is the union of its species'), or
+   restrict modelling to species rank and report it as a stated scope limit.
+2. **The pollinator pool has a genuine coverage gap, not just a scope boundary.** 44% of Hymenoptera
+   taxa in the network (1,415 of 3,242) are absent from the feature file, along with 25% of Diptera and
+   16% of Lepidoptera. These are flower visitors the pipeline found and the features do not cover —
+   distinct from the taxa the pool deliberately excludes. Fully covering Hymenoptera alone would add
+   **9,489 interactions**; Lepidoptera 3,475; Diptera 2,981.
+3. **Orders outside the pool are entirely uncovered**, as designed: Hemiptera (2,934 taxa),
+   Araneae (336), Orthoptera (238), Passeriformes (227), Odonata (120). Hemiptera would add 10,565
+   interactions but are unlikely flower visitors — 20% of excluded interactions are Hemiptera against
+   1.3% of the flower-visitation tier, so the tier system already separates them.
+
+**Consequence for the plan.** Modelling cannot simply be re-indexed onto the new network: the feature
+caches would need rebuilding from source occurrence data for roughly 7,700 additional pollinator taxa
+and 6,400 additional plant taxa. Until then the modelled subgraph is 82,973 interactions over
+4,243 plants — still larger than any previous version, but 42% of what was constructed.

@@ -294,3 +294,40 @@ beats both. A foundation model trained on taxonomy returns taxonomy.
 
 Caveat: we used the mean embedding over ~86 images per species, which may wash out functional
 morphology. A trait-supervised or part-level image representation is a different (untested) proposition.
+
+---
+
+## Overlap-summary family test (window 2, 09-01) — *does the Δ result generalise?*
+
+`eval/run_overlap_summaries.py` → `artifacts/overlap_summaries_v1.csv`. Prompted by Dan's challenge:
+"Σ min is our internal choice, not necessarily the field standard." So instead of one scalar, test
+**seven** overlap statistics in common ecological use — coefficient of overlapping (`Σ min`, which for
+normalised curves is algebraically identical to Schoener's D), Pianka cosine, Bhattacharyya, Pearson
+correlation, joint active weeks (the "days of overlap" convention), circular peak offset, and
+Jensen-Shannon similarity — against the raw 52-week curves. 4 arms × 3 seeds, paired bootstrap.
+
+| arm | retrieval R@10 | compatibility R@10 |
+|---|---|---|
+| no temporal | 0.2340 | 0.2481 |
+| **all 7 summaries** (no curves) | 0.2345 | 0.2321 |
+| **curves** (no summaries) | 0.2440 | 0.2501 |
+| curves + summaries | 0.2394 | 0.2396 |
+
+| contrast | retrieval | compatibility |
+|---|---|---|
+| summaries − no_temporal | +0.0005 **p = 0.91** | **−0.0159 p = 0.004** |
+| curves − no_temporal | **+0.0100 p = 0.012** | +0.0021 p = 0.61 |
+| curves − summaries | +0.0095 p = 0.058 | **+0.0180 p = 0.002** |
+| curves+summaries − curves | −0.0045 p = 0.28 | **−0.0105 p = 0.017** |
+
+**The claim generalises.** No scalar overlap statistic in common ecological use recovers the signal:
+all seven together are indistinguishable from having no temporal information (p = 0.91 on retrieval)
+and actively *hurt* compatibility (−0.016, p = 0.004). Curves beat summaries on both objectives.
+Adding summaries on top of curves is neutral-to-harmful. So the earlier finding was not an artifact
+of ANTHEIA's particular Δ — **the scalar-summary encoding itself is the problem**, whichever of the
+field's conventions you pick.
+
+⚠️ Method caveat: this script trains a fixed 6 epochs with no val early-stopping (unlike exp 24), so
+absolute values are not comparable across experiments; only the within-experiment contrasts are valid.
+That is also why `curves − no_temporal` on compatibility is n.s. here (+0.002) while exp 24 measured
++0.021 with early stopping and a richer wide path.

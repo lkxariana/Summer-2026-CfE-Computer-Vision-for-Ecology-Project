@@ -1,0 +1,43 @@
+data(summaries=False) ready, wide_dim=3 (195s)
+data(summaries=True) ready, wide_dim=10 (227s)
+wide caches ready
+  [no_temporal] seed 42 R@10 0.2368
+  [no_temporal] seed 0 R@10 0.2329
+  [no_temporal] seed 1 R@10 0.2324
+  no_temporal        retrieval      R@10 0.2340 [0.2118,0.2554] pooledPR 0.8584
+  no_temporal        compatibility  R@10 0.2481 [0.2252,0.2708] pooledPR 0.8563
+  [summaries_only] seed 42 R@10 0.2378
+  [summaries_only] seed 0 R@10 0.2254
+  [summaries_only] seed 1 R@10 0.2403
+  summaries_only     retrieval      R@10 0.2345 [0.2136,0.2557] pooledPR 0.8628
+  summaries_only     compatibility  R@10 0.2321 [0.2129,0.2530] pooledPR 0.8567
+  [curves_only] seed 42 R@10 0.2458
+  [curves_only] seed 0 R@10 0.2473
+  [curves_only] seed 1 R@10 0.2388
+  curves_only        retrieval      R@10 0.2440 [0.2218,0.2672] pooledPR 0.8645
+  curves_only        compatibility  R@10 0.2501 [0.2270,0.2727] pooledPR 0.8575
+  [curves+summaries] seed 42 R@10 0.2483
+  [curves+summaries] seed 0 R@10 0.2453
+  [curves+summaries] seed 1 R@10 0.2247
+  curves+summaries   retrieval      R@10 0.2394 [0.2185,0.2617] pooledPR 0.8633
+  curves+summaries   compatibility  R@10 0.2396 [0.2195,0.2612] pooledPR 0.8574
+
+         variant          head  recall@10     lo     hi  pooled_PR
+     no_temporal     retrieval     0.2340 0.2118 0.2554     0.8584
+     no_temporal compatibility     0.2481 0.2252 0.2708     0.8563
+  summaries_only     retrieval     0.2345 0.2136 0.2557     0.8628
+  summaries_only compatibility     0.2321 0.2129 0.2530     0.8567
+     curves_only     retrieval     0.2440 0.2218 0.2672     0.8645
+     curves_only compatibility     0.2501 0.2270 0.2727     0.8575
+curves+summaries     retrieval     0.2394 0.2185 0.2617     0.8633
+curves+summaries compatibility     0.2396 0.2195 0.2612     0.8574
+
+paired bootstrap:
+  retrieval      summaries_only    - no_temporal     = +0.0005 [-0.0082,+0.0095] p=0.9138
+  retrieval      curves_only       - no_temporal     = +0.0100 [+0.0021,+0.0180] p=0.0120
+  retrieval      curves_only       - summaries_only  = +0.0095 [-0.0004,+0.0193] p=0.0576
+  retrieval      curves+summaries  - curves_only     = -0.0045 [-0.0129,+0.0039] p=0.2826
+  compatibility  summaries_only    - no_temporal     = -0.0159 [-0.0271,-0.0051] p=0.0044
+  compatibility  curves_only       - no_temporal     = +0.0021 [-0.0058,+0.0103] p=0.6074
+  compatibility  curves_only       - summaries_only  = +0.0180 [+0.0069,+0.0296] p=0.0018
+  compatibility  curves+summaries  - curves_only     = -0.0105 [-0.0195,-0.0019] p=0.0170

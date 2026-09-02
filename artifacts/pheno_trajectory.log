@@ -1,0 +1,11 @@
+  1500/6348 (1s)
+  3000/6348 (3s)
+  4500/6348 (4s)
+  6000/6348 (5s)
+saved (6348, 260) -> pheno_trajectory_plants.npy (6s)
+per-stat std across species (sanity, should be non-degenerate):
+  mass      1.4752
+  lat_mean  0.5906
+  lon_mean  0.4728
+  spread    0.1809
+  extent    0.2240

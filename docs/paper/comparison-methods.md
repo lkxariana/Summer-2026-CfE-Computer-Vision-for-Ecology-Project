@@ -6,7 +6,7 @@ entirely, all right nodes (pollinators) seen. Every entry states whether it can 
 zero training edges — this disqualifies most of the standard link-prediction toolkit and must be
 reported rather than quietly avoided.
 
-*(Ecology-side methods pending; this section covers the ML/CS literature.)*
+
 
 ---
 
@@ -122,3 +122,125 @@ slice (curated non-iNaturalist sources) as the closest thing to a clean test.
 
 Both are small changes to the existing training loop and should be made before the model is used as
 our contribution's representative.
+
+
+---
+
+# ECOLOGY-SIDE METHODS
+
+## G. Neutral / abundance models
+
+**Vázquez neutral null** — Vázquez, Chacoff & Cagnolo 2009, *Ecology* 90(8):2039–2046,
+DOI [10.1890/08-1837.1](https://doi.org/10.1890/08-1837.1). Interaction probability proportional to
+the product of species' relative abundances; no fitting. Cold-start: yes for the abundance version;
+**no** for the degree-marginal version, since a held-out plant has no degree — occupancy or record
+count must be substituted, which is itself worth reporting. `bipartite::vaznull` (R) or ~15 lines.
+
+**Abundance cross-product benchmark** — Dormann et al. 2025 (EcoEvoRxiv
+[10.32942/X2S63Z](https://doi.org/10.32942/X2S63Z), **preprint**). Across 14 networks, abundance
+dominates and traits and phylogeny add little; best Spearman ρ ≈ 0.4. The citation that legitimises
+reporting the parameter-free encounter-rate benchmark.
+
+**tapnet** — Benadi, Dormann, Fründ, Stephan & Vázquez 2022, *American Naturalist* 199(6):841–854,
+DOI [10.1086/714420](https://doi.org/10.1086/714420). Expected frequency = abundance product × a
+trait-matching kernel, with latent traits from phylogeny; maximum likelihood. CRAN `tapnet`.
+Cold-start: yes. We can run the abundance + taxonomy-surrogate variant.
+
+**Phenology × abundance likelihood model** — Vizentin-Bugoni, Maruyama & Sazima 2014,
+*Proc. R. Soc. B* 281:20132397, DOI [10.1098/rspb.2013.2397](https://doi.org/10.1098/rspb.2013.2397).
+Candidate probability matrices (abundance product, morphological match, phenological overlap)
+multiplied elementwise and ranked by likelihood; forbidden links beat abundance alone.
+**This is the ecological ancestor of our phenological-overlap term** and must be cited as the
+hand-specified model our learned encoding is compared against. Reimplement, ~40 lines.
+
+## H. Trait matching
+
+**Pichler et al. 2020**, *Methods Ecol. Evol.* 11:281–293,
+DOI [10.1111/2041-210X.13329](https://doi.org/10.1111/2041-210X.13329). Binary classification over
+the pair table with plant traits, pollinator traits and their interactions; compares GLM, RF, boosted
+trees, SVM, DNN under species-blocked CV. The framework is feature-agnostic, so substituting
+phenology, occupancy and taxonomy for morphological traits gives a legitimate Pichler-style baseline —
+the cheapest reviewer-satisfying comparison we can run. R `TraitMatching`, or ~30 lines sklearn.
+
+**Two-step Kronecker kernel ridge regression** — Stock, Piot, Vanbesien, Meys, Smagghe & De Baets
+2021, *Ecological Modelling* 451:109508,
+DOI [10.1016/j.ecolmodel.2021.109508](https://doi.org/10.1016/j.ecolmodel.2021.109508). Kernel ridge
+regression on K_plant ⊗ K_pollinator, closed-form via per-side eigendecomposition. Accepts occupancy
+cosine, phenology RBF and taxonomic kernels — **no trait data required** — and its evaluation
+formalism (settings A–D) matches our retrieval objective exactly. `RLScore`, or ~60 lines.
+
+**Morphological matching (proboscis × corolla)** — e.g. Klumpers, Stang & Klinkhamer 2012,
+*Oecologia*, DOI [10.1007/s00442-012-2290-3](https://doi.org/10.1007/s00442-012-2290-3). Requires
+proboscis length and corolla depth. **Report as a limitation; do not benchmark.**
+
+## I. Latent-variable models for interaction networks
+
+**t-SVD / RDPG with taxonomic transfer** — Strydom et al. 2022, *Methods Ecol. Evol.* 13:2308–2319,
+DOI [10.1111/2041-210X.13835](https://doi.org/10.1111/2041-210X.13835). Truncated SVD at **rank 12**
+(~60% variance), latent positions imputed for unseen species by ancestral-state estimation under
+Brownian motion, threshold at p = 0.22 by Youden's J. **The canonical ecology cold-start metaweb
+method**, and our closest analogue. ~80 lines in Python.
+
+**Covariate-informed latent factors (COIL/COIL+)** — Kampe, DeSisto & Dunson 2026,
+*Methods Ecol. Evol.*, DOI [10.1111/2041-210X.70368](https://doi.org/10.1111/2041-210X.70368).
+Bayesian bipartite latent factors with adaptive rank shrinkage, covariates and phylogeny in the prior,
+and explicit correction for study-level taxonomic sampling bias. Directly designed for our
+positive-unlabeled, source-biased setting. Substantial to implement.
+
+**Latent factors with implicit feedback** — Seo & Hutchinson, **AAAI-18**, pp. 808–815
+([page](https://aaai.org/papers/11345-predicting-links-in-plant-pollinator-interaction-networks-using-latent-factor-models-with-implicit-feedback/),
+code [Hutchinson-Lab/pollination-networks-implicit-feedback](https://github.com/Hutchinson-Lab/pollination-networks-implicit-feedback)).
+Weighted matrix factorisation treating unobserved cells as weak negatives, evaluated with
+recommender-system ranking metrics, on plant–pollinator data. **This is the closest existing work to
+our framing** — the positive-unlabeled treatment and the ranking evaluation are both already there.
+It is transductive, which is where our contribution differs.
+
+**Bipartite VGAE with sampling-effort decorrelation** — Anakok et al. 2024,
+[arXiv:2403.02011](https://arxiv.org/abs/2403.02011) (**preprint**). Two GCN encoders with an HSIC
+penalty decorrelating embeddings from effort covariates. Relevant given our network is
+iNaturalist-dominated.
+
+**cassandRa structural suite** — Terry & Lewis 2020, *Ecology* 101(7):e03047,
+DOI [10.1002/ecy.3047](https://doi.org/10.1002/ecy.3047). Fits SBM, matching-centrality, connectance
+and coverage-deficit models in one call (CRAN `cassandRa`). Transductive; one hour of work for the
+structural upper reference.
+
+## J. Phylogenetic and taxonomic transfer
+
+**Hierarchical Bayesian phylogenetic affinity** — Elmasri, Farrell, Davies & Stephens 2020,
+*Annals of Applied Statistics* 14(1):221–240,
+DOI [10.1214/19-AOAS1296](https://doi.org/10.1214/19-AOAS1296); applied in Farrell et al. 2022,
+*J. Animal Ecology* 91:1875–1888, DOI [10.1111/1365-2656.13666](https://doi.org/10.1111/1365-2656.13666).
+Latent-score model with a scaled phylogenetic affinity term plus per-species degree effects; phylogeny
+and degree together beat either alone.
+
+**Congeneric / taxonomic nearest-neighbour transfer** — not a named method, but the phylogenetic-signal
+baseline inside Strydom 2022, Stock 2021 and Foster et al. 2026. Score a held-out plant by the
+taxonomically-weighted mean interaction vector of its relatives. ~25 lines, and with median plant
+degree 3 it will be competitive.
+
+## K. Co-occurrence — the argument to pre-empt
+
+**Blanchet, Cazelles & Gravel 2020**, *Ecology Letters* 23:1050–1063,
+DOI [10.1111/ele.13525](https://doi.org/10.1111/ele.13525), and *Nature Reviews Biodiversity* 2025,
+DOI [10.1038/s44358-025-00105-1](https://doi.org/10.1038/s44358-025-00105-1). Co-occurrence is not
+evidence of interaction. Our spatial feature block is precisely this paper's target. The defence:
+co-occurrence enters as a *necessary-condition prior* supervised against observed interactions, never
+as evidence of interaction — and we quantify how far it alone carries the prediction.
+
+**HMSC** — Tikhonov et al. 2020, *Methods Ecol. Evol.* 11:442–447,
+DOI [10.1111/2041-210X.13345](https://doi.org/10.1111/2041-210X.13345). Joint species distribution
+model; associations read from the residual covariance. Conceptual foil rather than a supervised
+comparator, and infeasible to fit jointly at our scale.
+
+## L. What recent papers benchmark against, and with which metrics
+
+| paper | baselines | metrics |
+|---|---|---|
+| Biton, Puzis & Pilosof 2025, *Nat. Ecol. Evol.* 9:1214–1223 | transductive embedding models; within- vs cross-network training | **precision, F1** — explicitly not ROC-AUC |
+| Foster et al. 2026, *Oikos*, DOI 10.1002/oik.11156 | phylogeny-only, trait-only, latent-SVD-only, combined | AUC + RMSE; latent SVD dominates |
+| Kampe et al. 2026 | latent factors ± bias correction, ± covariates | held-out AUC, count of revealed links |
+| Van Kleunen et al. 2026 (preprint) | stacked RF over bipartite CN, RA, Jaccard, Adamic–Adar, PageRank, low-rank, kNN | ROC-AUC **and** PR-AUC |
+| **Poisot 2023**, *Methods Ecol. Evol.* 14:1333–1345, DOI [10.1111/2041-210X.14071](https://doi.org/10.1111/2041-210X.14071) | — | mandates **PR-AUC, MCC, informedness**; states ROC-AUC is uninformative at this imbalance |
+
+At connectance 0.1%, a headline ROC-AUC will draw an objection. Report PR-AUC, recall@k, and MCC.

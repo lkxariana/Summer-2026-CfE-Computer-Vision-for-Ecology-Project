@@ -1,0 +1,28 @@
+========================================================================
+Q1. Are the missing pollinators present in the raw occurrence source?
+========================================================================
+raw occurrence file: 25,466 species | feature matrix: 24,939
+
+missing species-rank pollinator taxa: 6,361
+  present in raw occurrence file : 28  <- recoverable by rebuilding features
+  absent from raw occurrence file: 6,333  <- would need a new GBIF download
+
+  of the recoverable, occurrence counts: median 2, >=10 recs 14%, >=50 recs 4%
+  by order:
+   pollinator_order
+   Hymenoptera    18
+   Coleoptera      4
+   Diptera         3
+   Lepidoptera     3
+
+  interactions unlocked by rebuilding pollinator features: 203
+
+========================================================================
+Q2. Is genus-level feature aggregation feasible?
+========================================================================
+genus-rank plant nodes: 1,548 | with >=1 feature-covered congener: 998 (64%)
+  median covered species per genus: 2
+genus-rank pollinator nodes: 1,313 | with >=1 feature-covered congener: 607 (46%)
+  median covered species per genus: 6
+
+interactions modellable with genus aggregation: 117,880 (vs 82,973 without) = +34,907

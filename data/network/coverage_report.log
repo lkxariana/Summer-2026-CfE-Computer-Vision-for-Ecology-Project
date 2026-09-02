@@ -1,0 +1,59 @@
+feature universes: plants 6,466 | pollinators 24,939
+network taxa:      plants 11,031 | pollinators 15,012
+
+interactions with BOTH sides covered: 82,973 / 198,327 (41.8%)
+  plant side covered:      59.4%
+  pollinator side covered: 68.3%
+
+--- COVERED (modelled subgraph): 82,973 interactions, 4,243 plants, 6,217 pollinators
+    tier A 65%  genus-rank plant 0%  genus-rank pollinator 0%
+    top pollinator orders: Hymenoptera 49%, Lepidoptera 27%, Diptera 14%, Coleoptera 10%
+--- EXCLUDED at feature intersection: 115,354 interactions, 9,839 plants, 12,874 pollinators
+    tier A 43%  genus-rank plant 39%  genus-rank pollinator 12%
+    top pollinator orders: Hymenoptera 37%, Hemiptera 20%, Lepidoptera 17%, Diptera 9%
+
+=== WHY are pollinators excluded? (uncovered pollinator taxa) ===
+uncovered pollinator taxa: 7,671
+by rank:
+pollinator_rank
+species    6361
+genus      1310
+
+by order (top 10) — these are the taxa the current pool excludes:
+  Hemiptera           2,934 uncovered of  2,934 in network (100%)
+  Hymenoptera         1,415 uncovered of  3,242 in network (44%)
+  Diptera               515 uncovered of  2,034 in network (25%)
+  Coleoptera            494 uncovered of  2,258 in network (22%)
+  Lepidoptera           422 uncovered of  2,638 in network (16%)
+  Araneae               336 uncovered of    336 in network (100%)
+  Orthoptera            238 uncovered of    238 in network (100%)
+  Passeriformes         227 uncovered of    227 in network (100%)
+  Odonata               120 uncovered of    120 in network (100%)
+  Trombidiformes        118 uncovered of    118 in network (100%)
+
+=== edges recoverable by widening the pollinator pool ===
+  Hymenoptera      +  9,489 interactions would be added if this order were fully covered
+  Lepidoptera      +  3,475 interactions would be added if this order were fully covered
+  Diptera          +  2,981 interactions would be added if this order were fully covered
+  Coleoptera       +    912 interactions would be added if this order were fully covered
+  Hemiptera        + 10,565 interactions would be added if this order were fully covered
+  Passeriformes    +  2,004 interactions would be added if this order were fully covered
+  Araneae          +  1,462 interactions would be added if this order were fully covered
+
+=== WHY are plants excluded? ===
+uncovered plant taxa: 6,439
+by rank:
+plant_rank
+species    4891
+genus      1548
+
+top uncovered plant families:
+plant_family
+Asteraceae      919
+Fabaceae        490
+Rosaceae        262
+Poaceae         258
+Lamiaceae       221
+Malvaceae       145
+Brassicaceae    142
+Myrtaceae       132

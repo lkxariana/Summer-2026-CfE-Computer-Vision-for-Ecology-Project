@@ -52,6 +52,40 @@ def encode_zdyn(model, species_id, prism, alphaearth, device="cpu", batch=4096):
     return out
 
 
+def encode_zdyn_emb(model, species_emb, prism, alphaearth, device="cpu", batch=4096):
+    """encode_zdyn with explicit species text embeddings [N,768] — works for any taxon.
+    Vocab rows of species_matrix give numerics identical to the id path."""
+    out = np.empty((len(species_emb), Z_DYN), np.float32)
+    with torch.no_grad():
+        for i in range(0, len(species_emb), batch):
+            s = slice(i, i + batch)
+            zd = model.field_branch.encode_dynamic(
+                None,
+                torch.nan_to_num(torch.as_tensor(np.asarray(prism[s], np.float32), device=device)),
+                torch.as_tensor(np.asarray(alphaearth[s], np.float32), device=device),
+                species_emb=torch.as_tensor(np.asarray(species_emb[s], np.float32), device=device))
+            out[s] = zd.float().cpu().numpy()
+    return out
+
+
+def null_species_rows(model, n):
+    """The trained CFG null-species conditioning, tiled [n,768] — species-free z_dynamic input."""
+    return model.field_branch.dynamic_encoder.null_species_emb.detach().cpu().numpy()[None].repeat(n, 0)
+
+
+def encode_static(model, species_emb, device="cpu"):
+    """z_static [N,576] from species text embeddings [N,768]."""
+    with torch.no_grad():
+        return model.field_branch.static_encoder(
+            torch.as_tensor(np.asarray(species_emb, np.float32), device=device)).float().cpu().numpy()
+
+
+def text_matrix(cfg):
+    """(embeddings [6825,768] float32, name -> row) — BioCLIP-2 text of the raw binomial."""
+    d = torch.load(resolve(cfg, "species_embeddings"), map_location="cpu", weights_only=False)
+    return d["embeddings"].float().numpy(), d["species_to_id"]
+
+
 def load_vocab(cfg):
     return json.load(open(resolve(cfg, "species_vocab")))
 

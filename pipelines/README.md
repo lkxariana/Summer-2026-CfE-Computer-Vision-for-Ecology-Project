@@ -20,6 +20,21 @@ python pipelines/ppe/generate_opportunity.py          # one parquet per species 
 `generate_opportunity.py --species-file data/network/modelled_universe.json` restricts to the
 modelled universe; `--max-species N` for validation runs. Resumable (skips existing parts).
 
+`--head text` swaps the learned species-ID embedding for a projection of the frozen BioCLIP-2
+text embedding; `--extra-species taxa.pt` (built by `species_text.py --names taxa.json`) then
+emits zero-shot curves (`species_id = -1`, `part_zs_*.parquet`) for taxa with no observations.
+Prompt = the raw binomial string, the exact format `species_embeddings_v2.pt` was built with.
+The species_matrix embedding path is numerically identical to the id path (verified 0.0 diff).
+
+```bash
+python pipelines/ppe/export_embeddings.py   # species_static.npz [n_vocab,576] + grid_zdyn_null.npz [K,192]
+```
+
+exports the two cacheable e98 embeddings: the per-species z_static (constant over space/time —
+the phenology-model species embedding) and the species-free per-(cell,week) z_dynamic under the
+trained null-species conditioning. The dense per-species z_dynamic grid (~TB) is deliberately
+not cached — re-encode on demand.
+
 ## Pollinator side
 
 ```bash

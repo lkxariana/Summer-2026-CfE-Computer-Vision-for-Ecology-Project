@@ -10,7 +10,8 @@ import torch.nn as nn
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from pipelines.common import coord_enc, fourier_week
 from pipelines.config import load_config, resolve
-from pipelines.ppe.backbone import Z_DYN, alphaearth_by_cell, encode_zdyn, load_e98, load_grid, load_prism_weekly, load_vocab
+from pipelines.ppe.backbone import (Z_DYN, alphaearth_by_cell, encode_zdyn, encode_zdyn_emb,
+                                    load_e98, load_grid, load_prism_weekly, load_vocab, text_matrix)
 
 FLOWER_IDX = 2
 NEG_RATIO = 4
@@ -18,14 +19,27 @@ SPLITS = ["inat_train", "inat_test_random", "inat_test_spatial", "inat_test_spec
 
 
 class SINR(nn.Module):
-    def __init__(self, n_species, sp_emb=16, hid=256):
+    """Species vector = learned nn.Embedding (id head) or a projection of the frozen BioCLIP-2
+    text embedding (text head; zero-shot for any taxon via forward_emb)."""
+
+    def __init__(self, n_species, sp_emb=16, hid=256, txt=None):
         super().__init__()
-        self.emb = nn.Embedding(n_species, sp_emb)
+        if txt is None:
+            self.emb = nn.Embedding(n_species, sp_emb)
+        else:
+            self.register_buffer("txt", torch.from_numpy(txt))
+            self.proj = nn.Sequential(nn.Linear(txt.shape[1], 64), nn.GELU(), nn.Linear(64, sp_emb))
         self.net = nn.Sequential(nn.Linear(sp_emb + 6 + 4 + Z_DYN, hid), nn.GELU(), nn.Dropout(0.1),
                                  nn.Linear(hid, hid), nn.GELU(), nn.Dropout(0.1), nn.Linear(hid, 1))
 
+    def species_vec(self, sp):
+        return self.proj(self.txt[sp]) if hasattr(self, "txt") else self.emb(sp)
+
     def forward(self, co, wk, zd, sp):
-        return self.net(torch.cat([self.emb(sp), co, wk, zd], -1)).squeeze(-1)
+        return self.net(torch.cat([self.species_vec(sp), co, wk, zd], -1)).squeeze(-1)
+
+    def forward_emb(self, co, wk, zd, emb):
+        return self.net(torch.cat([self.proj(emb), co, wk, zd], -1)).squeeze(-1)
 
 
 def load_presence(cfg, grid, min_obs):
@@ -67,9 +81,13 @@ def main():
     ap.add_argument("--min-obs", type=int, default=5)
     ap.add_argument("--max-species", type=int, default=0, help="0 = all; else cap for a validation run")
     ap.add_argument("--species-file", default=None, help="JSON species list or modelled_universe.json")
+    ap.add_argument("--head", choices=["id", "text"], default="id")
+    ap.add_argument("--extra-species", default=None,
+                    help=".pt with {names, embeddings}: zero-shot taxa to predict (text head only)")
     ap.add_argument("--epochs", type=int, default=30)
     ap.add_argument("--batch", type=int, default=4096)
     args = ap.parse_args()
+    assert not (args.extra_species and args.head != "text"), "--extra-species requires --head text"
     cfg = load_config()
     device = "cuda" if torch.cuda.is_available() else "cpu"
     out_dir = Path(args.out_dir) if args.out_dir else cfg["paths"]["out_dir"] / "opportunity_surface"
@@ -103,6 +121,10 @@ def main():
         prism = windows[[win_by_key[(int(c), int(w))] for c, w in zip(cells, weeks)]]
         return encode_zdyn(model, vocab_sids, prism, ae_by_cell[cells], device, args.batch)
 
+    def zdyn_emb(cells, weeks, emb_rows):
+        prism = windows[[win_by_key[(int(c), int(w))] for c, w in zip(cells, weeks)]]
+        return encode_zdyn_emb(model, emb_rows, prism, ae_by_cell[cells], device, args.batch)
+
     pres_bins = np.unique(np.stack([pc, pw, psp], 1), axis=0)
     rng = np.random.default_rng(0)
     bg_cell = rng.choice(cov_cells, NEG_RATIO * len(pres_bins))
@@ -122,7 +144,8 @@ def main():
     co = coord_enc(lat_c[tr_cell], lon_c[tr_cell]); wk = fourier_week(tr_week)
     spidx = np.array([sid2idx[int(s)] for s in tr_sp])
 
-    net = SINR(n_sp).to(device)
+    txt = text_matrix(cfg)[0][species_ids] if args.head == "text" else None
+    net = SINR(n_sp, txt=txt).to(device)
     opt = torch.optim.Adam(net.parameters(), lr=1e-3, weight_decay=1e-5)
     lf = nn.BCEWithLogitsLoss()
     T = lambda a: torch.from_numpy(a).to(device)
@@ -164,6 +187,27 @@ def main():
             rate = (si + 1) / (time.time() - t0 + 1e-9)
             print(f"  species {si+1}/{n_sp} ({rate*3600:.0f}/h, eta {(n_sp-si-1)/max(rate,1e-9)/3600:.1f}h)", flush=True)
     print(f"[done] wrote {n_sp:,} species parquets to {out_dir}", flush=True)
+
+    if args.extra_species:
+        ex = torch.load(args.extra_species, map_location="cpu", weights_only=False)
+        ex_emb = ex["embeddings"].float().numpy()
+        print(f"[zeroshot] {len(ex['names'])} extra taxa", flush=True)
+        for i, name in enumerate(ex["names"]):
+            fp = out_dir / f"part_zs_{i:05d}.parquet"
+            if fp.exists():
+                continue
+            rows = np.repeat(ex_emb[i][None], len(cells_all), 0)
+            zd = zdyn_emb(cells_all, weeks_all, rows)
+            with torch.no_grad():
+                score = torch.sigmoid(net.forward_emb(T(co_all), T(wk_all), T((zd - zmean) / zstd),
+                                                      T(rows))).cpu().numpy()
+            norm = score / np.maximum(pd.Series(score).groupby(cells_all).transform("sum").values, 1e-9)
+            pd.DataFrame({"species": name, "species_id": -1,
+                          "cell_idx": cells_all.astype(np.int32), "centroid_lat": lat_c[cells_all].astype(np.float32),
+                          "centroid_lon": lon_c[cells_all].astype(np.float32), "week": weeks_all.astype(np.int8),
+                          "doy": doy_all.astype(np.int16), "p_flowering": score.astype(np.float32),
+                          "norm": norm.astype(np.float32)}).to_parquet(fp, index=False)
+        print(f"[done] wrote {len(ex['names'])} zero-shot parquets", flush=True)
 
 
 if __name__ == "__main__":

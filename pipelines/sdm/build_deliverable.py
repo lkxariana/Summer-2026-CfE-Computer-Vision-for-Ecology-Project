@@ -82,6 +82,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--device", default="cpu")
     ap.add_argument("--epochs", type=int, default=15)
+    ap.add_argument("--occ", default=None, help="occurrence npz (default <sdm_data>/pollinator_occ.npz)")
+    ap.add_argument("--occ-text", default=None, help="text pt aligned to the occ npz sidx")
     ap.add_argument("--out-dir", default=None)
     ap.add_argument("--universe", default=None, help="modelled_universe.json; restricts species to its pollinators[]")
     ap.add_argument("--smoke", action="store_true")
@@ -96,10 +98,11 @@ def main():
     print(f"[device] {dev} epochs={epochs} out={out}", flush=True)
 
     sd = cfg["paths"]["sdm_data"]
-    z = np.load(sd / "pollinator_occ.npz")
+    z = np.load(args.occ or sd / "pollinator_occ.npz")
     lat, lon, doy = z["lat"], z["lon"], z["doy"].astype(int)
     sid = z["sidx"].astype(int)
-    taxon_ids = z["taxon_ids"]
+    occ_names = z["names"] if "names" in z.files else None
+    taxon_ids = z["taxon_ids"] if occ_names is None else None
     week = ((doy - 1) // 7).clip(0, 51)
     nsp = int(sid.max()) + 1
     counts = np.bincount(sid, minlength=nsp)
@@ -118,7 +121,8 @@ def main():
     fit(head, lambda x: head.cls(head.emb(x)), Xt, st, epochs, "head", dev)
     torch.save(head.state_dict(), out / "model_head.pt")
     np.savez(out / "model_standardization.npz", clim_annual_mean=am, clim_annual_std=asd)
-    txt_occ = torch.load(sd / "pollinator_species_text.pt", map_location="cpu")["embeddings"].float().to(dev)
+    txt_occ = torch.load(args.occ_text or sd / "pollinator_species_text.pt",
+                         map_location="cpu")["embeddings"].float().to(dev)
     torch.manual_seed(0)
     L = LESINR(X.shape[1]).to(dev)
     fit(L, lambda x: L.pos_emb(x) @ L.species_emb(txt_occ).T, Xt, st, epochs, "lesinr", dev)
@@ -140,20 +144,26 @@ def main():
     print(f"[grid] {nc} cells", flush=True)
 
     plants = set(pd.read_parquet(resolve(cfg, "flowering_curves"), columns=["species"])["species"].unique())
-    lock = pd.read_csv(resolve(cfg, "locked_species"))
-    tid2globi = dict(zip(lock["train_taxon_id"].astype(int), lock["globi_name"]))
-    id2name = {int(m["taxon_id"]): (m.get("latin_name") or "") for m in json.load(open(resolve(cfg, "geo_prior_meta")))}
     g = pd.read_csv(resolve(cfg, "globi"), usecols=["sourceTaxonName", "sourceTaxonOrderName", "targetTaxonName"])
     linked = set(g[g.sourceTaxonOrderName.isin(CORE_ORDERS) & g.targetTaxonName.isin(plants)]["sourceTaxonName"].dropna().unique())
     if args.universe:
         u = json.load(open(args.universe))
         linked &= {p["label"] if isinstance(p, dict) else p for p in u["pollinators"]}
     A = []
-    for s in range(nsp):
-        tid = int(taxon_ids[s])
-        gname = tid2globi.get(tid, id2name.get(tid, ""))
-        if gname in linked:
-            A.append((s, tid, id2name.get(tid, gname) or gname, int(counts[s])))
+    if occ_names is not None:
+        for s in range(nsp):
+            name = str(occ_names[s])
+            if name in linked:
+                A.append((s, -1, name, int(counts[s])))
+    else:
+        lock = pd.read_csv(resolve(cfg, "locked_species"))
+        tid2globi = dict(zip(lock["train_taxon_id"].astype(int), lock["globi_name"]))
+        id2name = {int(m["taxon_id"]): (m.get("latin_name") or "") for m in json.load(open(resolve(cfg, "geo_prior_meta")))}
+        for s in range(nsp):
+            tid = int(taxon_ids[s])
+            gname = tid2globi.get(tid, id2name.get(tid, ""))
+            if gname in linked:
+                A.append((s, tid, id2name.get(tid, gname) or gname, int(counts[s])))
     zt = torch.load(sd / "zeroshot_text.pt", map_location="cpu")
     txt_B = zt["embeddings"].float().to(dev); namesB = zt["names"]
     if args.universe:

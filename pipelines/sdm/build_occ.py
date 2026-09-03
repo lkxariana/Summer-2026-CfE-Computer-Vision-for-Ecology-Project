@@ -11,13 +11,29 @@ LON = (-125.0, -66.0)
 
 
 def main():
-    """pollinator_occ.npz from the iNat geo-prior extract: locked taxa inside the CONUS box;
-    sidx indexes the full sorted locked list (zero-observation taxa keep a slot)."""
+    """Pollinator occurrence npz. --source inat: geo-prior extract filtered to the locked taxa,
+    sidx over the full sorted locked list (zero-obs taxa keep a slot; taxon_ids key).
+    --source gbif: the name-keyed GBIF extract (~25k species; names key instead of taxon_ids)."""
     ap = argparse.ArgumentParser()
+    ap.add_argument("--source", choices=["inat", "gbif"], default="inat")
     ap.add_argument("--species-csv", default=None, help="override locked list; needs a train_taxon_id column")
     ap.add_argument("--out", default=None)
     args = ap.parse_args()
     cfg = load_config()
+
+    if args.source == "gbif":
+        df = pd.read_csv(resolve(cfg, "gbif_obs"))
+        df = df[df.lat.between(*LAT) & df.lon.between(*LON) & df.doy.between(1, 366)]
+        names = np.sort(df.pollinator_species.unique()).astype(str)
+        sidx = df.pollinator_species.map({n: i for i, n in enumerate(names)}).values
+        out = Path(args.out) if args.out else cfg["paths"]["sdm_data"] / "pollinator_occ_gbif.npz"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        np.savez(out, lat=df.lat.values.astype(np.float32), lon=df.lon.values.astype(np.float32),
+                 doy=df.doy.values.astype(np.int16), year=df.year.values.astype(np.int16),
+                 sidx=sidx.astype(np.int32), names=names)
+        print(f"[done] {out}: {len(df):,} obs, {len(names)} species", flush=True)
+        return
+
     lock = pd.read_csv(args.species_csv or resolve(cfg, "locked_species"))
     tids = set(lock["train_taxon_id"].astype(int))
     print(f"[species] {len(tids)} locked taxon ids", flush=True)

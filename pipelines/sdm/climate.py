@@ -11,12 +11,15 @@ def load_lookup(cfg):
 
 
 def gather_obs(cfg, lat, lon, doy, chunk=200_000):
-    """(ann [N,256], mon [N,256]): annual-mean and observation-month embeddings, cached."""
-    cache = cfg["paths"]["sdm_data"] / "clim_gathered.npz"
-    if cache.exists():
-        d = np.load(cache)
-        if len(d["ann"]) == len(lat):
-            return d["ann"], d["mon"]
+    """(ann [N,256], mon [N,256]): annual-mean and observation-month embeddings, cached per
+    occurrence-set size (clim_gathered.npz is the legacy 3.3M-point cache)."""
+    sd = cfg["paths"]["sdm_data"]
+    cache = sd / f"clim_gathered_{len(lat)}.npz"
+    for p in (cache, sd / "clim_gathered.npz"):
+        if p.exists():
+            d = np.load(p)
+            if len(d["ann"]) == len(lat):
+                return d["ann"], d["mon"]
     tree, emb = load_lookup(cfg)
     month = np.clip((np.asarray(doy) - 1) // 30, 0, 11)
     N = len(lat)

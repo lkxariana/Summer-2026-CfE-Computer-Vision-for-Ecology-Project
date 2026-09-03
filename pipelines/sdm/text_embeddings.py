@@ -21,15 +21,20 @@ def linnaean(order, family, latin, common=""):
     return f"{s} {common}" if common else (s or latin)
 
 
-def occ_prompts(cfg):
-    taxon_ids = np.load(cfg["paths"]["sdm_data"] / "pollinator_occ.npz")["taxon_ids"]
+def occ_prompts(cfg, occ_path):
+    z = np.load(occ_path)
+    g = pd.read_csv(resolve(cfg, "globi"),
+                    usecols=["sourceTaxonName", "sourceTaxonFamilyName", "sourceTaxonOrderName"]).dropna().drop_duplicates("sourceTaxonName")
+    name2of = {r.sourceTaxonName: (r.sourceTaxonOrderName, r.sourceTaxonFamilyName) for r in g.itertuples()}
+    if "names" in z.files:
+        names = [str(n) for n in z["names"]]
+        prompts = [linnaean(*name2of.get(n, ("", "")), n) for n in names]
+        return prompts, {"names": names}
+    taxon_ids = z["taxon_ids"]
     meta = json.load(open(resolve(cfg, "geo_prior_meta")))
     id2name = {int(m["taxon_id"]): ((m.get("latin_name") or ""), (m.get("common_name") or "")) for m in meta}
     lock = pd.read_csv(resolve(cfg, "locked_species"))
     tid2globi = dict(zip(lock["train_taxon_id"].astype(int), lock["globi_name"]))
-    g = pd.read_csv(resolve(cfg, "globi"),
-                    usecols=["sourceTaxonName", "sourceTaxonFamilyName", "sourceTaxonOrderName"]).dropna().drop_duplicates("sourceTaxonName")
-    name2of = {r.sourceTaxonName: (r.sourceTaxonOrderName, r.sourceTaxonFamilyName) for r in g.itertuples()}
     prompts = []
     for tid in taxon_ids:
         latin, common = id2name.get(int(tid), ("", ""))
@@ -51,18 +56,22 @@ def main():
     pollinator_occ.npz species in sidx order; --set zeroshot = rows from a GloBI-named CSV."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--set", choices=["occ", "zeroshot"], required=True)
+    ap.add_argument("--occ", default=None, help="occurrence npz (default <sdm_data>/pollinator_occ.npz)")
     ap.add_argument("--csv", default=None, help="zeroshot species CSV (default <sdm_data>/groupB_zeroshot_species.csv)")
+    ap.add_argument("--out", default=None)
     ap.add_argument("--device", default="cpu")
     args = ap.parse_args()
     cfg = load_config()
     dev = args.device if (args.device != "cuda" or torch.cuda.is_available()) else "cpu"
     sd = cfg["paths"]["sdm_data"]
     if args.set == "occ":
-        prompts, extra = occ_prompts(cfg)
+        prompts, extra = occ_prompts(cfg, args.occ or sd / "pollinator_occ.npz")
         out = sd / "pollinator_species_text.pt"
     else:
         prompts, extra = zeroshot_prompts(args.csv or sd / "groupB_zeroshot_species.csv")
         out = sd / "zeroshot_text.pt"
+    if args.out:
+        out = args.out
     print(f"n={len(prompts)} | ex: {prompts[:3]}", flush=True)
 
     import open_clip

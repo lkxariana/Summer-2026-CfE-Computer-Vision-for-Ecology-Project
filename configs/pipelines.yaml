@@ -16,6 +16,7 @@ paths:
   geo_prior: /projects/bdbl/cherd/sinr/data/train/geo_prior_train.csv
   geo_prior_meta: /projects/bdbl/cherd/sinr/data/train/geo_prior_train_meta.json
   sdm_data: /projects/bdbl/cherd/data/pollinator_sdm
+  gbif_obs: /projects/bdbl/cherd/data/pollinator_sdm/pollinator_observations_v2.csv
   flowering_curves: /projects/bdbl/cherd/Summer-2026-CfE-Computer-Vision-for-Ecology-Project-old/Plant_Pollinator_Initial_Analysis/Part2_PhenoField_Outputs/data/flowering_curves_all.parquet
   out_dir: /projects/bdbl/cherd/Summer-2026-CfE-Computer-Vision-for-Ecology-Project-old/Plant_Pollinator_Initial_Analysis/Part2_PhenoField_Outputs/data
 

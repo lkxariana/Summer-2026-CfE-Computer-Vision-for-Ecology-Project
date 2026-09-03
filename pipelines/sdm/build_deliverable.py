@@ -85,6 +85,8 @@ def main():
     ap.add_argument("--occ", default=None, help="occurrence npz (default <sdm_data>/pollinator_occ.npz)")
     ap.add_argument("--occ-text", default=None, help="text pt aligned to the occ npz sidx")
     ap.add_argument("--out-dir", default=None)
+    ap.add_argument("--plants-dir", default=None,
+                    help="opportunity-surface dir: grid + plant list from its parts (overrides flowering_curves)")
     ap.add_argument("--universe", default=None, help="modelled_universe.json; restricts species to its pollinators[]")
     ap.add_argument("--smoke", action="store_true")
     args = ap.parse_args()
@@ -128,8 +130,14 @@ def main():
     fit(L, lambda x: L.pos_emb(x) @ L.species_emb(txt_occ).T, Xt, st, epochs, "lesinr", dev)
     torch.save(L.state_dict(), out / "model_lesinr.pt")
 
-    fc = pd.read_parquet(resolve(cfg, "flowering_curves"),
-                         columns=["cell_idx", "centroid_lat", "centroid_lon"]).drop_duplicates("cell_idx").sort_values("cell_idx")
+    if args.plants_dir:
+        parts = sorted(Path(args.plants_dir).glob("part_*.parquet"))
+        fc = pd.read_parquet(parts[0], columns=["cell_idx", "centroid_lat", "centroid_lon"]).drop_duplicates("cell_idx").sort_values("cell_idx")
+        plants = {pd.read_parquet(p, columns=["species"]).species.iloc[0] for p in parts}
+    else:
+        fc = pd.read_parquet(resolve(cfg, "flowering_curves"),
+                             columns=["cell_idx", "centroid_lat", "centroid_lon"]).drop_duplicates("cell_idx").sort_values("cell_idx")
+        plants = set(pd.read_parquet(resolve(cfg, "flowering_curves"), columns=["species"])["species"].unique())
     gc_idx = fc["cell_idx"].to_numpy(); glat = fc["centroid_lat"].to_numpy(); glon = fc["centroid_lon"].to_numpy()
     nc = len(gc_idx)
     clim_cell = gather_cells(cfg, glat, glon)
@@ -143,7 +151,6 @@ def main():
         Gg = head.emb(Xg).detach(); Wh = head.cls.weight.detach(); Gl = L.pos_emb(Xg).detach()
     print(f"[grid] {nc} cells", flush=True)
 
-    plants = set(pd.read_parquet(resolve(cfg, "flowering_curves"), columns=["species"])["species"].unique())
     g = pd.read_csv(resolve(cfg, "globi"), usecols=["sourceTaxonName", "sourceTaxonOrderName", "targetTaxonName"])
     linked = set(g[g.sourceTaxonOrderName.isin(CORE_ORDERS) & g.targetTaxonName.isin(plants)]["sourceTaxonName"].dropna().unique())
     if args.universe:

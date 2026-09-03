@@ -30,8 +30,9 @@ def predicate(keys):
 def submit(args):
     user, pwd, email = os.environ["GBIF_USER"], os.environ["GBIF_PWD"], os.environ["GBIF_EMAIL"]
     m = pd.read_csv(args.keys)
+    m = m[m.matchType.isin(["EXACT", "FUZZY"]) & (m["rank"] == "SPECIES")]
     keys = m.acceptedUsageKey.fillna(m.usageKey).dropna().astype(int).unique()
-    print(f"{len(keys)} taxon keys from {args.keys}")
+    print(f"{len(keys)} species-rank taxon keys from {args.keys}")
     body = {"creator": user, "notificationAddresses": [email], "sendNotification": True,
             "format": "SIMPLE_CSV", "predicate": predicate(keys)}
     r = requests.post(f"{API}/request", auth=(user, pwd), json=body,

@@ -41,7 +41,7 @@ test transfer to independently-assembled data.
 
 | | | | All held-out plants | | Expert field networks | | Specimen records | |
 |---|---|:---:|---:|---:|---:|---:|---:|---:|
-| **Method** | **Reference** | **CS** | R@10 | PR-AUC | R@10 | PR-AUC | R@10 | PR-AUC |
+| **Method** | **Reference** | | R@10 | PR-AUC | R@10 | PR-AUC | R@10 | PR-AUC |
 | *Nulls* | | | | | | | | |
 | Pollinator popularity | Aiyappa et al. 2025, ICML | ✓ | — | — | — | — | — | — |
 | Co-occurrence count | — | ✓ | — | — | — | — | — | — |
@@ -52,19 +52,23 @@ test transfer to independently-assembled data.
 | Trait matching (reduced coverage) | Pichler et al. 2020, *Methods Ecol Evol* 11:281 | ✓ | — | — | — | — | — | — |
 | *Learned representations* | | | | | | | | |
 | Truncated SVD + taxonomic imputation | Strydom et al. 2022, *Methods Ecol Evol* 13:2308 | ✓ | — | — | — | — | — | — |
-| Two-step Kronecker kernel ridge regression | Stock et al. 2021, *Ecol. Modelling* 451:109508 | ✓ | — | — | — | — | — | — |
-| Latent factors, implicit feedback | Seo & Hutchinson 2018, AAAI-18 | ✗ | — | — | — | — | — | — |
 | LightFM (WARP) | Kula 2015, arXiv:1507.08439 | ✓ | — | — | — | — | — | — |
-| Matrix factorisation (BPR-MF) | Rendle et al. 2009, UAI | ✗ | — | — | — | — | — | — |
-| LightGCN | He et al. 2020, SIGIR | ✗ | — | — | — | — | — | — |
 | *Feature-based* | | | | | | | | |
 | Gradient boosting on pair features | — | ✓ | — | — | — | — | — | — |
 | **Two-tower retrieval (ours)** | after Yi et al. 2019, RecSys | ✓ | — | — | — | — | — | — |
 | **+ per-cell phenology encoder (ours)** | this work | ✓ | — | — | — | — | — | — |
 
-*CS = can score a plant with zero training edges. Methods marked ✗ are transductive and are reported
-on the warm subset only; they bound what a method requiring observed edges can achieve and are not
-comparable to the cold-start rows. Prevalence baseline for PR-AUC: —.*
+*All methods shown are cold-start capable: each scores a plant with no training interactions.
+Prevalence baseline for PR-AUC: —.*
+
+**Methods not compared against.** Transductive factorisation and graph models — Bayesian personalised
+ranking (Rendle et al. 2009), latent factors with implicit feedback (Seo & Hutchinson 2018, AAAI-18),
+LightGCN (He et al. 2020) — learn a free latent vector per species and therefore cannot score a plant
+absent from training; they are inapplicable to this setting rather than merely weaker at it.
+Kronecker kernel ridge regression (Stock et al. 2021), the source of the evaluation framework used
+here, requires dense species-by-species kernels on both sides and is impractical at this network's
+scale. Morphological trait matching requires corolla depth, which is recorded for fewer than fifty
+species worldwide.
 
 ---
 

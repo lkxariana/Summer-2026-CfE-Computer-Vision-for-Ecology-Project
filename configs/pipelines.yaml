@@ -1,0 +1,27 @@
+# Heavy inputs for pipelines/. Any entry overridable with env PIPELINES_<KEY> (upper-cased).
+# Missing model-asset paths fall back to download from the hf: repos.
+paths:
+  ppe_ckpt: /projects/bdbl/bwei/PhenoField/logs/e98_large_specdrop_dyn4l/version_0/checkpoints/last.ckpt
+  ppe_models_dir: /projects/bdbl/cherd/PhenoField/vendor/bwei_ppe
+  species_embeddings: /projects/bdbl/cherd/data/phenofield/embeddings/species_embeddings_v2.pt
+  species_vocab: /projects/bdbl/cherd/data/phenofield_multi_365/species_vocab.json
+  ppe_cache: /projects/bdbl/cherd/data/phenofield_cache/e98_large_specdrop_dyn4l
+  prism_365: /projects/bdbl/cherd/data/phenofield/hf_prism_365.parquet
+  alphaearth: /projects/bdbl/cherd/data/conus_eval_grid/alphaearth_2017.parquet
+  climplicit: /projects/bdbl/cherd/data/phenofield/embeddings/climplicit/climplicit_monthly_lookup.pt
+  grid_centroids: /projects/bdbl/cherd/Summer-2026-CfE-Computer-Vision-for-Ecology-Project-old/data/grid_centroids_0.5deg.csv
+  plant_events: /projects/bdbl/cherd/Summer-2026-CfE-Computer-Vision-for-Ecology-Project-old/data/plant_flowering_events.parquet
+  globi: /projects/bdbl/cherd/Summer-2026-CfE-Computer-Vision-for-Ecology-Project-old/data/stage4_globi_conus_broad.csv
+  locked_species: /projects/bdbl/cherd/Summer-2026-CfE-Computer-Vision-for-Ecology-Project-old/data/pollinator_species_locked.csv
+  geo_prior: /projects/bdbl/cherd/sinr/data/train/geo_prior_train.csv
+  geo_prior_meta: /projects/bdbl/cherd/sinr/data/train/geo_prior_train_meta.json
+  sdm_data: /projects/bdbl/cherd/data/pollinator_sdm
+  flowering_curves: /projects/bdbl/cherd/Summer-2026-CfE-Computer-Vision-for-Ecology-Project-old/Plant_Pollinator_Initial_Analysis/Part2_PhenoField_Outputs/data/flowering_curves_all.parquet
+  out_dir: /projects/bdbl/cherd/Summer-2026-CfE-Computer-Vision-for-Ecology-Project-old/Plant_Pollinator_Initial_Analysis/Part2_PhenoField_Outputs/data
+
+hf:
+  ppe: dcher95/phenofield-e98
+  sdm: dcher95/antheia-pollinator-sdm
+  # repo files usable as path fallbacks: <hf.ppe>/last.ckpt, species_embeddings_v2.pt,
+  # species_vocab.json, models/, inputs/prism_weekly.npz, inputs/alphaearth_2017.parquet,
+  # inputs/grid_centroids_0.5deg.csv, inputs/plant_flowering_events.parquet

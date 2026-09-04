@@ -33,15 +33,13 @@ def rank_metrics(scorer, partners_by_plant, store, ks):
     return pd.DataFrame(rows)
 
 
-def ranking_metrics(scores, relevant, ks=(10, 50)):
+def retrieval_metrics(scores, relevant, ks=(10, 20)):
     """All per-query ranking metrics from one score vector and a relevant-index set.
 
-    recall@k  - fraction of KNOWN partners retrieved; degree-capped at k/|relevant|
-    nrecall@k - recall divided by its achievable maximum, removing the degree cap
-    hit@k     - was the shortlist worth opening at all
-    mrr       - 1/rank of the FIRST partner (ignores all others; single-answer metric)
-    map       - mean average precision: the multi-relevant generalisation of MRR
-    ndcg@k    - position-discounted, normalised by the ideal ranking (degree-fair)
+    Canonical protocol (settled with Dan, 2026-09-01): recall@{10,20}, nDCG@{10,20},
+    median rank of the first true partner. nDCG uses binary gains (graded gains give an
+    identical ordering, exp 43). k<10 and MRR are excluded: both reward the popularity
+    shortcut (exp 42, 44). nrecall is retained as a diagnostic for the degree cap.
     """
     order = np.argsort(-scores)
     rel = np.fromiter((1.0 if i in relevant else 0.0 for i in order[:max(ks)]), float, max(ks))
@@ -51,15 +49,21 @@ def ranking_metrics(scores, relevant, ks=(10, 50)):
         hits = rel[:k].sum()
         out[f"recall@{k}"] = hits / R
         out[f"nrecall@{k}"] = hits / min(R, k)
-        out[f"hit@{k}"] = float(hits > 0)
         disc = 1.0 / np.log2(np.arange(2, k + 2))
         idcg = disc[:min(R, k)].sum()
         out[f"ndcg@{k}"] = float((rel[:k] * disc).sum() / idcg) if idcg > 0 else 0.0
     ranks = np.flatnonzero(np.isin(order, list(relevant))) + 1
-    out["mrr"] = 1.0 / ranks[0] if len(ranks) else 0.0
-    out["map"] = float(np.mean([(j + 1) / r for j, r in enumerate(ranks)])) if len(ranks) else 0.0
-    out["median_rank_first"] = float(ranks[0]) if len(ranks) else np.nan
+    out["rank_first"] = float(ranks[0]) if len(ranks) else np.nan
     return out
+
+
+def pooled_metrics(y, scores):
+    """Pooled discrimination: PR-AUC is primary, ROC-AUC reported for comparability only.
+
+    ROC-AUC is insensitive to the vast negative class and was the metric on which the
+    original 139-pair benchmark scored 0.99 for an N-only model; treat it as context, not evidence.
+    """
+    return {"pr_auc": average_precision_score(y, scores), "roc_auc": roc_auc_score(y, scores)}
 
 
 def bootstrap_mean(values, n, seed):

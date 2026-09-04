@@ -1,0 +1,50 @@
+==========================================================================
+Q1. DO WIND-POLLINATED PLANTS HAVE 'POLLINATORS'?
+==========================================================================
+
+A (flower visitation):  wind-pollinated mean degree 4.6 vs insect-pollinated 16.3  (ratio 0.28)
+  wind families:  Plantaginaceae 9.8, Amaranthaceae 8.6, Fagaceae 6.7, Pinaceae 5.9, Poaceae 3.9
+  insect families: Asteraceae 25.8,  Lamiaceae 25.3,  Apiaceae 22.8,  Rosaceae 20.3,  Brassicaceae 13.1
+  Poaceae: 278 interactions (0.27% of tier), 71 taxa, mean degree 3.9
+
+A+B (all):  wind-pollinated mean degree 13.0 vs insect-pollinated 20.3  (ratio 0.64)
+  wind families:  Fagaceae 32.8, Betulaceae 20.3, Pinaceae 19.8, Chenopodiaceae 16.3, Cupressaceae 14.0
+  insect families: Asteraceae 32.3,  Lamiaceae 30.1,  Rosaceae 28.1,  Apiaceae 23.9,  Ericaceae 17.2
+  Poaceae: 2,130 interactions (1.07% of tier), 366 taxa, mean degree 5.8
+
+==========================================================================
+Q2. DOES THE FAUNA LOOK LIKE NORTH AMERICA?
+==========================================================================
+  tier A   : Hymenoptera 46%, Lepidoptera 30%, Diptera 13%, Coleoptera 7%, Hemiptera 1%, Passeriformes 1%
+  tier A+B : Hymenoptera 42%, Lepidoptera 21%, Hemiptera 11%, Diptera 11%, Coleoptera 7%, Passeriformes 2%
+
+==========================================================================
+Q5. WHERE DO GENUS-LEVEL RECORDS SIT?
+==========================================================================
+plant families with most genus-only taxa:
+              genus_taxa  species_taxa  pct_genus
+plant_family                                     
+Asteraceae         229.0        1483.0  13.376168
+Fabaceae            87.0         747.0  10.431655
+Poaceae             69.0         297.0  18.852459
+Rosaceae            48.0         390.0  10.958904
+Lamiaceae           46.0         322.0  12.500000
+Brassicaceae        40.0         203.0  16.460905
+
+pollinator orders by share identified only to genus:
+                  genus  species  pct_genus
+pollinator_order                           
+Mesostigmata      101.0     14.0  87.826087
+Trombidiformes     76.0     42.0  64.406780
+Araneae            41.0    295.0  12.202381
+Diptera           187.0   1847.0   9.193707
+Hymenoptera       271.0   2971.0   8.359038
+Coleoptera        166.0   2092.0   7.351639
+
+==========================================================================
+Q6. DO KNOWN SPECIALIST RELATIONSHIPS APPEAR?
+==========================================================================
+  squash bees on Cucurbita       11 interactions  e.g. Peponapis pruinosa x Cucurbita pepo
+  yucca moths on Yucca           14 interactions  e.g. Tegeticula synthetica x Yucca brevifolia
+  Habropoda on Vaccinium         14 interactions  e.g. Habropoda laboriosa x Vaccinium corymbosum
+  Andrena on Salix              266 interactions  e.g. Andrena vicina x Salix sp.

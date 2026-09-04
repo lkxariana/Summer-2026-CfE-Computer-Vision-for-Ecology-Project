@@ -20,3 +20,6 @@ logs/
 
 # feature caches (regenerate with scripts/build_feature_caches.py)
 data/features/
+
+# frozen splits are committed; nothing else under data/ is
+!data/splits/

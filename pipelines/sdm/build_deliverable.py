@@ -19,6 +19,33 @@ CAPCELLS = 1500
 CORE_ORDERS = {"Hymenoptera", "Lepidoptera", "Diptera", "Coleoptera", "Hemiptera", "Apodiformes"}
 
 
+def plant_grid_and_names(cfg, plants_dir):
+    """Grid cells and plant names, from a per-species surface directory or one flowering_curves parquet.
+
+    Every part in the surface directory carries the same (cell_idx, week) support, so the grid is
+    read from one part. The species list costs one row-group read per part, so it is cached beside
+    the directory as <dir>_species.json.
+    """
+    if not plants_dir:
+        src = resolve(cfg, "flowering_curves")
+        fc = pd.read_parquet(src, columns=["cell_idx", "centroid_lat", "centroid_lon"])
+        names = set(pd.read_parquet(src, columns=["species"])["species"].unique())
+        return fc.drop_duplicates("cell_idx").sort_values("cell_idx"), names
+    import pyarrow.parquet as pq
+    d = Path(plants_dir)
+    parts = sorted(d.glob("*.parquet"))
+    if not parts:
+        raise FileNotFoundError(f"no parquets under {d}")
+    fc = pd.read_parquet(parts[0], columns=["cell_idx", "centroid_lat", "centroid_lon"])
+    cache = d.with_name(d.name + "_species.json")
+    if cache.exists():
+        names = set(json.load(open(cache)))
+    else:
+        names = {str(pq.ParquetFile(f).read_row_group(0, columns=["species"])["species"][0]) for f in parts}
+        json.dump(sorted(names), open(cache, "w"))
+    return fc.drop_duplicates("cell_idx").sort_values("cell_idx"), names
+
+
 class ResLayer(nn.Module):
     def __init__(self, h):
         super().__init__()
@@ -86,6 +113,9 @@ def main():
     ap.add_argument("--occ-text", default=None, help="text pt aligned to the occ npz sidx")
     ap.add_argument("--out-dir", default=None)
     ap.add_argument("--universe", default=None, help="modelled_universe.json; restricts species to its pollinators[]")
+    ap.add_argument("--plants-dir", default=None,
+                    help="directory of per-species opportunity parquets; supersedes the "
+                         "flowering_curves config key")
     ap.add_argument("--smoke", action="store_true")
     args = ap.parse_args()
     cfg = load_config()
@@ -128,8 +158,7 @@ def main():
     fit(L, lambda x: L.pos_emb(x) @ L.species_emb(txt_occ).T, Xt, st, epochs, "lesinr", dev)
     torch.save(L.state_dict(), out / "model_lesinr.pt")
 
-    fc = pd.read_parquet(resolve(cfg, "flowering_curves"),
-                         columns=["cell_idx", "centroid_lat", "centroid_lon"]).drop_duplicates("cell_idx").sort_values("cell_idx")
+    fc, plants = plant_grid_and_names(cfg, args.plants_dir)
     gc_idx = fc["cell_idx"].to_numpy(); glat = fc["centroid_lat"].to_numpy(); glon = fc["centroid_lon"].to_numpy()
     nc = len(gc_idx)
     clim_cell = gather_cells(cfg, glat, glon)
@@ -143,7 +172,6 @@ def main():
         Gg = head.emb(Xg).detach(); Wh = head.cls.weight.detach(); Gl = L.pos_emb(Xg).detach()
     print(f"[grid] {nc} cells", flush=True)
 
-    plants = set(pd.read_parquet(resolve(cfg, "flowering_curves"), columns=["species"])["species"].unique())
     g = pd.read_csv(resolve(cfg, "globi"), usecols=["sourceTaxonName", "sourceTaxonOrderName", "targetTaxonName"])
     linked = set(g[g.sourceTaxonOrderName.isin(CORE_ORDERS) & g.targetTaxonName.isin(plants)]["sourceTaxonName"].dropna().unique())
     if args.universe:

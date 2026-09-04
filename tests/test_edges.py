@@ -19,6 +19,13 @@ def test_edges_unique():
     assert not e.duplicated(subset=["plant_id", "pollinator_id"]).any()
 
 
+def test_labels_unique_per_side():
+    """One node per taxon name. Features are name-keyed, so two nodes sharing a label would
+    share one feature vector while splitting that taxon's partners between them."""
+    assert not pl.duplicated(subset=["label", "rank"]).any()
+    assert not po.duplicated(subset=["label", "rank"]).any()
+
+
 def test_referential_integrity():
     assert set(e.plant_id) <= set(pl.plant_id)
     assert set(e.pollinator_id) <= set(po.pollinator_id)

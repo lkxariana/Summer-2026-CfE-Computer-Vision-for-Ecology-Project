@@ -9,7 +9,8 @@ per-week flowering or activity curve. Two routes exist on each side:
                zeroshot_lesinr  the LE-SINR head predicts it from the Linnaean text embedding
 
 Pollinators outside the core flower-visiting orders are dropped: they are predators and
-incidental visitors (Araneae, Psocodea, Mesostigmata, ...) rather than pollinators.
+incidental visitors (Araneae, Psocodea, Mesostigmata, ...) rather than pollinators. So are taxa
+whose order the checklists disagree on, since that disagreement is exactly the membership question.
 
 Genus aggregation -- defining a genus node from its feature-covered congeners -- is not used.
 It underperformed the text zero-shot head on held-out covered plants (0.493 vs 0.566 curve
@@ -51,8 +52,13 @@ def main():
     pl["has_congener"] = pl["label"].str.split(" ").str[0].isin(surf_gen)
 
     pol = pd.read_parquet(net / "nodes_pollinators.parquet")
-    dropped = pol[~pol["order"].isin(CORE_ORDERS)]
-    pol = pol[pol["order"].isin(CORE_ORDERS)].sort_values("label").reset_index(drop=True)
+    # An order conflict means the checklists disagree on whether the taxon is a flower visitor at
+    # all (GBIF has the gall-mite genus Eriophyes in both Trombidiformes and Diptera); drop rather
+    # than resolve by majority, which picks the larger and wrong group.
+    ambiguous = pol.get("order_conflict", pd.Series(False, index=pol.index)).fillna(False)
+    keep_order = pol["order"].isin(CORE_ORDERS) & ~ambiguous
+    dropped = pol[~keep_order]
+    pol = pol[keep_order].sort_values("label").reset_index(drop=True)
     pol["feature_source"] = np.where(pol["label"].isin(occ), "direct", "zeroshot_lesinr")
     pol["has_congener"] = pol["label"].str.split(" ").str[0].isin(occ_gen)
 
@@ -64,6 +70,7 @@ def main():
         "n_interactions_modellable": int(keep.sum()),
         "n_interactions_total": len(edges),
         "excluded_pollinator_taxa": len(dropped),
+        "excluded_order_conflict": int(ambiguous.sum()),
         "excluded_pollinator_orders": sorted(dropped["order"].dropna().unique().tolist()),
         "plants": [{"id": r.plant_id, "label": r.label, "rank": r["rank"],
                     "feature_source": r.feature_source, "has_congener": bool(r.has_congener)}

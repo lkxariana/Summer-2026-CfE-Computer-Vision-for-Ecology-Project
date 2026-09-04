@@ -27,7 +27,10 @@ def main():
 
     occ = set(map(str, np.load(args.occ, allow_pickle=True)["names"]))
     pol = pd.read_parquet(args.nodes)
-    gb = pol[pol["order"].isin(CORE_ORDERS) & ~pol["label"].isin(occ)]
+    # same membership rule as the modelled universe: core orders, and not a taxon whose order
+    # the checklists disagree on
+    ambiguous = pol.get("order_conflict", pd.Series(False, index=pol.index)).fillna(False)
+    gb = pol[pol["order"].isin(CORE_ORDERS) & ~ambiguous & ~pol["label"].isin(occ)]
     out = pd.DataFrame({
         "sourceTaxonName": gb["label"].values,
         "sourceTaxonOrderName": gb["order"].fillna("").values,

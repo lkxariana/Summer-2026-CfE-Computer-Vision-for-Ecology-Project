@@ -10,3 +10,10 @@ artifacts/external/
 
 # built data products (regenerate with scripts/run_build_pipeline.sh)
 data/network/*.parquet
+
+# never commit credentials
+.hf_token
+*.token
+
+# run logs
+logs/

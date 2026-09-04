@@ -84,6 +84,8 @@ def main():
     ap.add_argument("--head", choices=["id", "text"], default="id")
     ap.add_argument("--extra-species", default=None,
                     help=".pt with {names, embeddings}: zero-shot taxa to predict (text head only)")
+    ap.add_argument("--zeroshot-only", action="store_true",
+                    help="train the head but emit only --extra-species curves; the observed\n                          species already have curves from the id-head run")
     ap.add_argument("--epochs", type=int, default=30)
     ap.add_argument("--batch", type=int, default=4096)
     args = ap.parse_args()
@@ -169,7 +171,7 @@ def main():
     co_all = coord_enc(lat_c[cells_all], lon_c[cells_all]); wk_all = fourier_week(weeks_all)
     print(f"[predict] {len(cells_all):,} (cell,week) x {n_sp:,} species", flush=True)
     t0 = time.time()
-    for si, sid in enumerate(species_ids):
+    for si, sid in enumerate(species_ids if not args.zeroshot_only else []):
         fp = out_dir / f"part_{si:05d}.parquet"
         if fp.exists():
             continue

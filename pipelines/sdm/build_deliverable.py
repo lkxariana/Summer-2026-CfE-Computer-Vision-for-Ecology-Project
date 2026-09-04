@@ -172,11 +172,12 @@ def main():
         Gg = head.emb(Xg).detach(); Wh = head.cls.weight.detach(); Gl = L.pos_emb(Xg).detach()
     print(f"[grid] {nc} cells", flush=True)
 
-    g = pd.read_csv(resolve(cfg, "globi"), usecols=["sourceTaxonName", "sourceTaxonOrderName", "targetTaxonName"])
-    linked = set(g[g.sourceTaxonOrderName.isin(CORE_ORDERS) & g.targetTaxonName.isin(plants)]["sourceTaxonName"].dropna().unique())
     if args.universe:
         u = json.load(open(args.universe))
-        linked &= {p["label"] if isinstance(p, dict) else p for p in u["pollinators"]}
+        linked = {p["label"] if isinstance(p, dict) else p for p in u["pollinators"]}
+    else:
+        g = pd.read_csv(resolve(cfg, "globi"), usecols=["sourceTaxonName", "sourceTaxonOrderName", "targetTaxonName"])
+        linked = set(g[g.sourceTaxonOrderName.isin(CORE_ORDERS) & g.targetTaxonName.isin(plants)]["sourceTaxonName"].dropna().unique())
     A = []
     if occ_names is not None:
         for s in range(nsp):

@@ -6,6 +6,10 @@ mkdir -p data
 echo "=== BUILD $(date -Is) ==="
 $PY scripts/build_edges.py 2>&1 | grep -viE "^ *$|warning" | tee data/build.log
 BUILD=$?
+echo "=== CANONICALIZE $(date -Is) ==="
+$PY scripts/canonicalize_nodes.py 2>&1 | tee data/canonicalize.log
+echo "=== UNIVERSE $(date -Is) ==="
+$PY scripts/build_modelled_universe.py 2>&1 | tee data/universe.log
 echo "=== EDA $(date -Is) ==="
 $PY eval/eda_edges.py 2>&1 | grep -viE "warning" | tee data/eda.log
 echo "=== TESTS $(date -Is) ==="

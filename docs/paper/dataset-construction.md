@@ -168,7 +168,28 @@ aggregated interaction data by Ollerton, Taliga, Salim, Poelen & Drucker (2025, 
 Pollination Ecology* 38:151–160, doi:10.26786/1920-7603(2025)844), who note that measures of data
 quality — the evidence by which an animal is determined to interact with a plant — are rarely reported.
 
-### Step 10 — Intersect with feature coverage
+### Step 10 — Collapse duplicate identifiers
+
+Step 5 takes node identity from the identifier a record carries, and one taxon is routinely published
+under several: superseded backbone keys, names the aggregator resolved through different authorities,
+and synonyms reconciled to distinct concepts. Taken as given, these yield several nodes for one taxon
+— the mite genus *Aceria* arrives under six GBIF keys — which splits that taxon's partners across
+nodes and counts a single interaction once per identifier pair.
+
+Nodes are therefore collapsed on `(label, rank)`, the identifier preference of Step 5 selecting the
+representative, and the constituent identifiers are retained on the node. Interactions are remapped
+and re-aggregated as in Step 9. Family and order are taken from whichever member of a group carries
+them. Where members disagree on a non-null value the field is flagged rather than resolved by
+majority: a family disagreement is usually a revision that changes nothing else (Hydrophyllaceae sunk
+into Boraginaceae), whereas an order disagreement bears directly on whether a taxon is a flower
+visitor at all, and the majority is not reliably the accepted placement.
+
+Resolving names to a single accepted concept before analysis is standard practice in occurrence-data
+cleaning; Dorey et al. (2023) harmonise names against a reference taxonomy as a distinct step from
+record-level deduplication, and the two are complementary here — Step 7 removes repeated observations
+of one interaction, this step removes repeated representations of one taxon.
+
+### Step 11 — Intersect with feature coverage
 
 The network is constructed without reference to the modelling feature sets, so that its taxonomic
 scope is a property of the source data rather than of feature availability. The modelled subgraph is

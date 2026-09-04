@@ -1,0 +1,34 @@
+# Crow paths. Reconstructed from pipelines/config.py usage after the transfer bundle's root
+# tree could not be resolved (see RECOVERY note in MIGRATION_PLAN.md). Any entry is overridable
+# with PIPELINES_<KEY>. Entries pointing at /nonexistent fall back to the HF repos in `hf:`.
+hf:
+  ppe: dcher95/phenofield-e98
+  sdm: dcher95/antheia-pollinator-sdm
+
+paths:
+  # --- large covariates transferred from the HPC ---
+  ppe_cache:      /scratch/cher/antheia-data/phenofield_cache/e98_large_specdrop_dyn4l
+  climplicit:     /scratch/cher/antheia-data/climplicit/climplicit_monthly_lookup.pt
+  prism_365:      /scratch/cher/antheia-data/prism/hf_prism_365.parquet
+  sdm_data:       /scratch/cher/antheia-data/pollinator_sdm
+  gbif_obs:       /scratch/cher/antheia-data/pollinator_sdm/pollinator_observations_v3.csv
+  out_dir:        /scratch/cher/antheia-data/out
+
+  # --- model assets: absent locally on purpose, so resolve() pulls them from HF ---
+  ppe_ckpt:           /nonexistent
+  ppe_models_dir:     /nonexistent
+  species_embeddings: /nonexistent
+  species_vocab:      /nonexistent
+  grid_centroids:     /nonexistent
+  plant_events:       /nonexistent
+  alphaearth:         /nonexistent
+  prism_weekly:       /nonexistent
+
+  # --- interaction records ---
+  globi: /scratch/ariana.l/Stage 4 Link Prediction Model/stage4_globi_conus_broad.csv
+
+  # --- legacy keys, only used by superseded --source inat flows ---
+  geo_prior:         /nonexistent
+  geo_prior_meta:    /nonexistent
+  locked_species:    /nonexistent
+  flowering_curves:  /nonexistent

@@ -54,7 +54,8 @@ def main():
     partners = {sp: set(store.idx_polls(g["pollinator"])) for sp, g in test.groupby("plant")}
     print(f"[data] train {len(train):,} interactions over {train['plant'].nunique():,} plants | "
           f"{args.part} {len(test):,} over {len(test_plants):,} plants | "
-          f"curves={args.curves}", flush=True)
+          f"curves requested={args.curves} loaded FC={store.curve_sources['FC']} "
+          f"AC={store.curve_sources['AC']}", flush=True)
 
     pi_test = store.idx_plants(test_plants)
     rows, per_plant = [], []
@@ -79,6 +80,7 @@ def main():
             y[r, list(partners[sp])] = 1
         yf, sf = y.ravel(), S.ravel().astype(np.float64)
         row = {"method": name, "reference": model.reference, "cold_start": model.cold_start,
+               "fc_source": store.curve_sources["FC"], "ac_source": store.curve_sources["AC"],
                "pr_auc": average_precision_score(yf, sf), "roc_auc": roc_auc_score(yf, sf),
                "connectance": yf.mean(), "seconds": time.time() - t0}
         for k in KS:

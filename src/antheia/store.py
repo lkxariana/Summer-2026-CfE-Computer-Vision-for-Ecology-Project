@@ -185,8 +185,13 @@ class UniverseStore:
         self.FCm = np.load(feat / "FCm.npy") if (feat / "FCm.npy").exists() else None
         self.ACm = np.load(feat / "ACm.npy") if (feat / "ACm.npy").exists() else None
         self.curves = curves
-        self.FC = self.FCm if (curves == "modelled" and self.FCm is not None) else self.FCo
-        self.AC = self.ACm if (curves == "modelled" and self.ACm is not None) else self.ACo
+        want = curves == "modelled"
+        self.FC = self.FCm if (want and self.FCm is not None) else self.FCo
+        self.AC = self.ACm if (want and self.ACm is not None) else self.ACo
+        # A missing modelled cache falls back rather than failing, so record what was actually
+        # loaded: a run labelled "modelled" that silently used observed curves is not comparable.
+        self.curve_sources = {"FC": "modelled" if (want and self.FCm is not None) else "observed",
+                              "AC": "modelled" if (want and self.ACm is not None) else "observed"}
 
         tax = pd.read_parquet(feat / "taxonomy.parquet")
         self.family = dict(zip(tax["label"], tax["family"]))

@@ -87,3 +87,21 @@ def bootstrap_pr_by_plant(pairs, n, seed):
             stats.append(average_precision_score(sample["label"], sample["score"]))
     base = average_precision_score(pairs["label"], pairs["score"])
     return base, *np.percentile(stats, [2.5, 97.5]), np.std(stats)
+
+
+def paired_bootstrap(a, b, n, seed):
+    """Paired bootstrap over the same queries: returns (mean difference, lo, hi, p).
+
+    Both methods are evaluated on the identical test plants, so resampling the plants rather than
+    the scores keeps the pairing and removes the between-plant variance that dominates an unpaired
+    comparison. `p` is two-sided, the fraction of resamples whose difference has the opposite sign
+    to the observed mean.
+    """
+    a, b = np.asarray(a, float), np.asarray(b, float)
+    assert a.shape == b.shape, "paired comparison needs the same queries in the same order"
+    d = a - b
+    rng = np.random.default_rng(seed)
+    means = d[rng.integers(0, len(d), size=(n, len(d)))].mean(1)
+    lo, hi = np.percentile(means, [2.5, 97.5])
+    p = 2 * min((means <= 0).mean(), (means >= 0).mean())
+    return d.mean(), lo, hi, min(p, 1.0)

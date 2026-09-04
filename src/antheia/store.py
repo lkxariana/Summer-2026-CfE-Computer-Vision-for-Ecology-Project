@@ -1,3 +1,6 @@
+import json
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 
@@ -146,3 +149,55 @@ class FeatureStore:
             else:
                 raise KeyError(c)
         return np.hstack(blocks)
+
+
+class UniverseStore:
+    """Feature store over the frozen modelled universe in `data/features/`.
+
+    Same surface as `FeatureStore` -- species order, occupancy, curves, co-occurrence, range sizes --
+    but indexed to `modelled_universe.json` rather than a coverage intersection computed at load
+    time, so every run sees identical rows and nothing silently reindexes.
+
+    Curves come in two forms and `curves=` selects which `FC`/`AC` expose:
+      "observed"  weekly histograms of the taxon's own records; empty for taxa without any
+      "modelled"  the per-cell surfaces marginalised over space; defined for every taxon
+    Both are always loaded, as `FCo`/`ACo` and `FCm`/`ACm`, so an ablation can switch without
+    reloading.
+    """
+
+    def __init__(self, root=None, curves="modelled"):
+        root = Path(root) if root else Path(__file__).resolve().parents[2]
+        feat, net = root / "data/features", root / "data/network"
+        u = json.load(open(net / "modelled_universe.json"))
+        self.plants = [p["label"] for p in u["plants"]]
+        self.polls = [p["label"] for p in u["pollinators"]]
+        self.p2i = {s: i for i, s in enumerate(self.plants)}
+        self.q2i = {s: i for i, s in enumerate(self.polls)}
+        self.feature_source = {p["label"]: p["feature_source"] for p in u["plants"] + u["pollinators"]}
+
+        self.F = np.load(feat / "F.npy")
+        self.P = np.load(feat / "P.npy")
+        self.Frs = np.load(feat / "Frs.npy").astype(np.float64)
+        self.Prs = np.load(feat / "Prs.npy").astype(np.float64)
+        self._N = np.load(feat / "N.npy", mmap_mode="r")
+        self.FCo = np.load(feat / "FCo.npy")
+        self.ACo = np.load(feat / "ACo.npy")
+        self.FCm = np.load(feat / "FCm.npy") if (feat / "FCm.npy").exists() else None
+        self.ACm = np.load(feat / "ACm.npy") if (feat / "ACm.npy").exists() else None
+        self.curves = curves
+        self.FC = self.FCm if (curves == "modelled" and self.FCm is not None) else self.FCo
+        self.AC = self.ACm if (curves == "modelled" and self.ACm is not None) else self.ACo
+
+        tax = pd.read_parquet(feat / "taxonomy.parquet")
+        self.family = dict(zip(tax["label"], tax["family"]))
+        self.genus = dict(zip(tax["label"], tax["genus"]))
+
+    @property
+    def N_full(self):
+        return self._N
+
+    def idx_plants(self, names):
+        return np.fromiter((self.p2i[s] for s in names), int, len(names))
+
+    def idx_polls(self, names):
+        return np.fromiter((self.q2i[s] for s in names), int, len(names))

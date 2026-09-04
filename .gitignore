@@ -23,3 +23,6 @@ data/features/
 
 # frozen splits are committed; nothing else under data/ is
 !data/splits/
+
+# results: keep the tables, not the score dumps
+results/*.npy

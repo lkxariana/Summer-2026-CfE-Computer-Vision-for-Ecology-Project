@@ -17,3 +17,6 @@ data/network/*.parquet
 
 # run logs
 logs/
+
+# feature caches (regenerate with scripts/build_feature_caches.py)
+data/features/

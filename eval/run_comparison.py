@@ -35,6 +35,9 @@ def main():
     ap.add_argument("--curves", choices=["observed", "modelled"], default="modelled")
     ap.add_argument("--split", default=ROOT / "data/splits/plants_75_10_15.json")
     ap.add_argument("--part", default="test", choices=["val", "test"])
+    ap.add_argument("--holdout-source", default=None,
+                    help="evaluate transfer to one source dataset: its sole-supported interactions "
+                         "are removed from training and become the test set")
     ap.add_argument("--out", default=ROOT / "results")
     ap.add_argument("--bootstrap", type=int, default=1000)
     ap.add_argument("--seed", type=int, default=42)
@@ -47,9 +50,17 @@ def main():
     edges = pd.read_parquet(ROOT / "data/network/edges.parquet")
     edges = edges[edges["plant"].isin(store.p2i) & edges["pollinator"].isin(store.q2i)]
 
-    held = set(split[args.part])
-    train = edges[edges["plant"].isin(set(split["train"]))]
-    test = edges[edges["plant"].isin(held)]
+    if args.holdout_source:
+        # Transfer to independently assembled data: hold out every interaction this source alone
+        # supports, then keep the test plants that retain no training interaction at all, so the
+        # setting stays cold-start and comparable with the leave-plant-out column.
+        sole = edges["sources"] == args.holdout_source
+        train = edges[~sole]
+        cold = set(edges.loc[sole, "plant"]) - set(train["plant"])
+        test = edges[sole & edges["plant"].isin(cold)]
+    else:
+        train = edges[edges["plant"].isin(set(split["train"]))]
+        test = edges[edges["plant"].isin(set(split[args.part]))]
     test_plants = sorted({p for p in test["plant"]})
     partners = {sp: set(store.idx_polls(g["pollinator"])) for sp, g in test.groupby("plant")}
     print(f"[data] train {len(train):,} interactions over {train['plant'].nunique():,} plants | "
@@ -95,7 +106,7 @@ def main():
         if args.save_scores:
             np.save(out / f"scores_{name}_{args.part}.npy", S)
 
-    tag = f"{args.part}_{args.curves}"
+    tag = (args.holdout_source.split("/")[-1] if args.holdout_source else args.part) + f"_{args.curves}"
     pd.concat(per_plant).to_parquet(out / f"per_plant_{tag}.parquet", index=False)
     df = pd.DataFrame(rows).sort_values("recall@10", ascending=False)
     df.to_csv(out / f"comparison_{tag}.csv", index=False)

@@ -71,7 +71,7 @@ def convert(args):
         n = 0
         for ch in rd:
             ch = ch.dropna(subset=["species", "decimalLatitude", "decimalLongitude", "eventDate"])
-            dt = pd.to_datetime(ch.eventDate, errors="coerce", format="mixed", utc=True)
+            dt = pd.to_datetime(ch.eventDate, errors="coerce", utc=True)
             ch = ch[dt.notna()]
             dt = dt[dt.notna()]
             for row in zip(ch.species, ch.decimalLatitude, ch.decimalLongitude, dt.dt.dayofyear, dt.dt.year):

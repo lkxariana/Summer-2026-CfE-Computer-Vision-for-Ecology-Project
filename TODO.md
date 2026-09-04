@@ -1,68 +1,71 @@
 # Modelling requirements
 
 What must exist before any model runs. The network is built and verified
-(`data/network/`, 198,327 interactions, 12,347 plant taxa × 15,921 pollinator taxa). Nothing below
-exists yet for that universe — the current caches are keyed to the superseded species set.
+(`data/network/`, 192,945 interactions, 11,031 plant taxa x 15,010 pollinator taxa). Items 1-3 are
+done; run `scripts/run_build_pipeline.sh` to regenerate the chain end to end.
 
-Ordered by dependency. Items 1–3 block everything.
+Ordered by dependency.
 
 ---
 
-## 1. Define the modelled universe
+## 1. Define the modelled universe — **done**
 
-**Decision needed first, because every cache is sized by it.**
+`data/network/modelled_universe.json`, built by `scripts/build_modelled_universe.py`.
 
-The network has 12,347 plant and 15,921 pollinator taxa. Feature coverage is much narrower:
+Every taxon in the universe carries a spatially explicit per-cell surface: a supervised species head
+where observations exist, a text-conditioned zero-shot head otherwise. Genus aggregation is not used
+(it lost to the text zero-shot head, 0.493 vs 0.566 curve overlap on held-out covered plants);
+`has_congener` marks where it would apply, so the ablation needs no rebuild.
 
-| | taxa in network | with existing features | interactions modellable |
+| | in universe | direct | zero-shot |
 |---|---:|---:|---:|
-| species rank only | — | 4,243 plants / 6,217 pollinators | 82,973 |
-| **+ genus aggregation** | — | 998 extra plant genera / 607 extra pollinator genera | **117,880** |
+| plants | 11,031 | 4,770 | 6,261 |
+| pollinators | 13,124 | 5,354 | 7,770 |
 
-Genus aggregation defines a genus node's features as the union (occupancy) or mean (curves) over its
-feature-covered congeners. It recovers 34,907 interactions and is the recommended default.
-
-**Output:** `data/network/modelled_universe.json` — ordered lists `plants[]` and `pollinators[]`, each
-entry with `id`, `label`, `rank`, and `feature_source` ∈ {direct, genus_aggregate}. Every cache below
-is indexed to these orders. Nothing downstream may reindex.
+1,886 pollinator taxa outside the six core flower-visiting orders are excluded, as are 2 whose order
+the checklists disagree on. **180,349 of 192,945 interactions (93.5%) are modellable.**
 
 ---
 
-## 2. Core feature caches
+## 2. Core feature caches — **done except FCm**
 
-All indexed to item 1's ordering. Written to `data/features/`.
+`data/features/`, built by `scripts/build_feature_caches.py` and `scripts/build_modelled_curves.py`,
+indexed to item 1's order. Verified by `tests/test_features.py` (9/9).
 
-| # | artifact | shape | built from | notes |
-|---|---|---|---|---|
-| 2.1 | `F.npy` plant occupancy | n_plants × 3,162, bool | PhenoField / PPE occurrence records | genus rows are the union over congeners |
-| 2.2 | `P.npy` pollinator occupancy | n_polls × 3,162, bool | GBIF occurrence extract | same |
-| 2.3 | `FC.npy` flowering curves | n_plants × 52, float32 | PPE surface, marginalised over cells | row-normalised |
-| 2.4 | `AC.npy` activity curves | n_polls × 52, float32 | GBIF weekly histograms | row-normalised; week = (doy−1)//7 clipped to [0,51] |
-| 2.5 | `N.npy` co-occurrence | n_plants × n_polls, uint16 | `F @ P.T` over shared cells | ~390 MB dense; sparse if memory-bound |
-| 2.6 | `Frs.npy`, `Prs.npy` range sizes | n_plants, n_polls | row sums of F, P | |
-| 2.7 | `taxonomy.parquet` | per taxon | node tables | genus, family, order; integer-coded for embeddings |
+| artifact | shape | source |
+|---|---|---|
+| `F.npy` / `P.npy` | taxa x 3,335 cells, bool | flowering observations (e98 cache) / GBIF occurrences |
+| `FCo.npy` / `ACo.npy` | taxa x 52, float32 | weekly histograms of the same records |
+| `FCm.npy` / `ACm.npy` | taxa x 52, float32 | per-cell surfaces marginalised over cells |
+| `N.npy` | 11,031 x 13,124, uint16 | `F @ P.T` over the shared cells |
+| `Frs.npy` / `Prs.npy` | range sizes | row sums |
+| `taxonomy.parquet`, `coverage.parquet`, `grid.parquet` | per taxon / per cell | node tables, universe |
 
-**Verification for each:** row count matches item 1; no all-zero rows; curves sum to 1; N is
-symmetric-consistent with F and P on a sample of pairs.
+The observed caches (`F`, `P`, `FCo`, `ACo`, `N`) exist only for taxa with their own records: 4,835
+of 11,031 plants and 5,344 of 13,124 pollinators. That is the explicit end of the feature axis. The
+modelled curves cover everything — `ACm` is built; **`FCm` waits on the zero-shot plant surfaces.**
+
+The per-cell surfaces are not densified. 13,124 pollinators x 3,335 cells x 52 weeks is several
+terabytes; location-conditioned models read the parquets on demand.
 
 ---
 
-## 3. Splits
+## 3. Splits — **done**
 
-Frozen before any model runs, written to `data/splits/`.
+`data/splits/`, built by `scripts/build_splits.py`, seed 42. Verified by `tests/test_splits.py` (8/8).
 
-| # | split | definition | file |
-|---|---|---|---|
-| 3.1 | leave-plant-out (primary) | degree-stratified 75/10/15 over plant taxa | `plants_75_10_15.json` |
-| 3.2 | leave-pollinator-out | same over pollinator taxa | `pollinators_75_10_15.json` |
-| 3.3 | both-new | intersection of held-out plants × held-out pollinators | derived |
-| 3.4 | source holdout — expert field networks | all interactions whose only source is Web of Life removed from training (≈10,483) | `holdout_webofline.json` |
-| 3.5 | source holdout — specimen records | same for `gbif-us-bees` (≈6,613) | `holdout_gbifusbees.json` |
-| 3.6 | prospective | train on interactions first recorded ≤ cutoff, test on later ones | `temporal_2020.json` |
+| split | file | size |
+|---|---|---|
+| leave-plant-out, degree-stratified 75/10/15 | `plants_75_10_15.json` | 8,123 / 1,085 / 1,624 (+199 with no interactions) |
+| leave-pollinator-out | `pollinators_75_10_15.json` | 9,843 / 1,312 / 1,969 |
+| both-new (Stock et al. Setting D) | `both_new.json` | 4,320 test interactions |
+| source holdout — Web of Life | `holdout_webofline.json` | 10,402 sole-supported |
+| source holdout — specimen records | `holdout_gbifusbees.json` | 6,126 sole-supported |
+| prospective, cutoff 2020 | `temporal_2020.json` | 97,749 train / 71,184 test |
 
-**Negatives.** Training: rebalanced 1:1–1:3, resampled per seed, mixed uniform / co-occurrence-matched
-/ degree-matched. Test pooled: **one frozen set at the network's true connectance (~1:1000)**, shared
-by every model. Retrieval: no sampling — score all candidates.
+**Negatives.** Training: rebalanced 1:1-1:3, resampled per seed, mixed uniform / co-occurrence-matched
+/ degree-matched. Test pooled: one frozen set at the network's true connectance, shared by every
+model. Retrieval: no sampling — score all candidates.
 
 ---
 
@@ -124,13 +127,13 @@ Per-plant score vectors must be persisted so significance tests and error analys
 
 ---
 
-## 7. Blocked — needs Dan
+## 7. Resolved by the HPC handoff
 
-| # | item | what is needed |
+| # | item | resolution |
 |---|---|---|
-| 7.1 | **phenology-model embeddings** | Does PPE expose per-species internal vectors, and can they be exported? If PPE is SINR-like, the species embedding is the classifier head and is a matrix read-off. |
-| 7.2 | **pollinator SDM architecture** | Is the SDM the same architecture as PPE (shared location encoder + per-species head), or independent per-species models? If independent, there is no shared space and a symmetric embedding comparison is not defined. |
-| 7.3 | **pollinator feature coverage** | 6,333 pollinator taxa in the network are absent from the occurrence extract entirely. Closing that gap needs a new GBIF download, not reprocessing. Decide whether to scope around it or acquire. |
+| 7.1 | phenology-model embeddings | Exported. `ppe_embeddings/species_static.npz` [6,825 x 576] is the per-species e98 embedding, constant over space and time; `grid_zdyn_null.npz` [98,817 x 192] is the species-free climate-phenology state per (cell, week), the input for 4.10. |
+| 7.2 | pollinator SDM architecture | Shared location encoder with per-species heads, the SINR form, plus an LE-SINR head conditioned on a BioCLIP-2 text embedding for taxa with no occurrences. A symmetric embedding comparison is therefore defined. |
+| 7.3 | pollinator feature coverage | Closed by a new GBIF download (7.56M records, 5,822 species). Taxa still without occurrences are covered zero-shot: the deliverable spans all 13,124 universe pollinators. |
 
 ---
 

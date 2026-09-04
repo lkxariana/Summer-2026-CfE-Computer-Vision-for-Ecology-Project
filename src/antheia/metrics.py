@@ -36,10 +36,13 @@ def rank_metrics(scorer, partners_by_plant, store, ks):
 def retrieval_metrics(scores, relevant, ks=(10, 20)):
     """All per-query ranking metrics from one score vector and a relevant-index set.
 
-    Canonical protocol (settled with Dan, 2026-09-01): recall@{10,20}, nDCG@{10,20},
-    median rank of the first true partner. nDCG uses binary gains (graded gains give an
-    identical ordering, exp 43). k<10 and MRR are excluded: both reward the popularity
-    shortcut (exp 42, 44). nrecall is retained as a diagnostic for the degree cap.
+    Primary metric is nrecall@k, recall normalised by min(R, k). Plain recall@k is capped
+    below 1 whenever a plant has more than k recorded partners -- 29% of held-out plants --
+    so it measures the degree distribution as much as the model. Both are returned;
+    recall@k is reported alongside for comparability with the wider literature.
+
+    nDCG uses binary gains (graded gains give an identical ordering). k<10 and MRR are
+    excluded: both reward the popularity shortcut.
     """
     order = np.argsort(-scores)
     rel = np.fromiter((1.0 if i in relevant else 0.0 for i in order[:max(ks)]), float, max(ks))

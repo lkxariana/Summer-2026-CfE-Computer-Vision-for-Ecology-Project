@@ -20,21 +20,21 @@
 
 | | | | All held-out plants |  | Expert field networks |  | Specimen records | |
 |---|---|:---:|---:|---:|---:|---:|---:|---:|
-| **Method** | **Reference** | | R@10 | PR-AUC | R@10 | PR-AUC | R@10 | PR-AUC |
+| **Method** | **Reference** | | nR@10 | PR-AUC | nR@10 | PR-AUC | nR@10 | PR-AUC |
 | *Nulls* | | | | | | | | |
-| Pollinator popularity | Aiyappa et al. 2025, ICML (arXiv:2405.14985) | ✓ | 0.107 | 0.0335 | 0.041 | 0.0040 | 0.176 | 0.0164 |
-| Co-occurrence count | Blanchet, Cazelles & Gravel 2020, Ecology Letters 23:1050 | ✓ | 0.035 | 0.0227 | 0.015 | 0.0016 | 0.028 | 0.0009 |
-| Abundance neutral model | Vázquez, Chacoff & Cagnolo 2009, Ecology 90:2039 | ✓ | 0.053 | 0.0140 | 0.028 | 0.0024 | 0.047 | 0.0021 |
+| Pollinator popularity | Aiyappa et al. 2025, ICML (arXiv:2405.14985) | ✓ | 0.244 | 0.0526 | 0.043 | 0.0040 | 0.206 | 0.0275 |
+| Co-occurrence count | Blanchet, Cazelles & Gravel 2020, Ecology Letters 23:1050 | ✓ | 0.105 | 0.0264 | 0.020 | 0.0016 | 0.036 | 0.0015 |
+| Abundance neutral model | Vázquez, Chacoff & Cagnolo 2009, Ecology 90:2039 | ✓ | 0.140 | 0.0239 | 0.032 | 0.0024 | 0.056 | 0.0040 |
 | *Structured ecological baselines* | | | | | | | | |
-| Congeneric transfer | phylogenetic-signal baseline; cf. Strydom et al. 2022, Methods Ecol Evol 13:2308 | ✓ | 0.206 | 0.0542 | 0.055 | 0.0045 | 0.238 | 0.0119 |
-| Phenology x abundance likelihood | Vizentin-Bugoni, Maruyama & Sazima 2014, Proc R Soc B 281:20132397 | ✓ | 0.020 | 0.0133 | 0.013 | 0.0019 | 0.012 | 0.0006 |
+| Congeneric transfer | phylogenetic-signal baseline; cf. Strydom et al. 2022, Methods Ecol Evol 13:2308 | ✓ | 0.307 | 0.0628 | 0.062 | 0.0045 | 0.280 | 0.0156 |
+| Phenology x abundance likelihood | Vizentin-Bugoni, Maruyama & Sazima 2014, Proc R Soc B 281:20132397 | ✓ | 0.079 | 0.0164 | 0.015 | 0.0019 | 0.017 | 0.0011 |
 | Trait matching (reduced coverage) |  |  | — | — | — | — | — | — |
 | *Learned representations* | | | | | | | | |
-| Truncated SVD + taxonomic imputation | Strydom et al. 2022, Methods Ecol Evol 13:2308 | ✓ | 0.138 | 0.0717 | 0.060 | 0.0044 | 0.314 | 0.0180 |
-| LightFM (WARP) | Kula 2015, arXiv:1507.08439 | ✓ | 0.028 | 0.0072 | 0.011 | 0.0013 | 0.005 | 0.0013 |
+| Truncated SVD + taxonomic imputation | Strydom et al. 2022, Methods Ecol Evol 13:2308 | ✓ | 0.289 | 0.0950 | 0.073 | 0.0044 | 0.379 | 0.0232 |
+| LightFM (WARP) | Kula 2015, arXiv:1507.08439 | ✓ | 0.016 | 0.0022 | 0.000 | 0.0015 | 0.092 | 0.0034 |
 | *Feature-based* | | | | | | | | |
-| Gradient boosting on pair features | Pichler et al. 2020, Methods Ecol Evol 11:281 | ✓ | 0.117 | 0.0486 | 0.025 | 0.0039 | 0.184 | 0.0172 |
+| Gradient boosting on pair features | Pichler et al. 2020, Methods Ecol Evol 11:281 | ✓ | 0.280 | 0.0746 | 0.025 | 0.0039 | 0.215 | 0.0285 |
 | **Two-tower retrieval (ours)** |  |  | — | — | — | — | — | — |
 | **+ per-cell phenology encoder (ours)** |  |  | — | — | — | — | — | — |
 
-*Cold-start capable methods only: each scores a plant with no training interactions. Held-out plants per set: All held-out plants 1085, Expert field networks 46, Specimen records 284. Prevalence baseline for PR-AUC: All held-out plants 0.00139, Expert field networks 0.00141, Specimen records 0.00023.*
+*Normalised recall@10 (recall / min(partners, 10)) and PR-AUC at the network's connectance; training uses both evidence tiers, scoring is restricted to Tier A. Cold-start capable methods only: each scores a plant with no training interactions. Held-out plants per set: All held-out plants 663, Expert field networks 46, Specimen records 218. Prevalence baseline for PR-AUC: All held-out plants 0.00132, Expert field networks 0.00141, Specimen records 0.00014.*

@@ -35,6 +35,8 @@ def main():
     ap.add_argument("--curves", choices=["observed", "modelled"], default="modelled")
     ap.add_argument("--split", default=ROOT / "data/splits/plants_75_10_15.json")
     ap.add_argument("--part", default="test", choices=["val", "test"])
+    ap.add_argument("--eval-tier", default="A", choices=["A", "AB"],
+                    help="evidence tier of the interactions scored; training always uses both")
     ap.add_argument("--holdout-source", default=None,
                     help="evaluate transfer to one source dataset: its sole-supported interactions "
                          "are removed from training and become the test set")
@@ -61,12 +63,14 @@ def main():
     else:
         train = edges[edges["plant"].isin(set(split["train"]))]
         test = edges[edges["plant"].isin(set(split[args.part]))]
+    if args.eval_tier == "A":
+        test = test[test["tier"] == "A"]
     test_plants = sorted({p for p in test["plant"]})
     partners = {sp: set(store.idx_polls(g["pollinator"])) for sp, g in test.groupby("plant")}
     print(f"[data] train {len(train):,} interactions over {train['plant'].nunique():,} plants | "
           f"{args.part} {len(test):,} over {len(test_plants):,} plants | "
           f"curves requested={args.curves} loaded FC={store.curve_sources['FC']} "
-          f"AC={store.curve_sources['AC']}", flush=True)
+          f"AC={store.curve_sources['AC']} | eval tier {args.eval_tier}", flush=True)
 
     pi_test = store.idx_plants(test_plants)
     rows, per_plant = [], []
@@ -95,22 +99,24 @@ def main():
                "pr_auc": average_precision_score(yf, sf), "roc_auc": roc_auc_score(yf, sf),
                "connectance": yf.mean(), "seconds": time.time() - t0}
         for k in KS:
-            mean, lo, hi, _ = bootstrap_mean(pp[f"recall@{k}"].to_numpy(), args.bootstrap, args.seed)
-            row[f"recall@{k}"], row[f"recall@{k}_lo"], row[f"recall@{k}_hi"] = mean, lo, hi
+            for metric in (f"nrecall@{k}", f"recall@{k}"):
+                mean, lo, hi, _ = bootstrap_mean(pp[metric].to_numpy(), args.bootstrap, args.seed)
+                row[metric], row[f"{metric}_lo"], row[f"{metric}_hi"] = mean, lo, hi
             row[f"ndcg@{k}"] = pp[f"ndcg@{k}"].mean()
         row["median_rank_first"] = pp["rank_first"].median()
         rows.append(row)
-        print(f"  {name:<20} R@10 {row['recall@10']:.4f} [{row['recall@10_lo']:.4f},"
-              f"{row['recall@10_hi']:.4f}]  nDCG@10 {row['ndcg@10']:.4f}  "
+        print(f"  {name:<20} nR@10 {row['nrecall@10']:.4f} [{row['nrecall@10_lo']:.4f},"
+              f"{row['nrecall@10_hi']:.4f}]  R@10 {row['recall@10']:.4f}  nDCG@10 {row['ndcg@10']:.4f}  "
               f"PR {row['pr_auc']:.4f}  ({row['seconds']:.0f}s)", flush=True)
         if args.save_scores:
             np.save(out / f"scores_{name}_{args.part}.npy", S)
 
-    tag = (args.holdout_source.split("/")[-1] if args.holdout_source else args.part) + f"_{args.curves}"
+    tag = ((args.holdout_source.split("/")[-1] if args.holdout_source else args.part)
+           + f"_{args.curves}_tier{args.eval_tier}")
     pd.concat(per_plant).to_parquet(out / f"per_plant_{tag}.parquet", index=False)
-    df = pd.DataFrame(rows).sort_values("recall@10", ascending=False)
+    df = pd.DataFrame(rows).sort_values("nrecall@10", ascending=False)
     df.to_csv(out / f"comparison_{tag}.csv", index=False)
-    print("\n" + df[["method", "recall@10", "recall@20", "ndcg@10", "pr_auc",
+    print("\n" + df[["method", "nrecall@10", "nrecall@20", "recall@10", "ndcg@10", "pr_auc",
                      "median_rank_first"]].to_string(index=False, float_format=lambda x: f"{x:.4f}"))
     print(f"\n[wrote] {out}/comparison_{tag}.csv")
 

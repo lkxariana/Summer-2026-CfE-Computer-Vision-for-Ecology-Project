@@ -76,10 +76,10 @@ SETS = [("All held-out plants", "val"), ("Expert field networks", "web-of-life")
         ("Specimen records", "gbif-us-bees")]
 
 
-def table2(results, curves="modelled"):
+def table2(results, curves="modelled", tier="A"):
     frames, prev = {}, {}
     for title, tag in SETS:
-        f = Path(results) / f"comparison_{tag}_{curves}.csv"
+        f = Path(results) / f"comparison_{tag}_{curves}_tier{tier}.csv"
         if f.exists():
             d = pd.read_csv(f).set_index("method")
             frames[title] = d
@@ -87,7 +87,7 @@ def table2(results, curves="modelled"):
     head = ["| | | | " + " | ".join(f"{t} | " for t in frames) + "|",
             "|---|---|:---:|" + "---:|---:|" * len(frames),
             "| **Method** | **Reference** | | " +
-            " | ".join("R@10 | PR-AUC" for _ in frames) + " |"]
+            " | ".join("nR@10 | PR-AUC" for _ in frames) + " |"]
     sub = []
     body = []
     for group, methods in GROUPS:
@@ -97,16 +97,18 @@ def table2(results, curves="modelled"):
             for title in frames:
                 d = frames[title]
                 if m in d.index:
-                    cells += [f"{d.loc[m, 'recall@10']:.3f}", f"{d.loc[m, 'pr_auc']:.4f}"]
+                    cells += [f"{d.loc[m, 'nrecall@10']:.3f}", f"{d.loc[m, 'pr_auc']:.4f}"]
                     ref = d.loc[m, "reference"] or "—"
                     cs = "\u2713" if d.loc[m, "cold_start"] else ""
                 else:
                     cells += ["—", "—"]
             body.append(f"| {LABELS[m]} | {ref} | {cs} | " + " | ".join(cells) + " |")
-    n = {t: len(pd.read_parquet(Path(results) / f"per_plant_{tag}_modelled.parquet")
+    n = {t: len(pd.read_parquet(Path(results) / f"per_plant_{tag}_modelled_tier{tier}.parquet")
                 .query("method == 'popularity'")) for t, tag in SETS
-         if (Path(results) / f"per_plant_{tag}_modelled.parquet").exists()}
-    cap = ("\n*Cold-start capable methods only: each scores a plant with no training interactions. "
+         if (Path(results) / f"per_plant_{tag}_modelled_tier{tier}.parquet").exists()}
+    cap = ("\n*Normalised recall@10 (recall / min(partners, 10)) and PR-AUC at the network's "
+           "connectance; training uses both evidence tiers, scoring is restricted to Tier A. "
+           "Cold-start capable methods only: each scores a plant with no training interactions. "
            "Held-out plants per set: " + ", ".join(f"{t} {v}" for t, v in n.items()) +
            ". Prevalence baseline for PR-AUC: " +
            ", ".join(f"{t} {prev[t]:.5f}" for t in prev) + ".*")

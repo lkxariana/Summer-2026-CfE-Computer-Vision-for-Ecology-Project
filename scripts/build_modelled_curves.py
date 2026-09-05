@@ -1,8 +1,15 @@
 """Modelled phenology and activity curves, marginalised over space, for the whole universe.
 
 The observation-derived curves in `build_feature_caches.py` exist only for taxa with records. These
-are their modelled counterparts: the per-cell surfaces averaged over the cells each taxon occupies,
-giving one 52-week curve for every taxon in the universe, including the zero-shot half.
+are their modelled counterparts: the per-cell surfaces marginalised over space, giving one 52-week
+curve for every taxon in the universe, including the zero-shot half.
+
+Cells are weighted by absolute predicted probability, not by the per-cell normalised curve. The
+normalised curve is a within-cell shape and carries no information about whether the taxon is there
+at all, so averaging it weights a cell outside the range as heavily as one at the range core. Against
+observed histograms for plants that have both, probability weighting recovers the peak week within
+two weeks for 60% of species against 41% for shape weighting, and matches the overlap the supervised
+phenology head achieves.
 
   FCm.npy  plants x 52       from the opportunity surfaces (e98 direct + text zero-shot)
   ACm.npy  pollinators x 52  from the SDM deliverable
@@ -38,11 +45,11 @@ def pollinator_curves(deliverable, labels):
     cnt = np.zeros(len(labels), dtype=np.float64)
     pf = pq.ParquetFile(Path(deliverable) / "pollinator_activity_curves.parquet")
     for g in range(pf.num_row_groups):
-        d = pf.read_row_group(g, columns=["species_id", "week", "activity_norm"]).to_pandas()
+        d = pf.read_row_group(g, columns=["species_id", "week", "p_activity"]).to_pandas()
         d["row"] = d["species_id"].map(sid2row)
         d = d.dropna(subset=["row"])
         np.add.at(C, (d["row"].to_numpy(dtype=int), d["week"].to_numpy(dtype=int)),
-                  d["activity_norm"].to_numpy())
+                  d["p_activity"].to_numpy())
         np.add.at(cnt, d["row"].to_numpy(dtype=int), 1.0)
         if g % 50 == 0:
             print(f"  row group {g}/{pf.num_row_groups}", flush=True)
@@ -55,13 +62,14 @@ def plant_curves(dirs, labels):
     seen = set()
     parts = [f for d in dirs for f in sorted(Path(d).glob("*.parquet"))]
     for i, f in enumerate(parts):
-        d = pd.read_parquet(f, columns=["species", "week", "norm"])
+        d = pd.read_parquet(f, columns=["species", "week", "p_flowering"])
         sp = d["species"].iloc[0]
         row = p2i.get(sp)
         if row is None or sp in seen:      # the zero-shot run repeated 263 taxa
             continue
         seen.add(sp)
-        np.add.at(C, (np.full(len(d), row), d["week"].to_numpy(dtype=int)), d["norm"].to_numpy())
+        np.add.at(C, (np.full(len(d), row), d["week"].to_numpy(dtype=int)),
+                  d["p_flowering"].to_numpy())
         if i % 1000 == 0:
             print(f"  part {i}/{len(parts)}", flush=True)
     return normalise(C, len(labels))

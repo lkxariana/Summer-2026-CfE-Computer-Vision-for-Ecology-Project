@@ -27,13 +27,13 @@
 | Abundance neutral model | Vázquez, Chacoff & Cagnolo 2009, Ecology 90:2039 | ✓ | 0.140 | 0.0239 | 0.032 | 0.0024 | 0.056 | 0.0040 |
 | *Structured ecological baselines* | | | | | | | | |
 | Congeneric transfer | phylogenetic-signal baseline; cf. Strydom et al. 2022, Methods Ecol Evol 13:2308 | ✓ | 0.307 | 0.0628 | 0.062 | 0.0045 | 0.280 | 0.0156 |
-| Phenology x abundance likelihood | Vizentin-Bugoni, Maruyama & Sazima 2014, Proc R Soc B 281:20132397 | ✓ | 0.079 | 0.0164 | 0.015 | 0.0019 | 0.017 | 0.0011 |
+| Phenology x abundance likelihood | Vizentin-Bugoni, Maruyama & Sazima 2014, Proc R Soc B 281:20132397 | ✓ | 0.158 | 0.0240 | 0.034 | 0.0022 | 0.060 | 0.0043 |
 | Trait matching (reduced coverage) |  |  | — | — | — | — | — | — |
 | *Learned representations* | | | | | | | | |
 | Truncated SVD + taxonomic imputation | Strydom et al. 2022, Methods Ecol Evol 13:2308 | ✓ | 0.289 | 0.0950 | 0.073 | 0.0044 | 0.379 | 0.0232 |
-| LightFM (WARP) | Kula 2015, arXiv:1507.08439 | ✓ | 0.016 | 0.0022 | 0.000 | 0.0015 | 0.092 | 0.0034 |
+| LightFM (WARP) | Kula 2015, arXiv:1507.08439 | ✓ | 0.010 | 0.0025 | 0.000 | 0.0015 | 0.000 | 0.0002 |
 | *Feature-based* | | | | | | | | |
-| Gradient boosting on pair features | Pichler et al. 2020, Methods Ecol Evol 11:281 | ✓ | 0.280 | 0.0746 | 0.025 | 0.0039 | 0.215 | 0.0285 |
+| Gradient boosting on pair features | Pichler et al. 2020, Methods Ecol Evol 11:281 | ✓ | 0.290 | 0.0786 | 0.032 | 0.0036 | 0.229 | 0.0262 |
 | **Two-tower retrieval (ours)** |  |  | — | — | — | — | — | — |
 | **+ per-cell phenology encoder (ours)** |  |  | — | — | — | — | — | — |
 

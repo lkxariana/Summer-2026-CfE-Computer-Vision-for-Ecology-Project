@@ -57,6 +57,9 @@ def retrieval_metrics(scores, relevant, ks=(10, 20)):
         out[f"ndcg@{k}"] = float((rel[:k] * disc).sum() / idcg) if idcg > 0 else 0.0
     ranks = np.flatnonzero(np.isin(order, list(relevant))) + 1
     out["rank_first"] = float(ranks[0]) if len(ranks) else np.nan
+    # Average precision over the whole ranking: cutoff-free, and unlike pooled PR-AUC it asks
+    # nothing about whether this plant's scores are on the same scale as another's.
+    out["ap"] = float((np.arange(1, len(ranks) + 1) / ranks).sum() / R) if len(ranks) else 0.0
     return out
 
 

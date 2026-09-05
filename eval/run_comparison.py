@@ -103,6 +103,8 @@ def main():
                 mean, lo, hi, _ = bootstrap_mean(pp[metric].to_numpy(), args.bootstrap, args.seed)
                 row[metric], row[f"{metric}_lo"], row[f"{metric}_hi"] = mean, lo, hi
             row[f"ndcg@{k}"] = pp[f"ndcg@{k}"].mean()
+        mean, lo, hi, _ = bootstrap_mean(pp["ap"].to_numpy(), args.bootstrap, args.seed)
+        row["map"], row["map_lo"], row["map_hi"] = mean, lo, hi
         row["median_rank_first"] = pp["rank_first"].median()
         rows.append(row)
         print(f"  {name:<20} nR@10 {row['nrecall@10']:.4f} [{row['nrecall@10_lo']:.4f},"
@@ -116,7 +118,7 @@ def main():
     pd.concat(per_plant).to_parquet(out / f"per_plant_{tag}.parquet", index=False)
     df = pd.DataFrame(rows).sort_values("nrecall@10", ascending=False)
     df.to_csv(out / f"comparison_{tag}.csv", index=False)
-    print("\n" + df[["method", "nrecall@10", "nrecall@20", "recall@10", "ndcg@10", "pr_auc",
+    print("\n" + df[["method", "nrecall@10", "recall@10", "map", "ndcg@10", "pr_auc",
                      "median_rank_first"]].to_string(index=False, float_format=lambda x: f"{x:.4f}"))
     print(f"\n[wrote] {out}/comparison_{tag}.csv")
 

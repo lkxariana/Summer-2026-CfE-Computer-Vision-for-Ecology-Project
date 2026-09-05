@@ -26,7 +26,30 @@ nDCG@{10,20} and the median rank of the first true partner.
 Under positive-unlabelled data every recall figure is a lower bound: a correctly predicted but
 unrecorded interaction counts as a miss.
 
-## Secondary metric — PR-AUC at true connectance
+## Two deliverables, two discrimination metrics
+
+The model is asked to do two jobs, and they impose different demands on its scores.
+
+A **retrieval system** answers "given this plant, which pollinators should I look for" — one plant at
+a time, so only the ordering within a plant matters. **MAP**, the mean over held-out plants of the
+average precision of the full ranking, is the cutoff-free summary of that, and sits alongside
+nrecall@10 as a per-plant average.
+
+A **predicted metaweb** is the whole plant-by-pollinator matrix thresholded once and analysed as a
+network, which is what link prediction is usually used for in this literature (Strydom et al. 2022,
+*Methods Ecol Evol* 13:2308). A single global threshold requires scores to be comparable between
+plants. **Pooled PR-AUC** measures that, and a method can rank well per plant while being unusable
+this way.
+
+The two are reported together, and where they disagree the disagreement is the result: congeneric
+transfer has the best MAP and the third-best PR-AUC because its score — the share of a plant's
+congeners visiting a pollinator — is on a scale that depends on how many congeners the plant has.
+
+Their baselines differ and the values are not comparable to each other. Random ranking gives MAP
+0.0022 here, a macro-average over plants of differing prevalence, against pooled PR-AUC 0.0013, the
+network's connectance. MAP also weights every plant equally whatever its degree.
+
+## Pooled PR-AUC at true connectance
 
 All candidates are scored for retrieval anyway, so the pooled set is the complete (held-out plant ×
 candidate) block and needs no negative sampling; the positive rate is the network's own connectance,

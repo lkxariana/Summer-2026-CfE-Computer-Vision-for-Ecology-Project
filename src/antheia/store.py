@@ -194,7 +194,9 @@ class UniverseStore:
                               "AC": "modelled" if (want and self.ACm is not None) else "observed"}
 
         tax = pd.read_parquet(feat / "taxonomy.parquet")
-        self.family = dict(zip(tax["label"], tax["family"]))
+        # taxa with no family recorded become "UNK" rather than None: consumers group on this
+        # value and a None sorts against strings
+        self.family = dict(zip(tax["label"], tax["family"].fillna("UNK").replace("", "UNK")))
         self.genus = dict(zip(tax["label"], tax["genus"]))
 
     @property

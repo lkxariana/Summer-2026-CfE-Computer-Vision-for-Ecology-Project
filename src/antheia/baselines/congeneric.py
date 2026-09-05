@@ -25,7 +25,8 @@ class CongenericTransfer(Baseline):
     def fit(self, edges, store):
         self.store = store
         n_q = len(store.polls)
-        fam = family_map(store.cfg["paths"]["globi"], set(store.plants)) if hasattr(store, "cfg") else {}
+        fam = (store.family if hasattr(store, "family") else
+               family_map(store.cfg["paths"]["globi"], set(store.plants)) if hasattr(store, "cfg") else {})
         self.p_gen = np.array([genus(s) for s in store.plants])
         self.p_fam = np.array([fam.get(s, "UNK") for s in store.plants])
         qi = store.idx_polls(edges["pollinator"])

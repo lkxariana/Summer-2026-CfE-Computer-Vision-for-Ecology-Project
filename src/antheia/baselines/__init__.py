@@ -7,6 +7,7 @@ from antheia.baselines.pair_gbm import PairGBM
 from antheia.baselines.phenology_likelihood import PhenologyAbundance
 from antheia.baselines.popularity import Popularity
 from antheia.baselines.svd_taxonomic import SVDTaxonomic
+from antheia.baselines.taxo_spatial_temporal import TaxoSpatialTemporal
 
 REGISTRY = {
     "popularity": Popularity,
@@ -17,4 +18,5 @@ REGISTRY = {
     "svd_taxonomic": SVDTaxonomic,
     "pair_gbm": PairGBM,
     "lightfm": LightFMHybrid,
+    "ours_gbm": TaxoSpatialTemporal,
 }

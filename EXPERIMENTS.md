@@ -671,3 +671,35 @@ svd 0.289, congeneric 0.277. Genus nodes are not carrying the result.
   plant's own recorded partners. Masking accidental hits reaches 2.70.
 - A binary term alongside the softmax took two-tower PR-AUC 0.054 → 0.098 with retrieval unchanged:
   the softmax orders within a plant and says nothing about comparability between plants.
+
+## Identity panel (09-06) — **BioCLIP-2 text embeddings add nothing in a hand-built form**
+
+Prompts are the bare binomial, no order or family string, so the embedding cannot smuggle in the
+taxonomy the explicit row is built from. The implicit row scores a pair by the cosine between the
+plant's text vector and the *prototype* of the plants a pollinator is recorded visiting — the
+text-space analogue of congeneric transfer.
+
+| | representation | nR@10 | MAP | PR-AUC |
+|---|---|---:|---:|---:|
+| explicit | taxonomic affinity (genus, family) | **0.254** | 0.134 | 0.061 |
+| implicit | species-name embedding prototype | 0.136 | 0.081 | 0.055 |
+| *control* | *same, species-permuted* | *0.141* | *0.064* | *0.023* |
+| both | affinity + name embedding | 0.238 | 0.131 | 0.061 |
+| full | ours + name embedding | 0.313 | 0.172 | 0.094 |
+| full | ours (reference) | **0.320** | 0.181 | 0.100 |
+
+**The prototype scores below its own permuted control** (margin −0.005, p=0.18), and adding it to the
+full model *costs* 0.007. As a feature in this form it carries no species-specific signal.
+
+**The embeddings themselves are fine.** Random plant pairs sit at cosine 0.427, same-genus pairs at
+0.738 — they encode taxonomy well. The failure is the prototype: a pollinator recorded on fifty
+plants across many families has a centroid near the global mean, so the cosine to it is nearly
+constant. The affinity table, for all its brittleness, is an exact lookup.
+
+This is the mirror of the surface result. There, the hand-computed per-cell feature worked and the
+learned encoder failed; here the hand-built prototype fails and the remaining test is the learned
+bilinear form — the embedding as a tower input, where the model chooses the projection.
+
+**Exact vs projected per-cell overlap** costs about 0.006 nR@10 (0.326 exact against 0.320 via the
+rank-256 basis), so the projection is the right choice inside a training loop and the exact feature
+is worth keeping for the final model.

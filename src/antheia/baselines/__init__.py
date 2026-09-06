@@ -8,6 +8,7 @@ from antheia.baselines.phenology_likelihood import PhenologyAbundance
 from antheia.baselines.popularity import Popularity
 from antheia.baselines.svd_taxonomic import SVDTaxonomic
 from antheia.baselines.taxo_spatial_temporal import TaxoSpatialTemporal
+from antheia.neural import NeuralRanker
 
 REGISTRY = {
     "popularity": Popularity,
@@ -19,4 +20,6 @@ REGISTRY = {
     "pair_gbm": PairGBM,
     "lightfm": LightFMHybrid,
     "ours_gbm": TaxoSpatialTemporal,
+    "two_tower": lambda **kw: NeuralRanker(use_surface=False, **kw),
+    "two_tower_percell": NeuralRanker,
 }

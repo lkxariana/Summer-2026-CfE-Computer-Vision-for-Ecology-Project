@@ -193,6 +193,8 @@ class UniverseStore:
         self.curve_sources = {"FC": "modelled" if (want and self.FCm is not None) else "observed",
                               "AC": "modelled" if (want and self.ACm is not None) else "observed"}
 
+        self._feat = feat
+        self._psurf = self._qsurf = None
         tax = pd.read_parquet(feat / "taxonomy.parquet")
         # taxa with no family recorded become "UNK" rather than None: consumers group on this
         # value and a None sorts against strings
@@ -202,6 +204,35 @@ class UniverseStore:
     @property
     def N_full(self):
         return self._N
+
+    @property
+    def plant_surfaces(self):
+        """[n_plants, n_cells, 52] float16 memmap of predicted flowering probability."""
+        if self._psurf is None:
+            self._psurf = np.load(self._feat / "plant_surfaces.npy", mmap_mode="r")
+        return self._psurf
+
+    @property
+    def poll_surfaces(self):
+        """[n_polls, n_cells, 52] float16 memmap of predicted activity probability."""
+        if self._qsurf is None:
+            self._qsurf = np.load(self._feat / "poll_surfaces.npy", mmap_mode="r")
+        return self._qsurf
+
+    def delta_local_pairs(self, pi, qi, chunk=64):
+        """Per-cell phenological co-activity, sum over cells and weeks of f(p,c,w) * a(q,c,w).
+
+        The marginal overlap asks whether two taxa are active in the same weeks anywhere; this asks
+        whether they are active in the same weeks in the same place. Absolute probabilities, so a
+        cell either is in both ranges or contributes nothing, and no presence threshold is needed.
+        """
+        P, Q = self.plant_surfaces, self.poll_surfaces
+        out = np.empty(len(pi), dtype=np.float32)
+        for s in range(0, len(pi), chunk):
+            a = np.asarray(P[pi[s:s + chunk]], dtype=np.float32).reshape(len(pi[s:s + chunk]), -1)
+            b = np.asarray(Q[qi[s:s + chunk]], dtype=np.float32).reshape(a.shape[0], -1)
+            out[s:s + chunk] = (a * b).sum(1)
+        return out
 
     def idx_plants(self, names):
         return np.fromiter((self.p2i[s] for s in names), int, len(names))

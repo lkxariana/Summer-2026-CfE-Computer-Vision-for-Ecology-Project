@@ -35,6 +35,8 @@ def main():
     ap.add_argument("--curves", choices=["observed", "modelled"], default="modelled")
     ap.add_argument("--split", default=ROOT / "data/splits/plants_75_10_15.json")
     ap.add_argument("--part", default="test", choices=["val", "test"])
+    ap.add_argument("--candidates", default="all", choices=["all", "species"],
+                    help="restrict the candidate set and the ground truth to species-rank taxa")
     ap.add_argument("--eval-tier", default="A", choices=["A", "AB"],
                     help="evidence tier of the interactions scored; training always uses both")
     ap.add_argument("--holdout-source", default=None,
@@ -49,8 +51,19 @@ def main():
 
     store = UniverseStore(curves=args.curves)
     split = json.load(open(args.split))
+    _u = json.load(open(ROOT / "data/network/modelled_universe.json"))
     edges = pd.read_parquet(ROOT / "data/network/edges.parquet")
     edges = edges[edges["plant"].isin(store.p2i) & edges["pollinator"].isin(store.q2i)]
+
+    if args.candidates == "species":
+        # a genus node and its constituent species are not independent candidates; restricting to
+        # species rank asks whether the ranking holds up without them
+        cand_mask = np.array([q["rank"] == "species" for q in _u["pollinators"]])
+        keep_p = {q["label"] for q in _u["plants"] if q["rank"] == "species"}
+        keep_q = {q["label"] for q in _u["pollinators"] if q["rank"] == "species"}
+        edges = edges[edges["plant"].isin(keep_p) & edges["pollinator"].isin(keep_q)]
+    else:
+        cand_mask = np.ones(len(store.polls), dtype=bool)
 
     if args.holdout_source:
         # Transfer to independently assembled data: hold out every interaction this source alone
@@ -67,6 +80,13 @@ def main():
         test = test[test["tier"] == "A"]
     test_plants = sorted({p for p in test["plant"]})
     partners = {sp: set(store.idx_polls(g["pollinator"])) for sp, g in test.groupby("plant")}
+    if not cand_mask.all():
+        cand_cols = np.flatnonzero(cand_mask)
+        remap = np.full(len(store.polls), -1)
+        remap[cand_cols] = np.arange(len(cand_cols))
+        partners = {sp: {int(remap[i]) for i in v if remap[i] >= 0} for sp, v in partners.items()}
+        partners = {sp: v for sp, v in partners.items() if v}
+        test_plants = [sp for sp in test_plants if sp in partners]
     print(f"[data] train {len(train):,} interactions over {train['plant'].nunique():,} plants | "
           f"{args.part} {len(test):,} over {len(test_plants):,} plants | "
           f"curves requested={args.curves} loaded FC={store.curve_sources['FC']} "
@@ -81,6 +101,8 @@ def main():
         S = np.empty((len(test_plants), len(store.polls)), dtype=np.float32)
         for r, p in enumerate(pi_test):
             S[r] = model.score_plant(int(p))
+        if not cand_mask.all():
+            S = S[:, cand_cols]
 
         recs = []
         for r, sp in enumerate(test_plants):
@@ -114,7 +136,8 @@ def main():
             np.save(out / f"scores_{name}_{args.part}.npy", S)
 
     tag = ((args.holdout_source.split("/")[-1] if args.holdout_source else args.part)
-           + f"_{args.curves}_tier{args.eval_tier}")
+           + f"_{args.curves}_tier{args.eval_tier}"
+           + ("" if args.candidates == "all" else "_species"))
     pd.concat(per_plant).to_parquet(out / f"per_plant_{tag}.parquet", index=False)
     df = pd.DataFrame(rows).sort_values("nrecall@10", ascending=False)
     df.to_csv(out / f"comparison_{tag}.csv", index=False)

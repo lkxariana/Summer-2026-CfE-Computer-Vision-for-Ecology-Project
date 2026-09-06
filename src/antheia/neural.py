@@ -29,6 +29,8 @@ The objective is two terms. The softmax orders candidates within a plant, which 
 needs, and says nothing about whether one plant's scores are comparable with another's, which is
 what pooled PR-AUC measures; a binary term on the same logits supplies that.
 """
+from pathlib import Path
+
 import numpy as np
 import torch
 import torch.nn as nn
@@ -107,13 +109,14 @@ class NeuralRanker:
     cold_start = True
 
     def __init__(self, use_surface=True, epochs=25, batch=512, lr=3e-3, n_uniform=1024,
-                 family_weight=1e-3, device="cuda", seed=42, out=128, bce_weight=0.5):
+                 family_weight=1e-3, device="cuda", seed=42, out=128, bce_weight=0.5,
+                 use_text=False, text_dir="/scratch/cher/antheia-data/text_embeddings"):
         self.__dict__.update(use_surface=use_surface, epochs=epochs, batch=batch, lr=lr,
                              n_uniform=n_uniform, family_weight=family_weight, seed=seed, out=out,
-                             bce_weight=bce_weight)
+                             bce_weight=bce_weight, use_text=use_text, text_dir=text_dir)
         self.device = device if torch.cuda.is_available() else "cpu"
         self.name = ("Two-tower + per-cell surface (ours)" if use_surface
-                     else "Two-tower retrieval (ours)")
+                     else "Two-tower retrieval (ours)") + (" + name embedding" if use_text else "")
         self.reference = "this work" if use_surface else "after Yi et al. 2019, RecSys"
 
     # ---- feature construction -------------------------------------------------
@@ -159,6 +162,15 @@ class NeuralRanker:
             sc = float(np.abs(ps).mean() + np.abs(qs).mean()) / 2 + 1e-12
             p_blocks.append(ps / sc)
             q_blocks.append(qs / sc)
+        if self.use_text:
+            # the embedding enters as a tower input, so the model learns its own bilinear map over
+            # the text space instead of being handed a hand-built prototype cosine
+            import torch as _t
+            td = Path(self.text_dir)
+            tp = _t.load(td / "plants_bioclip2.pt", weights_only=False)["embeddings"].numpy()
+            tq = _t.load(td / "polls_bioclip2.pt", weights_only=False)["embeddings"].numpy()
+            p_blocks.append(tp / (np.linalg.norm(tp, axis=1, keepdims=True) + 1e-12))
+            q_blocks.append(tq / (np.linalg.norm(tq, axis=1, keepdims=True) + 1e-12))
         p_dense = np.hstack(p_blocks).astype(np.float32)
         q_dense = np.hstack(q_blocks).astype(np.float32)
         self.pD = torch.from_numpy(p_dense).to(dev)

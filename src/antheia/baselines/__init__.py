@@ -9,6 +9,7 @@ from antheia.baselines.popularity import Popularity
 from antheia.baselines.svd_taxonomic import SVDTaxonomic
 from antheia.baselines.taxo_spatial_temporal import TaxoSpatialTemporal
 from antheia.neural import NeuralRanker
+from antheia.pairnet import PairRanker
 
 REGISTRY = {
     "popularity": Popularity,
@@ -22,4 +23,6 @@ REGISTRY = {
     "ours_gbm": TaxoSpatialTemporal,
     "two_tower": lambda **kw: NeuralRanker(use_surface=False, **kw),
     "two_tower_percell": NeuralRanker,
+    "two_tower_text": lambda **kw: NeuralRanker(use_surface=True, use_text=True, **kw),
+    "pairnet": PairRanker,
 }

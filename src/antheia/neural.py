@@ -34,7 +34,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-WIDE_DIM = 4
+WIDE_DIM = 5
 
 
 class SurfaceEncoder(nn.Module):
@@ -112,7 +112,7 @@ class NeuralRanker:
                              n_uniform=n_uniform, family_weight=family_weight, seed=seed, out=out,
                              bce_weight=bce_weight)
         self.device = device if torch.cuda.is_available() else "cpu"
-        self.name = ("Two-tower + per-cell phenology encoder (ours)" if use_surface
+        self.name = ("Two-tower + per-cell surface (ours)" if use_surface
                      else "Two-tower retrieval (ours)")
         self.reference = "this work" if use_surface else "after Yi et al. 2019, RecSys"
 
@@ -130,7 +130,8 @@ class NeuralRanker:
         n = np.log1p(np.asarray(st.N_full[pi, qi], dtype=np.float32))
         ov = np.minimum(st.FC[pi], st.AC[qi]).sum(1).astype(np.float32)
         tx = self.Cg[qi, self.p_gi[pi]] + self.family_weight * self.Cf[qi, self.p_fi[pi]]
-        return np.stack([n, ov, tx, np.log1p(st.Prs[qi]).astype(np.float32)], 1)
+        loc = np.log1p(np.maximum(st.local_overlap(pi, qi), 0)).astype(np.float32)
+        return np.stack([n, ov, tx, np.log1p(st.Prs[qi]).astype(np.float32), loc], 1)
 
     # ---- fit ------------------------------------------------------------------
     def fit(self, edges, store):
@@ -149,21 +150,25 @@ class NeuralRanker:
         np.add.at(self.Cg, (qi, self.p_gi[pi]), 1.0)
         np.add.at(self.Cf, (qi, self.p_fi[pi]), 1.0)
 
-        p_dense = np.hstack([store.FC, np.log1p(store.Frs)[:, None]]).astype(np.float32)
-        q_dense = np.hstack([store.AC, np.log1p(store.Prs)[:, None]]).astype(np.float32)
+        p_blocks = [store.FC, np.log1p(store.Frs)[:, None]]
+        q_blocks = [store.AC, np.log1p(store.Prs)[:, None]]
+        if self.use_surface:
+            # the shared-basis projection carries the per-cell surface in 256 dimensions with its
+            # inner products intact, so the tower starts from the structure instead of learning it
+            ps, qs = store.plant_proj, store.poll_proj
+            sc = float(np.abs(ps).mean() + np.abs(qs).mean()) / 2 + 1e-12
+            p_blocks.append(ps / sc)
+            q_blocks.append(qs / sc)
+        p_dense = np.hstack(p_blocks).astype(np.float32)
+        q_dense = np.hstack(q_blocks).astype(np.float32)
         self.pD = torch.from_numpy(p_dense).to(dev)
         self.qD = torch.from_numpy(q_dense).to(dev)
         self.pG = torch.from_numpy(self.p_gi).long().to(dev)
         self.pF = torch.from_numpy(self.p_fi).long().to(dev)
         self.qG = torch.from_numpy(self.q_gi).long().to(dev)
         self.qF = torch.from_numpy(self.q_fi).long().to(dev)
-        if self.use_surface:
-            self.pS = torch.from_numpy(np.array(store.plant_surfaces)).to(dev)
-            self.qS = torch.from_numpy(np.array(store.poll_surfaces)).to(dev)
-
-        n_cells = store.plant_surfaces.shape[1] if self.use_surface else 0
         self.model = TwoTower(p_dense.shape[1], q_dense.shape[1], n_pg, n_pf, n_qg, n_qf,
-                              n_cells, use_surface=self.use_surface, out=self.out).to(dev)
+                              0, use_surface=False, out=self.out).to(dev)
         opt = torch.optim.AdamW(self.model.parameters(), lr=self.lr, weight_decay=1e-4)
         sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=self.epochs)
         # partners of each plant, to mask accidental hits: a sampled negative that is in fact a
@@ -230,13 +235,11 @@ class NeuralRanker:
 
     def _pvec(self, idx):
         t = torch.from_numpy(np.asarray(idx)).long().to(self.device)
-        surf = self.pS[t].float() if self.use_surface else None
-        return self.model.pt(self.pD[t], self.pG[t], self.pF[t], surf)
+        return self.model.pt(self.pD[t], self.pG[t], self.pF[t])
 
     def _qvec(self, idx):
         t = torch.from_numpy(np.asarray(idx)).long().to(self.device)
-        surf = self.qS[t].float() if self.use_surface else None
-        return self.model.qt(self.qD[t], self.qG[t], self.qF[t], surf)
+        return self.model.qt(self.qD[t], self.qG[t], self.qF[t])
 
     def score_plant(self, p):
         nq = len(self.store.polls)

@@ -194,7 +194,7 @@ class UniverseStore:
                               "AC": "modelled" if (want and self.ACm is not None) else "observed"}
 
         self._feat = feat
-        self._psurf = self._qsurf = None
+        self._psurf = self._qsurf = self._pproj = self._qproj = None
         tax = pd.read_parquet(feat / "taxonomy.parquet")
         # taxa with no family recorded become "UNK" rather than None: consumers group on this
         # value and a None sorts against strings
@@ -218,6 +218,23 @@ class UniverseStore:
         if self._qsurf is None:
             self._qsurf = np.load(self._feat / "poll_surfaces.npy", mmap_mode="r")
         return self._qsurf
+
+    @property
+    def plant_proj(self):
+        """[n_plants, rank] surfaces projected on the shared basis; inner products are preserved."""
+        if self._pproj is None:
+            self._pproj = np.load(self._feat / "plant_surf_proj.npy")
+        return self._pproj
+
+    @property
+    def poll_proj(self):
+        if self._qproj is None:
+            self._qproj = np.load(self._feat / "poll_surf_proj.npy")
+        return self._qproj
+
+    def local_overlap(self, pi, qi):
+        """Per-cell co-activity via the shared basis: pearson 1.000 against the exact product."""
+        return (self.plant_proj[pi] * self.poll_proj[qi]).sum(1)
 
     def delta_local_pairs(self, pi, qi, chunk=64):
         """Per-cell phenological co-activity, sum over cells and weeks of f(p,c,w) * a(q,c,w).

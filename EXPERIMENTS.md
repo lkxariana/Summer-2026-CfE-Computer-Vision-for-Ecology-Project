@@ -595,3 +595,79 @@ with them being determinable from photographs.
 *Cucurbita pepo* (squash bee), *Tegeticula synthetica* × *Yucca brevifolia* (Joshua tree yucca moth),
 *Habropoda laboriosa* × *Vaccinium corymbosum* (southeastern blueberry bee), *Andrena vicina* ×
 *Salix* — 305 interactions across the four checks. Real ecological structure survived the pipeline.
+
+---
+
+## Rebuilt pipeline end to end (09-04 → 09-06) — **93.5% coverage, and a leaderboard that survives its controls**
+
+**Coverage.** The modelled universe is frozen at 11,031 plants × 13,124 pollinators, **180,349 of
+192,945 interactions (93.5%)**, against 44.5% under the previous artifacts. Two changes did it:
+Group B for the pollinator SDM was derived from the network rather than the legacy GloBI file
+(572 → 7,770 zero-shot taxa), and 6,261 plants outside the e98 surface received text-conditioned
+zero-shot curves.
+
+**Node identity bug.** `build_edges.py` keyed nodes on the resolved identifier, so one taxon under
+several checklist keys became several nodes (*Aceria* under six GBIF keys). Collapsing on
+(label, rank): plants 12,347 → 11,031, pollinators 15,921 → 15,010, interactions 198,327 → 192,945.
+**5,382 "interactions" were one interaction counted through different identifier pairs.**
+`test_labels_unique_per_side` covers it.
+
+**Curve marginalisation was wrong.** Averaging the per-cell `norm` weights a cell outside the range
+as heavily as one at the range core. Marginalising absolute probability instead recovers the observed
+peak week within two weeks for 60% of plants against 41%, reaching 0.583 histogram overlap — what
+the supervised phenology head itself achieves (0.579). Phenology × abundance doubled, 0.079 → 0.158.
+
+**Protocol.** Primary metric is normalised recall@10 (plain recall@10 is capped for the 29% of
+plants with more than ten partners); scoring restricted to Tier A, training on both tiers. MAP added
+alongside pooled PR-AUC — they evaluate different deliverables, a retrieval system queried one plant
+at a time versus a metaweb thresholded once. Written up in `docs/paper/evaluation-protocol.md`.
+
+### Leaderboard (validation, tier A, 663 plants)
+
+| model | nR@10 | MAP | PR-AUC |
+|---|---:|---:|---:|
+| **taxonomy + spatial + per-cell (ours)** | **0.326** | 0.182 | **0.103** |
+| congeneric transfer | 0.293 | 0.177 | 0.057 |
+| truncated SVD + taxonomic | 0.292 | 0.185 | 0.095 |
+| two-tower, multi-objective | 0.279 | 0.161 | 0.098 |
+| pollinator popularity | 0.244 | 0.145 | 0.053 |
+| phenology × abundance | 0.158 | 0.080 | 0.024 |
+| co-occurrence count | 0.105 | 0.052 | 0.026 |
+
+**Co-occurrence places sixth.** It scored 0.99 ROC-AUC on the old 139-pair benchmark; under cold
+start on the corrected network the range-size shortcut does not survive.
+
+### What the controls changed
+
+**Species-permutation controls overturned the first Table 3.** Raw 52-week curves beat the scalar
+overlap 0.261 vs 0.145 — but permuting the curves between species still scored 0.240. A 52-week
+curve is near-unique, so extra columns act as a species identity code. Genuine margin: **+0.021, not
++0.115.** The per-week product f·a scores 0.145, *below* its own permuted control. Spatial survives:
+PCA embedding 0.189 against 0.147 permuted, a real +0.042. **Adding scalars buys nothing on either
+axis** — Jaccard over cell count +0.0000 (p=0.98), seven overlap statistics over one +0.0006 (p=0.88).
+
+**Why the temporal axis is weak.** True pairs overlap 0.590, random pairs 0.495 (Cohen's d 0.48).
+CONUS phenology is dominated by a shared summer peak — 51% of plants peak in weeks 18–30 — so
+marginal phenological overlap barely discriminates between candidates *at any encoding*.
+
+**Per-cell recovers it.** Exact per-cell co-activity (Σ over cells and weeks of the two surfaces
+multiplied) added to the ranker: 0.318 → **0.326** nR@10 and 0.088 → **0.103** PR-AUC, against a
+species-permuted control at 0.313/0.090. Real matching, and it helps calibration more than the top
+of the ranking.
+
+**Why the learned surface encoder failed.** A randomly initialised basis over 3,335 cells, fit from
+132k interactions, scored 0.255 — worse than no encoder. A shared rank-256 basis from randomized SVD
+captures 92% of surface variance and reproduces the exact co-activity at **Pearson 1.000, Spearman
+0.946**, so the structure is there and cheap; the encoder simply could not find it from scratch.
+
+**Robustness.** Species-rank-only evaluation (567 plants) preserves the ordering: ours 0.300,
+svd 0.289, congeneric 0.277. Genus nodes are not carrying the result.
+
+### Fixes that changed published numbers
+
+- `congeneric` and `svd_taxonomic` resolved families through `store.cfg`, absent on `UniverseStore`,
+  so both ran genus-only with every family `"UNK"`. congeneric 0.307 → 0.293, svd 0.289 → 0.292.
+- Two-tower training stalled at loss 4.52 from epoch 2 because sampled negatives included the
+  plant's own recorded partners. Masking accidental hits reaches 2.70.
+- A binary term alongside the softmax took two-tower PR-AUC 0.054 → 0.098 with retrieval unchanged:
+  the softmax orders within a plant and says nothing about comparability between plants.

@@ -19,6 +19,13 @@ class TaxoSpatialTemporal(Baseline):
     13,124 candidates and loses most of the family signal (0.254 against 0.293 for the composite
     scored directly). Pre-combining hands the ordering to the model intact.
 
+    With `use_local`, one further column carries per-cell phenological co-activity, the sum over
+    cells and weeks of the two predicted surfaces multiplied. Continental marginal curves barely
+    discriminate -- a random pair already overlaps 0.50 against 0.59 for a true pair -- but the
+    per-cell version asks whether two taxa are active in the same weeks *in the same places*, which
+    no marginal can reconstruct. Against a species-permuted control it is worth +0.013 nrecall@10
+    and +0.013 PR-AUC, and it helps calibration more than the top of the ranking.
+
     Affinity tables are built from training edges only, so a held-out plant contributes nothing to
     its own score; its genus and family are known metadata, which is what makes the method cold-start.
     """
@@ -26,25 +33,47 @@ class TaxoSpatialTemporal(Baseline):
     name = "Taxonomy + spatial + temporal (ours)"
     reference = "this work"
 
-    def __init__(self, n_neg=10, seed=42, pca_dim=15, family_weight=1e-3, **kw):
+    def __init__(self, n_neg=10, seed=42, pca_dim=15, family_weight=1e-3, use_local=True,
+                 device="cuda", **kw):
         self.n_neg, self.seed, self.pca_dim, self.family_weight = n_neg, seed, pca_dim, family_weight
+        self.use_local, self.device = use_local, device
+        self.name = ("Taxonomy + spatial + per-cell temporal (ours)" if use_local
+                     else "Taxonomy + spatial + temporal (ours)")
         self.params = dict(max_iter=400, learning_rate=0.05, min_samples_leaf=100,
                            l2_regularization=5.0, random_state=seed)
         self.params.update(kw)
 
+    def _local(self, pi, qi, chunk=4096):
+        """Per-cell co-activity, sum over cells and weeks of f(p,c,w)*a(q,c,w), exact, on GPU."""
+        import torch
+        out = np.empty(len(pi), np.float32)
+        for s in range(0, len(pi), chunk):
+            a = self._P[torch.as_tensor(np.asarray(pi[s:s + chunk])).long().to(self._dev)].float()
+            b = self._Q[torch.as_tensor(np.asarray(qi[s:s + chunk])).long().to(self._dev)].float()
+            out[s:s + chunk] = (a * b).sum(1).cpu().numpy()
+        return out
+
     def _features(self, pi, qi):
         st = self.store
         comp = self.Cg[qi, self.GI[pi]] + self.family_weight * self.Cf[qi, self.FI[pi]]
-        return np.hstack([
+        blocks = [
             np.log1p(st.Prs[qi])[:, None],
             comp[:, None],
             np.log1p(np.asarray(st.N_full[pi, qi], dtype=np.float64))[:, None],
             self.Fp[pi] * self.Pp[qi],
             st.FC[pi], st.AC[qi],
-        ])
+        ]
+        if self.use_local:
+            blocks.append(np.log1p(self._local(pi, qi))[:, None])
+        return np.hstack(blocks)
 
     def fit(self, edges, store):
         self.store = store
+        if self.use_local:
+            import torch
+            self._dev = self.device if torch.cuda.is_available() else "cpu"
+            self._P = torch.from_numpy(np.array(store.plant_surfaces).reshape(len(store.plants), -1)).to(self._dev)
+            self._Q = torch.from_numpy(np.array(store.poll_surfaces).reshape(len(store.polls), -1)).to(self._dev)
         gen = np.array([genus(s) for s in store.plants])
         fam = np.array([store.family.get(s, "UNK") for s in store.plants])
         gi = {g: i for i, g in enumerate(sorted(set(gen)))}

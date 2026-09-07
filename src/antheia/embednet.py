@@ -63,12 +63,22 @@ standard deviations where the boosted ranker reaches 14.35. Ordering was right a
 absent, which is why it led on pooled PR-AUC and trailed on recall at ten -- a metric that depends
 entirely on the head of the list being sharply separated. Three causes, all addressed here:
 
-  * the output layer was initialised at std 0.01 and trained under weight decay, keeping logits in a
-    narrow band; a learned temperature restores scale without relying on the weights growing;
+  * a learned temperature was tried and is provably inert: scaling every logit by one positive
+    constant is a monotone map, so it leaves every within-plant ranking, and therefore every
+    retrieval metric, bit-identical. Recorded because the negative result is the useful part --
+    contrast and ordering are separate properties, and only ordering drives recall@k;
   * the binary term, with 383 negatives per positive, pulls every logit toward a common value, so
     its weight is now swept rather than fixed;
   * 384 candidates sampled from 13,124 almost never include the near-misses that decide the top ten,
     so hard negatives are mined from the model's own current top of the list.
+
+**The wide path.** Handing the taxonomic affinity count to the pair MLP left retrieval unchanged
+(p=0.99) and collapsed pooled PR-AUC from 0.165 to 0.073: the deep path smooths exactly the sparsity
+that makes the feature informative. Wide & Deep (Cheng et al. 2016) is explicit that a sparse
+cross-product feature belongs on a *linear* path added to the logit, bypassing the network, because
+"deep neural networks with embeddings can over-generalize when the interactions are sparse and
+high-rank" -- which describes a network at 0.12% connectance exactly. `use_wide_affinity` puts the
+affinity, co-occurrence and degree terms on that linear path instead.
 
 **Cold start.** No per-plant parameters of any kind. A held-out plant is represented only by inputs
 computable from its name and its predicted surfaces, so nothing about it is fitted during training.
@@ -114,6 +124,9 @@ class EmbedConfig:
     ctx_heads: int = 4
     use_tier_head: bool = True       # H1: auxiliary evidence-tier classification
     tier_weight: float = 0.3
+    use_affinity: bool = False       # hand the sharp taxonomic lookup to the pair head directly
+    use_wide_affinity: bool = False  # Wide & Deep: the same signal on a linear path, added to the logit
+    use_degree_offset: bool = False  # A3: log-degree as an explicit term with a learned coefficient
     learn_temperature: bool = True   # scale the head output; flat logits cost top-k precision
     hard_negatives: int = 0          # per plant per step, mined from the model's current top ranks
     hard_pool: int = 200             # depth of the mined pool
@@ -123,6 +136,7 @@ class EmbedConfig:
     seed: int = 42
     device: str = "cuda"
     text_dir: str = TEXT_DIR
+    text_variant: str = "bioclip2"   # "bioclip2" = bare binomial; "bioclip2_hier" = full Linnaean
     name: str = "Embedding two-encoder pair model (ours)"
 
 
@@ -167,10 +181,10 @@ class GenusContext(nn.Module):
 class PairHead(nn.Module):
     """[h_p, h_q, h_p*h_q, |h_p-h_q|] -> logit."""
 
-    def __init__(self, d_model, hidden, dropout, n_out=1, p_mult=1):
+    def __init__(self, d_model, hidden, dropout, n_out=1, p_mult=1, n_extra=0):
         super().__init__()
         self.mlp = nn.Sequential(
-            nn.Linear((2 + 2 * p_mult) * d_model, hidden), nn.GELU(), nn.Dropout(dropout),
+            nn.Linear((2 + 2 * p_mult) * d_model + n_extra, hidden), nn.GELU(), nn.Dropout(dropout),
             nn.Linear(hidden, hidden // 2), nn.GELU(), nn.Dropout(dropout),
             nn.Linear(hidden // 2, n_out))
         for m in self.mlp:
@@ -180,7 +194,7 @@ class PairHead(nn.Module):
         nn.init.normal_(self.mlp[-1].weight, std=0.01)
         self.logit_scale = nn.Parameter(torch.tensor(0.0))   # exp(0)=1 at init
 
-    def forward(self, hp, hq, ctx=None):
+    def forward(self, hp, hq, ctx=None, extra=None):
         """hp [B, d], hq [C, d], optional ctx [B, d] -> [B, C, n_out] squeezed when n_out == 1."""
         B, C, d = hp.shape[0], hq.shape[0], hp.shape[1]
         a = hp.unsqueeze(1).expand(B, C, d)
@@ -189,8 +203,27 @@ class PairHead(nn.Module):
         if ctx is not None:
             c = ctx.unsqueeze(1).expand(B, C, d)
             parts += [c * b, (c - b).abs()]                       # candidate against the genus profile
+        if extra is not None:
+            parts.append(extra)                                   # [B, C, n_extra]
         out = self.mlp(torch.cat(parts, -1)) * self.logit_scale.exp()   # [B, C, n_out]
         return out.squeeze(-1) if out.shape[-1] == 1 else out
+
+
+class WidePath(nn.Module):
+    """Linear model on the sparse cross-product features, added to the logit.
+
+    Deliberately linear and deliberately not routed through the encoder: memorisation of
+    "this pollinator was recorded on this plant genus" is the part a deep path degrades.
+    """
+
+    def __init__(self, n_feat):
+        super().__init__()
+        self.lin = nn.Linear(n_feat, 1)
+        nn.init.zeros_(self.lin.weight)
+        nn.init.zeros_(self.lin.bias)
+
+    def forward(self, x):
+        return self.lin(x).squeeze(-1)
 
 
 class BiasHead(nn.Module):
@@ -240,8 +273,8 @@ class EmbedRanker:
         T = lambda a: torch.from_numpy(np.ascontiguousarray(a)).to(dev, torch.float32)
 
         td = Path(cfg.text_dir)
-        tp = torch.load(td / "plants_bioclip2.pt", weights_only=False)["embeddings"].numpy()
-        tq = torch.load(td / "polls_bioclip2.pt", weights_only=False)["embeddings"].numpy()
+        tp = torch.load(td / f"plants_{cfg.text_variant}.pt", weights_only=False)["embeddings"].numpy()
+        tq = torch.load(td / f"polls_{cfg.text_variant}.pt", weights_only=False)["embeddings"].numpy()
         unit = lambda x: x / (np.linalg.norm(x, axis=1, keepdims=True) + 1e-12)
         svd = lambda X: TruncatedSVD(15, random_state=cfg.seed).fit_transform(X.astype(np.float32))
 
@@ -260,7 +293,8 @@ class EmbedRanker:
         self.enc_q = BlockEncoder(dims, cfg.d_model, cfg.hidden, cfg.dropout).to(dev)
         n_out = 2 if cfg.use_tier_head else 1
         self.head = PairHead(cfg.d_model, cfg.hidden, cfg.dropout, n_out=n_out,
-                             p_mult=2 if cfg.use_genus_context else 1).to(dev)
+                             p_mult=2 if cfg.use_genus_context else 1,
+                             n_extra=1 if cfg.use_affinity else 0).to(dev)
         mods = [self.enc_p, self.enc_q, self.head]
         if cfg.use_genus_context:
             self.ctx = GenusContext(cfg.d_model, cfg.ctx_heads, cfg.dropout).to(dev)
@@ -299,6 +333,19 @@ class EmbedRanker:
             print(f"    genus context: {int((~msk).any(1).sum())}/{self.n_p} plants have a non-empty "
                   f"leave-one-out genus profile", flush=True)
 
+        if cfg.use_affinity or cfg.use_wide_affinity:
+            gen_a = np.array([x.split()[0] for x in store.plants])
+            fam_a = np.array([store.family.get(x, "UNK") for x in store.plants])
+            ga = {g: i for i, g in enumerate(sorted(set(gen_a)))}
+            fa = {f: i for i, f in enumerate(sorted(set(fam_a)))}
+            self.aff_GI = np.array([ga[g] for g in gen_a]); self.aff_FI = np.array([fa[f] for f in fam_a])
+            Cg = np.zeros((self.n_q, len(ga)), np.float32); Cf = np.zeros((self.n_q, len(fa)), np.float32)
+            np.add.at(Cg, (qi, self.aff_GI[pi]), 1.0); np.add.at(Cf, (qi, self.aff_FI[pi]), 1.0)
+            self.Cg_t, self.Cf_t = T(Cg), T(Cf)
+
+        if cfg.use_wide_affinity:
+            self.N_t = T(np.asarray(store.N_full, dtype=np.float32))
+
         if cfg.use_tier_head:
             tier = (edges["tier"].to_numpy() == "A").astype(np.float32)
             self.tier_of = {(int(a), int(b)): float(t) for a, b, t in zip(pi, qi, tier)}
@@ -309,6 +356,13 @@ class EmbedRanker:
             self.bias_q = T(np.stack([np.log1p(store.Prs), (store.ACo.sum(1) > 0).astype(np.float32)], 1))
             self.bias = BiasHead(self.bias_p.shape[1] + self.bias_q.shape[1]).to(dev)
             mods.append(self.bias)
+
+        if cfg.use_wide_affinity or cfg.use_degree_offset:
+            n_wide = (3 if cfg.use_wide_affinity else 0) + (2 if cfg.use_degree_offset else 0)
+            self.wide = WidePath(n_wide).to(dev)
+            mods.append(self.wide)
+            self.deg_q = T(np.log1p(np.bincount(qi, minlength=self.n_q).astype(np.float32)))
+            self.deg_p = T(np.log1p(np.bincount(pi, minlength=self.n_p).astype(np.float32)))
 
         params = [p for m in mods for p in m.parameters()]
         opt = torch.optim.AdamW(params, lr=cfg.lr, weight_decay=cfg.weight_decay)
@@ -354,8 +408,14 @@ class EmbedRanker:
                     cm = self.ctx_msk[tp_i]                                # [B, K]
                     cflat = self.enc_q([blk[ci.reshape(-1)] for blk in self.Q_blocks])
                     ctx = self.ctx(hp, cflat.view(len(tp_i), cfg.ctx_k, -1), cm)   # [B, d]
-                out = self.head(hp, hq, ctx)                               # [B,C] or [B,C,2]
+                ex = None
+                if cfg.use_affinity:
+                    ex = torch.log1p(self.Cg_t[tc_i][:, self.aff_GI[bp]].T
+                                     + 1e-3 * self.Cf_t[tc_i][:, self.aff_FI[bp]].T).unsqueeze(-1)
+                out = self.head(hp, hq, ctx, ex)                           # [B,C] or [B,C,2]
                 logits = out[..., 0] if cfg.use_tier_head else out
+                if cfg.use_wide_affinity or cfg.use_degree_offset:
+                    logits = logits + self.wide(self._wide_feats(tp_i, tc_i))
                 if cfg.use_bias_head:
                     bp_f = self.bias_p[tp_i].unsqueeze(1).expand(B, C, -1)
                     bq_f = self.bias_q[tc_i].unsqueeze(0).expand(B, C, -1)
@@ -421,6 +481,20 @@ class EmbedRanker:
                     for i in range(0, self.n_p, 512)])
         return self
 
+
+    def _wide_feats(self, pi, qi):
+        """pi [B], qi [C] -> [B, C, n_wide]; sparse cross-products kept linear."""
+        B, C = len(pi), len(qi)
+        parts = []
+        if self.cfg.use_wide_affinity:
+            parts += [torch.log1p(self.Cg_t[qi][:, self.aff_GI[pi.cpu().numpy()]].T),
+                      torch.log1p(self.Cf_t[qi][:, self.aff_FI[pi.cpu().numpy()]].T),
+                      torch.log1p(self.N_t[pi][:, qi])]
+        if self.cfg.use_degree_offset:
+            parts += [self.deg_q[qi].view(1, C).expand(B, C),
+                      self.deg_p[pi].view(B, 1).expand(B, C)]
+        return torch.stack(parts, -1)
+
     def _mine(self, mods, plants, pool, partners):
         """Top-`pool` non-partner candidates per training plant, under the current model."""
         for m in mods:
@@ -437,11 +511,16 @@ class EmbedRanker:
                     for i in range(0, self.n_p, 512)])
         out = {}
         with torch.no_grad():
-            for s in range(0, len(plants), 256):
-                blk = plants[s:s + 256]
+            for s in range(0, len(plants), 24):
+                blk = plants[s:s + 24]
                 ti = torch.tensor(blk, device=self.dev, dtype=torch.long)
                 ctx = ctx_all[ti] if ctx_all is not None else None
-                z = self.head(hp_all[ti], hq_all, ctx)
+                ex = None
+                if self.cfg.use_affinity:
+                    qs = torch.arange(self.n_q, device=self.dev)
+                    ex = torch.log1p(self.Cg_t[qs][:, self.aff_GI[blk]].T
+                                     + 1e-3 * self.Cf_t[qs][:, self.aff_FI[blk]].T).unsqueeze(-1)
+                z = self.head(hp_all[ti], hq_all, ctx, ex)
                 if self.cfg.use_tier_head:
                     z = z[..., 0]
                 for j, a in enumerate(blk):
@@ -461,9 +540,18 @@ class EmbedRanker:
             ctx = self.ctx_all[p:p + 1] if self.cfg.use_genus_context else None
             for s in range(0, self.n_q, chunk):
                 hq = self.hq_all[s:s + chunk]
-                z = self.head(hp, hq, ctx)
+                qs_all = torch.arange(s, s + len(hq), device=self.dev)
+                ex = None
+                if self.cfg.use_affinity:
+                    qs = torch.arange(s, s + len(hq), device=self.dev)
+                    ex = torch.log1p(self.Cg_t[qs, self.aff_GI[p]]
+                                     + 1e-3 * self.Cf_t[qs, self.aff_FI[p]]).view(1, -1, 1)
+                z = self.head(hp, hq, ctx, ex)
                 if self.cfg.use_tier_head:
                     z = z[..., 0]
+                if self.cfg.use_wide_affinity or self.cfg.use_degree_offset:
+                    z = z + self.wide(self._wide_feats(
+                        torch.tensor([p], device=self.dev, dtype=torch.long), qs_all))
                 out[s:s + len(hq)] = z.squeeze(0).float().cpu().numpy()
         return out
 

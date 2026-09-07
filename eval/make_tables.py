@@ -60,7 +60,7 @@ GROUPS = [
     ("*Nulls*", ["popularity", "cooccurrence", "abundance"]),
     ("*Structured ecological baselines*", ["congeneric", "phenology_abundance", "trait_matching"]),
     ("*Learned representations*", ["svd_taxonomic", "lightfm"]),
-    ("*Feature-based*", ["pair_gbm", "ours_gbm"]),
+    ("*Feature-based*", ["pair_gbm", "ours_gbm", "routed"]),
     ("*Learned end-to-end (ours)*", ["two_tower", "pairnet", "embednet"]),
 ]
 LABELS = {
@@ -71,6 +71,7 @@ LABELS = {
     "svd_taxonomic": "Truncated SVD + taxonomic imputation", "lightfm": "LightFM (WARP)",
     "pair_gbm": "Gradient boosting on pair features",
     "ours_gbm": "**Taxonomy + spatial + per-cell (ours)**",
+    "routed": "**Genus-routed experts (ours)**",
     "two_tower": "Two-tower retrieval",
     "pairnet": "**Neural pair ranker (ours)**",
     "embednet": "**Embedding two-encoder model (ours)**",

@@ -49,12 +49,27 @@ is ecological -- that overlap in one region and season predicts interaction more
 overlap in another -- which a scalar overlap cannot represent, and which factorisation of the
 interaction matrix cannot reach for a species absent from training.
 
+**The text bilinear term.** BioCLIP-2 embeds a bare binomial into a 768-dimensional space in which
+congeners sit close (same-genus cosine 0.716 against 0.412 for random pairs) without ever being shown
+the taxonomy. The taxonomic affinity table is the sparse counterpart of that: an identity lookup that
+is empty for the 7,491 of 13,124 pollinators with fewer than three training edges, and empty for any
+plant genus absent from training. The term learns two projections and scores compatibility as
+(T_p W_p) . (T_q W_q), which is a plant-to-pollinator compatibility map in species space -- supervised
+by interactions, defined for any taxon that has a name, and smooth where the lookup is sparse.
+
+Hand-built reductions of the same embeddings both failed: a prototype cosine scored below its own
+permuted control, and kernel smoothing of the affinity table degraded the model as much when the
+neighbour graph was permuted as when it was real. Those results bound the reduction, not the
+representation, which is why the projections are learned here. This is also the one place a neural
+model should be expected to beat a boosted tree, which cannot exploit a dense 768-dimensional input.
+
 **Numerical control.** Masked logits use a large finite negative rather than -inf, so a fully masked
 row cannot produce NaN. Gradients are clipped to unit norm: early in training the masked softmax
 places most mass on few candidates and produces large updates. Embeddings are initialised at
 N(0, 0.01) so they do not dominate standardised features before they carry signal.
 """
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+from pathlib import Path
 
 import numpy as np
 import torch
@@ -103,6 +118,9 @@ class PairConfig:
     stat_pairs: int = 200_000   # sample size for the standardisation statistics
     bilinear_rank: int = 0      # 0 disables the niche term; >0 gives the low-rank correction
     niche_dim: int = 256        # width of the shared surface basis
+    text_rank: int = 0          # 0 disables the text term; >0 gives the joint species-space rank
+    text_dim: int = 768         # BioCLIP-2 text embedding width
+    text_dir: str = "/scratch/cher/antheia-data/text_embeddings"
     device: str = "cuda"
     name: str = "Neural pair ranker (ours)"
 
@@ -134,6 +152,14 @@ class PairNet(nn.Module):
             self.bil_B = nn.Parameter(torch.randn(k, r) * 1e-3)   # [K,r]
             self.bil_scale = nn.Parameter(torch.tensor(1.0))
 
+        if cfg.text_rank > 0:
+            r = cfg.text_rank
+            self.txt_P = nn.Linear(cfg.text_dim, r, bias=False)   # plant  -> joint space [768,r]
+            self.txt_Q = nn.Linear(cfg.text_dim, r, bias=False)   # pollin -> joint space [768,r]
+            nn.init.normal_(self.txt_P.weight, std=1.0 / np.sqrt(cfg.text_dim))
+            nn.init.normal_(self.txt_Q.weight, std=1.0 / np.sqrt(cfg.text_dim))
+            self.txt_scale = nn.Parameter(torch.tensor(1.0))
+
         dims = [N_FEAT + emb_total] + [cfg.hidden] * cfg.depth
         layers = []
         for a, b in zip(dims[:-1], dims[1:]):
@@ -156,6 +182,10 @@ class PairNet(nn.Module):
         core = d @ phi_q.T                                        # [B,C]
         low = (phi_p @ self.bil_A) @ (phi_q @ self.bil_B).T       # [B,C]
         return self.bil_scale * (core + low)
+
+    def text(self, tp, tq):
+        """tp [B,768], tq [C,768] -> [B,C] compatibility in the learned joint species space."""
+        return self.txt_scale * (self.txt_P(tp) @ self.txt_Q(tq).T)
 
     def forward(self, feats, qi, gi, fi):
         """feats [M, D]; qi/gi/fi [M] -> logits [M]."""
@@ -268,6 +298,13 @@ class PairRanker:
             nsc = float(np.sqrt(np.abs(samp).std()) + 1e-12)
             self.Pn, self.Qn = T(rp / nsc), T(rq / nsc)
 
+        if cfg.text_rank > 0:
+            td = Path(cfg.text_dir)
+            tp_ = torch.load(td / "plants_bioclip2.pt", weights_only=False)["embeddings"].numpy()
+            tq_ = torch.load(td / "polls_bioclip2.pt", weights_only=False)["embeddings"].numpy()
+            unit_ = lambda x: x / (np.linalg.norm(x, axis=1, keepdims=True) + 1e-12)
+            self.Tp, self.Tq = T(unit_(tp_)), T(unit_(tq_))       # [P,768], [Q,768]
+
         self.model = PairNet(cfg, len(store.polls), len(g2i), len(f2i)).to(dev)
         if cfg.norm == "feature":
             mu, sd = self._standardisation_stats(pi, qi, rng)
@@ -305,6 +342,8 @@ class PairRanker:
                                     self.FI[tp].repeat_interleave(C)).view(B, C)
                 if cfg.bilinear_rank > 0:
                     logits = logits + self.model.niche(self.Pn[tp], self.Qn[tc])
+                if cfg.text_rank > 0:
+                    logits = logits + self.model.text(self.Tp[tp], self.Tq[tc])
 
                 # column of each row's own positive; -1 when it was not sampled
                 where = {}
@@ -364,6 +403,8 @@ class PairRanker:
                                self.FI[tp].expand(len(tc)))
                 if self.cfg.bilinear_rank > 0:
                     z = z + self.model.niche(self.Pn[tp], self.Qn[tc]).squeeze(0)
+                if self.cfg.text_rank > 0:
+                    z = z + self.model.text(self.Tp[tp], self.Tq[tc]).squeeze(0)
                 out[s:s + len(tc)] = z.float().cpu().numpy()
         return out
 

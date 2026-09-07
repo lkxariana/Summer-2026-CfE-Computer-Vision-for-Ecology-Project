@@ -57,6 +57,19 @@ profile by construction, since the profiles are built from training edges alone.
 association, 99,033 and 81,316 edges. Predicting it as an auxiliary target asks the representation to
 separate pollination from co-occurrence, which is the distinction the Tier A evaluation rests on.
 
+**Score contrast.** The first version of this model produced a nearly uniform ranking: softmax
+entropy 9.04 against a 9.48 maximum over 13,124 candidates, and a top-1-to-top-50 separation of 0.97
+standard deviations where the boosted ranker reaches 14.35. Ordering was right and contrast was
+absent, which is why it led on pooled PR-AUC and trailed on recall at ten -- a metric that depends
+entirely on the head of the list being sharply separated. Three causes, all addressed here:
+
+  * the output layer was initialised at std 0.01 and trained under weight decay, keeping logits in a
+    narrow band; a learned temperature restores scale without relying on the weights growing;
+  * the binary term, with 383 negatives per positive, pulls every logit toward a common value, so
+    its weight is now swept rather than fixed;
+  * 384 candidates sampled from 13,124 almost never include the near-misses that decide the top ten,
+    so hard negatives are mined from the model's own current top of the list.
+
 **Cold start.** No per-plant parameters of any kind. A held-out plant is represented only by inputs
 computable from its name and its predicted surfaces, so nothing about it is fitted during training.
 """
@@ -101,6 +114,11 @@ class EmbedConfig:
     ctx_heads: int = 4
     use_tier_head: bool = True       # H1: auxiliary evidence-tier classification
     tier_weight: float = 0.3
+    learn_temperature: bool = True   # scale the head output; flat logits cost top-k precision
+    hard_negatives: int = 0          # per plant per step, mined from the model's current top ranks
+    hard_pool: int = 200             # depth of the mined pool
+    hard_warmup: int = 5             # epochs before mining begins
+    hard_refresh: int = 3            # epochs between pool refreshes
     blocks: tuple = ("text", "surface", "pca", "scale")
     seed: int = 42
     device: str = "cuda"
@@ -160,6 +178,7 @@ class PairHead(nn.Module):
                 nn.init.kaiming_normal_(m.weight, nonlinearity="relu")
                 nn.init.zeros_(m.bias)
         nn.init.normal_(self.mlp[-1].weight, std=0.01)
+        self.logit_scale = nn.Parameter(torch.tensor(0.0))   # exp(0)=1 at init
 
     def forward(self, hp, hq, ctx=None):
         """hp [B, d], hq [C, d], optional ctx [B, d] -> [B, C, n_out] squeezed when n_out == 1."""
@@ -170,7 +189,7 @@ class PairHead(nn.Module):
         if ctx is not None:
             c = ctx.unsqueeze(1).expand(B, C, d)
             parts += [c * b, (c - b).abs()]                       # candidate against the genus profile
-        out = self.mlp(torch.cat(parts, -1))                      # [B, C, n_out]
+        out = self.mlp(torch.cat(parts, -1)) * self.logit_scale.exp()   # [B, C, n_out]
         return out.squeeze(-1) if out.shape[-1] == 1 else out
 
 
@@ -303,8 +322,11 @@ class EmbedRanker:
         logQ_uni = float(np.log(1.0 / self.n_q))
         n_uni = cfg.n_cand - cfg.in_batch
         pos_weight = torch.tensor(float(cfg.n_cand - 1), device=dev)
+        hard_pool = None
 
         for ep in range(cfg.epochs):
+            if cfg.hard_negatives and ep >= cfg.hard_warmup and (ep - cfg.hard_warmup) % cfg.hard_refresh == 0:
+                hard_pool = self._mine(mods, sorted(set(pi.tolist())), cfg.hard_pool, partners)
             for m in mods:
                 m.train()
             perm = rng.permutation(len(pi))
@@ -315,6 +337,11 @@ class EmbedRanker:
                 B = len(bp)
                 sub = rng.choice(B, min(cfg.in_batch, B), replace=False)
                 cand = np.concatenate([bq[sub], rng.integers(0, self.n_q, n_uni)])
+                if hard_pool is not None and cfg.hard_negatives:
+                    hp_rows = np.stack([hard_pool[int(a)] for a in bp])          # [B, pool]
+                    picks = hp_rows[np.arange(len(bp))[:, None],
+                                    rng.integers(0, hp_rows.shape[1], (len(bp), cfg.hard_negatives))]
+                    cand = np.concatenate([cand, np.unique(picks.ravel())])
                 C = len(cand)
                 tp_i = torch.from_numpy(np.ascontiguousarray(bp)).long().to(dev)
                 tc_i = torch.from_numpy(np.ascontiguousarray(cand)).long().to(dev)
@@ -393,6 +420,39 @@ class EmbedRanker:
                              self.ctx_msk[i:i + 512])
                     for i in range(0, self.n_p, 512)])
         return self
+
+    def _mine(self, mods, plants, pool, partners):
+        """Top-`pool` non-partner candidates per training plant, under the current model."""
+        for m in mods:
+            m.eval()
+        hp_all, hq_all = self._encode_all()
+        ctx_all = None
+        if self.cfg.use_genus_context:
+            with torch.no_grad():
+                ctx_all = torch.cat([
+                    self.ctx(hp_all[i:i + 512],
+                             hq_all[self.ctx_idx[i:i + 512].reshape(-1)].view(
+                                 len(hp_all[i:i + 512]), self.cfg.ctx_k, -1),
+                             self.ctx_msk[i:i + 512])
+                    for i in range(0, self.n_p, 512)])
+        out = {}
+        with torch.no_grad():
+            for s in range(0, len(plants), 256):
+                blk = plants[s:s + 256]
+                ti = torch.tensor(blk, device=self.dev, dtype=torch.long)
+                ctx = ctx_all[ti] if ctx_all is not None else None
+                z = self.head(hp_all[ti], hq_all, ctx)
+                if self.cfg.use_tier_head:
+                    z = z[..., 0]
+                for j, a in enumerate(blk):
+                    row = z[j].clone()
+                    ps = partners.get(int(a))
+                    if ps:
+                        row[torch.tensor(sorted(ps), device=self.dev, dtype=torch.long)] = -1e9
+                    out[int(a)] = torch.topk(row, pool).indices.cpu().numpy()
+        for m in mods:
+            m.train()
+        return out
 
     def score_plant(self, p, chunk=4096):
         out = np.empty(self.n_q, np.float32)

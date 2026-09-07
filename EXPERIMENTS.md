@@ -957,3 +957,28 @@ co-visitation structure a raw count does not.
 
 This is a mixture of experts with a deterministic, interpretable gate, not a score-averaging
 ensemble: exactly one model scores each plant, chosen by a property of that plant.
+
+### Single-model alternative to routing: matrix-factorisation features
+
+Routing between two models is inelegant, so the same signal was tried as features inside the boosted
+ranker: the interaction matrix factorised at rank 12, the plant's latent vector imputed by taxonomy,
+carried as its elementwise product with the pollinator latent.
+
+| configuration | nR@10 | PR-AUC | genus seen | genus unseen |
+|---|---:|---:|---:|---:|
+| boosted ranker | 0.3199 | 0.0998 | 0.3514 | 0.0864 |
+| + family fallback | 0.3200 | 0.1015 | 0.3468 | 0.1221 |
+| + MF features, own latent for training plants | 0.2485 | 0.0775 | 0.2711 | 0.0816 |
+| + MF features, leave-one-out imputed | 0.3093 | **0.1065** | 0.3353 | 0.1167 |
+| **routed (booster / SVD by genus)** | **0.3360** | 0.1032 | — | — |
+
+The first MF attempt cost 0.071 nrecall@10 (p<0.001) through a train/test feature shift of my own
+making: a training plant received its *own* latent vector, which encodes its own partners, while a
+held-out plant necessarily receives a taxonomy-imputed one, so the model learned to trust a feature
+that degrades at inference. Imputing for every plant leave-one-out recovers most of it (0.2485 ->
+0.3093) and gives the best PR-AUC of the boosted variants, but still does not reach the reference
+(-0.0106, p=0.16) or the routed model.
+
+Routing remains the only configuration that beats the boosted ranker on retrieval, and the reason is
+visible in the strata: no single feature set recovers the 0.256 that truncated SVD reaches on unseen
+genera while keeping the 0.351 the booster reaches on seen ones.

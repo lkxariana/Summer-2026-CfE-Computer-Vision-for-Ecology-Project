@@ -60,7 +60,8 @@ GROUPS = [
     ("*Nulls*", ["popularity", "cooccurrence", "abundance"]),
     ("*Structured ecological baselines*", ["congeneric", "phenology_abundance", "trait_matching"]),
     ("*Learned representations*", ["svd_taxonomic", "lightfm"]),
-    ("*Feature-based*", ["pair_gbm", "two_tower", "two_tower_percell"]),
+    ("*Feature-based*", ["pair_gbm", "ours_gbm"]),
+    ("*Learned end-to-end (ours)*", ["two_tower", "pairnet", "embednet"]),
 ]
 LABELS = {
     "popularity": "Pollinator popularity", "cooccurrence": "Co-occurrence count",
@@ -69,8 +70,10 @@ LABELS = {
     "trait_matching": "Trait matching (reduced coverage)",
     "svd_taxonomic": "Truncated SVD + taxonomic imputation", "lightfm": "LightFM (WARP)",
     "pair_gbm": "Gradient boosting on pair features",
-    "two_tower": "**Two-tower retrieval (ours)**",
-    "two_tower_percell": "**+ per-cell phenology encoder (ours)**",
+    "ours_gbm": "**Taxonomy + spatial + per-cell (ours)**",
+    "two_tower": "Two-tower retrieval",
+    "pairnet": "**Neural pair ranker (ours)**",
+    "embednet": "**Embedding two-encoder model (ours)**",
 }
 SETS = [("All held-out plants", "val"), ("Expert field networks", "web-of-life"),
         ("Specimen records", "gbif-us-bees")]

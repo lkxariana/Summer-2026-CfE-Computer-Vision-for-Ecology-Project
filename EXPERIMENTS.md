@@ -1223,3 +1223,29 @@ have a trained vector, the rest are zero and LayerNorm maps them to zero).
 - **Closes the field-embedding phase for retrieval.** Three representations of the niche axis (grid
   surfaces, SDM head, joint field), two sampling schemes, three seeds: none moves nR@10. The axis is
   real (sections above), and what it does is re-order the list below the head (marginalisation test).
+
+### Marginalisation test on the production surfaces, full universe (09-07)
+
+`scripts/build_surface_marginals.py` + `eval/run_marginalisation_surfaces.py` ->
+`results/marginalisation_surfaces_val_tierA.csv`. Same four statistics, now from the PPE plant
+surfaces and SDM pollinator surfaces that cover every taxon: 663 val plants, 13,124 candidates,
+11,489 tier-A partners. The two sides come from different model families (a caveat for absolute
+values, not for the within-pair contrast).
+
+| statistic | alone nR@10 / nR@50 | re-rank popularity top-200: nR@10 / nR@50 / PR-AUC | joint minus this @50 (re-rank) | unseen-genus @10 (re-rank) |
+|---|---:|---:|---:|---:|
+| popularity | 0.2442 / 0.3728 | -- / -- / 0.0526 | -- | 0.2338 |
+| **joint** | **0.0109 / 0.0808** | **0.1739 / 0.3595 / 0.0770** | -- | **0.1023** |
+| space | 0.0079 / 0.0507 | 0.1393 / 0.3442 / 0.0676 | +0.015 p=0.008 | 0.0782 (p=0.002) |
+| time | 0.0042 / 0.0244 | 0.0844 / 0.2553 / 0.0702 | +0.104 p<0.001 | 0.0430 (p=0.020) |
+| scalar | 0.0012 / 0.0126 | 0.0498 / 0.2000 / 0.0612 | +0.160 p<0.001 | 0.0259 (p=0.003) |
+
+- **The ladder replicates on the full protocol universe:** joint > space > time > scalar on every
+  column, all joint-vs-marginal contrasts p <= 0.008, including on the unseen-genus stratum.
+- **PR-AUC gain survives, the nR@50 gain does not.** Re-ranking popularity's top 200 by the joint
+  statistic raises pooled PR-AUC 0.053 -> 0.077 (+46%) but leaves nR@50 at 0.360 against popularity's
+  0.373 -- on the production surfaces the niche term improves cross-plant ordering without improving
+  within-plant recall at 50. The joint-field model did both (0.353 -> 0.448 on its sub-universe), which
+  is the one place the learned, commensurable field beat the production surfaces.
+- **The time marginal is the weakest again** (0.255 vs space 0.344 at nR@50): phenology summed over
+  space carries less than range overlap and far less than the per-cell product.

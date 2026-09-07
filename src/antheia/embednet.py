@@ -347,15 +347,24 @@ class EmbedRanker:
                  "pca": svd(store.P),
                  "scale": np.stack([np.log1p(store.Prs), (store.Prs > 0).astype(np.float32)], 1)}
         blocks_q = cfg.blocks_q or cfg.blocks
-        if "field" in blocks_q:
-            # the SDM's per-species head: a learned spatio-temporal influence vector, not a
-            # projection of its output surface (scripts/build_field_embeddings.py)
-            fld = np.load(cfg.field_path).astype(np.float32)
+
+        def load_field(side, n):
+            # a species' learned spatio-temporal influence: the per-species head of a SINR-style
+            # field model, not a projection of its output surface. `field_path` is either the
+            # pollinator file (scripts/build_field_embeddings.py) or a directory holding
+            # plant_field.npy / poll_field.npy from pipelines/sdm/train_joint_field.py.
+            fp = Path(cfg.field_path)
+            f = fp / f"{side}_field.npy" if fp.is_dir() else fp
+            fld = np.load(f).astype(np.float32)
             if not cfg.field_impute:
-                direct = np.load(Path(cfg.field_path).with_name("poll_field_direct.npy"))
-                fld = fld * direct[:, None]
-            assert len(fld) == len(store.polls), (fld.shape, len(store.polls))
-            q_all["field"] = fld
+                fld = fld * np.load(f.with_name(f.stem + "_direct.npy"))[:, None]
+            assert len(fld) == n, (f, fld.shape, n)
+            return fld
+
+        if "field" in cfg.blocks:
+            p_all["field"] = load_field("plant", len(store.plants))
+        if "field" in blocks_q:
+            q_all["field"] = load_field("poll", len(store.polls))
         self.P_blocks = [T(p_all[b]) for b in cfg.blocks]
         self.Q_blocks = [T(q_all[b]) for b in blocks_q]
         dims = [b.shape[1] for b in self.P_blocks]

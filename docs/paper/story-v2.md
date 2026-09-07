@@ -77,9 +77,14 @@ the reason marginal-curve overlap statistics have found so little.
   unseen-genus plants (79 of 663). Smoothing identity fails three ways (back-off crosses, BioCLIP
   kernel, phylogeny). Removing the text block *raises* the unseen stratum (0.119 → 0.146) while
   costing 0.062 overall: identity misleads exactly where it has nothing to say.
-- **Niche transfer degrades gracefully but does not win there.** Taxonomy-free field model:
-  unseen-genus 0.18 (vs 0.12 for the full embedding model), yet SVD-with-taxonomic-imputation
-  (0.256) and popularity (0.234) remain better on that stratum. Report as mechanism, not method.
+- **Niche transfer degrades gracefully but does not win there.** Taxonomy-free joint field model,
+  3 seeds: unseen-genus 0.188 against seen-genus 0.207 (ratio 0.91); the reference model's ratio is
+  0.39. The contrast against the taxonomy-free surface control (+0.042) is not significant on 79
+  plants (p=0.21). SVD-with-taxonomic-imputation (0.256) and popularity (0.234) remain better on that
+  stratum. Report as a pattern and a mechanism, not a method.
+- **Commensurability was not the bottleneck.** Putting both sides in one learned field space (joint
+  SINR over both kingdoms) is null in the full model (all arms p >= 0.10, 3 seeds) and does not beat
+  the SVD grid projection as the sole spatio-temporal input.
 - **Prevalence is signal.** Three interventions that remove it (logQ off, prevalence-normalised
   encounter term, degree-matched negatives) all cost 0.04–0.09, p<0.001. Methods sold on removing
   abundance confounding lose accuracy on this data.
@@ -97,7 +102,8 @@ transfer is the best cold-start fallback (it is fourth).
 
 ## 7. Open items before writing
 
-- Step 3 pooled over three seeds (running: `results/joint_field_swap_*`).
+- Step 3 pooled (done, null; `results/joint_field_swap_pooled.csv`).
+- Full-universe marginalisation ladder on the production surfaces (`eval/run_marginalisation_surfaces.py`).
 - Test split, held for Dan's call on one model vs two.
 - Whether to include the trained-sub-universe numbers (379 plants, 5,354 candidates) as the
   marginalisation table, or re-run with text-imputed vectors so the full universe can be used. The

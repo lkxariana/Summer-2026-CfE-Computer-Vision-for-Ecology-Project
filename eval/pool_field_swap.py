@@ -21,25 +21,41 @@ CONTRASTS = [
 
 
 def main():
-    files = sorted((ROOT / "results").glob("field_swap_perplant_s*.npz"))
+    import argparse
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--preset", default="swap", choices=["swap", "joint"])
+    args = ap.parse_args()
+    stem = "field_swap" if args.preset == "swap" else "joint_field_swap"
+    files = sorted((ROOT / "results").glob(f"{stem}_perplant_s*.npz"))
     runs = [np.load(f, allow_pickle=True) for f in files]
+    if args.preset == "joint":
+        # the taxonomy-free control lives in the swap files; same seeds, same reference (verified
+        # bit-identical), so it pairs across files
+        for i, f in enumerate(files):
+            sw = ROOT / "results" / f.name.replace("joint_field_swap", "field_swap")
+            if sw.exists():
+                d = dict(runs[i]); d["no-text surface"] = np.load(sw)["no-text surface"]; runs[i] = d
     seeds = [f.stem.split("_s")[-1] for f in files]
-    arms = [k for k in runs[0].files if k not in ("plants", "seen")]
+    keys = lambda r: list(r.files) if hasattr(r, "files") else list(r.keys())
+    arms = [k for k in keys(runs[0]) if k not in ("plants", "seen")]
     seen = runs[0]["seen"]
     for r in runs:
         assert (r["plants"] == runs[0]["plants"]).all()
     print(f"{len(runs)} seeds ({', '.join(seeds)}), {len(seen)} plants, genus seen {seen.sum()} / unseen {(~seen).sum()}\n")
 
-    avg = {a: np.mean([r[a] for r in runs if a in r.files], 0) for a in arms}
+    avg = {a: np.mean([r[a] for r in runs if a in keys(r)], 0) for a in arms}
     rows = []
     print(f"{'arm':<18} {'nR@10':>7} {'seen':>7} {'unseen':>7}   per-seed")
     for a in arms:
-        per = [f"{r[a].mean():.4f}" for r in runs if a in r.files]
+        per = [f"{r[a].mean():.4f}" for r in runs if a in keys(r)]
         print(f"{a:<18} {avg[a].mean():.4f} {avg[a][seen].mean():.4f} {avg[a][~seen].mean():.4f}   {' '.join(per)}")
         rows.append(dict(arm=a, nrecall10=avg[a].mean(), seen=avg[a][seen].mean(), unseen=avg[a][~seen].mean(),
                          n_seeds=len(per)))
+    contrasts = CONTRASTS if args.preset == "swap" else (
+        [(a, "reference") for a in arms if a.startswith("joint")]
+        + [(a, "no-text surface") for a in arms if a.startswith("no-text joint")])
     print("\npaired bootstrap on seed-averaged per-plant nR@10 (10k resamples):")
-    for a, b in CONTRASTS:
+    for a, b in contrasts:
         if a not in avg or b not in avg:
             continue
         d, lo, hi, p = paired_bootstrap(avg[a], avg[b], 10000, 42)
@@ -47,8 +63,8 @@ def main():
         print(f"  {a:<18} - {b:<16} {d:+.4f} [{lo:+.4f},{hi:+.4f}] p={p:.4f}   "
               f"unseen genus {du:+.4f} [{lou:+.4f},{hiu:+.4f}] p={pu:.3f}")
         rows.append(dict(arm=f"{a} - {b}", nrecall10=d, lo=lo, hi=hi, p=p, unseen=du, p_unseen=pu))
-    pd.DataFrame(rows).to_csv(ROOT / "results/field_swap_pooled.csv", index=False)
-    print("\n[wrote] results/field_swap_pooled.csv")
+    pd.DataFrame(rows).to_csv(ROOT / f"results/{stem}_pooled.csv", index=False)
+    print(f"\n[wrote] results/{stem}_pooled.csv")
 
 
 if __name__ == "__main__":

@@ -1010,3 +1010,20 @@ stable of the learned models and keeps the best PR-AUC under both tiers.
 The protocol already fixes Tier A as the scoring tier on evidence-quality grounds, decided before
 these numbers existed, so the reported result stands -- but the reversal belongs in the supplement as
 a robustness check, and it is a point in favour of reporting both tiers rather than one.
+
+## TabICL against the boosted ranker (09-07) — **the tabular premise holds for retrieval, not for calibration**
+
+The claim that trees beat neural networks on these features rested on Grinsztajn, Oyallon &
+Varoquaux (2022), and tabular foundation models have moved since -- TabPFN v2 (*Nature*, 2025), v3
+(2026), and TabICL, which scales in-context learning past 100k rows. Run on identical features, the
+same split and the same metrics, with a 50,000-row labelled context and all 663 x 13,124 pairs scored:
+
+| | nR@10 | MAP | PR-AUC |
+|---|---:|---:|---:|
+| boosted ranker | **0.3199** | **0.1806** | 0.0998 |
+| TabICL | 0.3126 [0.2875, 0.3390] | 0.1763 | **0.1104** |
+
+TabICL trails on retrieval and leads on pooled PR-AUC, which is the same split the learned
+representations show against the booster. The framing survives: on this task, for ranking the head of
+a candidate list, a boosted tree remains the stronger model on hand-built features even against a
+2026 foundation model. Inference cost is not close -- three hours against seventy seconds.

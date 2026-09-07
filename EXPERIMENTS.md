@@ -1156,3 +1156,40 @@ bootstrap over 663 validation plants (tier A). Reference = embedding model, bloc
 - **Text hurts where the genus is unseen.** Removing the BioCLIP-2 block costs 0.062 overall yet
   *raises* the unseen-genus stratum (0.119 -> 0.146). The identity signal misleads exactly where it
   has nothing to say -- consistent with the error analysis and with the booster's collapse there.
+
+### Marginalisation test (09-07) — **same field, same grid: collapsing space or time before the product destroys the signal**
+
+`eval/run_marginalisation_test.py` -> `results/marginalisation_test_val_tierA.csv`. From one joint field
+model, each species' presence over the (cell, week) grid, P[c,w] = sigma(u.h(c,w)). Four expected
+co-presence statistics of the *same two surfaces*, differing only in what is summed out before the
+product: joint (nothing), space (weeks first = range overlap), time (cells first = phenology overlap),
+scalar (both = prevalence product). Trained sub-universe: 379 val plants, 5,354 candidates, 5,750 partners.
+Paired bootstrap, joint against each marginal, 5k resamples.
+
+| statistic (uniform scheme) | alone: nR@10 / nR@50 | re-ranking popularity's top 200: nR@10 / nR@50 / PR-AUC | joint minus this, @50 (re-rank) |
+|---|---:|---:|---:|
+| popularity | 0.2346 / 0.3528 | -- / -- / 0.0663 | -- |
+| **joint** (per cell, per week) | **0.0629 / 0.2208** | **0.2025 / 0.4475 / 0.0980** | -- |
+| space marginal (range overlap) | 0.0280 / 0.1483 | 0.1491 / 0.4037 / 0.0857 | +0.044 [+0.028, +0.062] p<0.001 |
+| time marginal (phenology overlap) | 0.0200 / 0.0853 | 0.0878 / 0.2676 / 0.0866 | +0.180 [+0.147, +0.214] p<0.001 |
+| scalar (prevalence product) | 0.0067 / 0.0624 | 0.0602 / 0.2518 / 0.0737 | +0.196 [+0.161, +0.231] p<0.001 |
+
+Same ordering under tg_spatiotemporal (joint 0.4259 > space 0.4064 > time 0.2252 > scalar 0.2081 at
+nR@50, all p <= 0.002), and every @10 contrast is significant except scalar-alone under
+tg_spatiotemporal (tie).
+
+**What it establishes, with no confound left.** Earlier evidence for "marginalisation destroys the
+signal" compared different data sources (GBIF curves vs SDM surfaces) or different models. Here the
+model, the training data, the grid and the two surfaces are identical; only the order of summation
+differs. The strict ladder joint > space > time > scalar is the paper's mechanistic claim in its
+cleanest form.
+
+**The phenology finding is now precise.** The time marginal -- the phenology-overlap statistic
+ANTHEIA and the field's Delta/Schoener's-D constructs compute -- retains almost none of the joint
+statistic's value (0.268 vs 0.448 at nR@50), while the space marginal retains most of it (0.404).
+Phenology adds over range overlap *only* when it is kept per cell: joint minus space is +0.044
+(p<0.001). That is the original ANTHEIA asymmetry hypothesis, tested properly, and the reason a
+decade of marginal-curve overlap statistics have found little.
+
+Caveat unchanged: this is the conditional (re-ranking) regime; used alone the joint statistic ranks
+at 0.063 against popularity's 0.235.

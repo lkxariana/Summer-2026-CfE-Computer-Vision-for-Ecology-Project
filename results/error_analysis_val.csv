@@ -1,0 +1,664 @@
+plant,degree,nrec10,source,genus_seen,family
+Abronia mellifera,1,0.0,zeroshot_text,True,Nyctaginaceae
+Abutilon,5,0.4,zeroshot_text,True,Malvaceae
+Abutilon abutiloides,3,0.3333333333333333,direct,True,Malvaceae
+Abutilon hypoleucum,1,0.0,direct,True,Malvaceae
+Acer buergerianum,1,1.0,zeroshot_text,True,Sapindaceae
+Achillea millefolium,558,1.0,direct,True,Asteraceae
+Aegopodium,5,0.0,zeroshot_text,True,Apiaceae
+Aesculus,15,0.6,zeroshot_text,True,Sapindaceae
+Agalinis auriculata,19,0.1,zeroshot_text,True,Orobanchaceae
+Agastache mexicana,19,0.4,zeroshot_text,True,Lamiaceae
+Agave chrysantha,1,0.0,zeroshot_text,True,Asparagaceae
+Agave karatto,3,0.6666666666666666,zeroshot_text,True,Asparagaceae
+Ageratina jucunda,2,0.5,direct,True,Asteraceae
+Agoseris heterophylla,5,0.4,direct,True,Asteraceae
+Allium cernuum,64,0.7,direct,True,Amaryllidaceae
+Allium tuberosum,117,0.8,direct,True,Amaryllidaceae
+Alloberberis nevinii,1,0.0,zeroshot_text,True,Berberidaceae
+Aloe,6,0.6666666666666666,zeroshot_text,True,Asphodelaceae
+Alyssum turkestanicum,2,0.0,zeroshot_text,True,Brassicaceae
+Amaranthus fimbriatus,13,0.1,direct,True,Amaranthaceae
+Amaryllis,1,0.0,zeroshot_text,True,Amaryllidaceae
+Ambrosia dumosa,14,0.4,direct,True,Asteraceae
+Amelanchier utahensis,1,0.0,direct,True,Rosaceae
+Amorpha herbacea,5,0.2,zeroshot_text,True,Fabaceae
+Amsonia hubrichtii,12,0.6,zeroshot_text,True,Apocynaceae
+Amsonia orientalis,1,0.0,zeroshot_text,True,Apocynaceae
+Amsonia tomentosa,5,0.4,direct,True,Apocynaceae
+Andersonglossum boreale,1,0.0,zeroshot_text,True,Boraginaceae
+Andromeda,2,0.5,zeroshot_text,True,Ericaceae
+Androsace,1,0.0,zeroshot_text,True,Primulaceae
+Anemonastrum deltoideum,1,0.0,direct,True,Ranunculaceae
+Anemone,12,0.3,zeroshot_text,True,Ranunculaceae
+Anethum graveolens,118,0.1,direct,True,Apiaceae
+Angelica breweri,3,0.6666666666666666,zeroshot_text,True,Apiaceae
+Angelonia angustifolia,4,0.25,zeroshot_text,True,Plantaginaceae
+Anisocoma acaulis,3,0.0,direct,False,Asteraceae
+Anthriscus sylvestris,38,0.1,direct,True,Apiaceae
+Apios priceana,3,0.3333333333333333,zeroshot_text,True,Fabaceae
+Apocynum androsaemifolium,199,0.8,direct,True,Apocynaceae
+Arbutus unedo,8,0.5,zeroshot_text,True,Ericaceae
+Arctostaphylos columbiana,8,0.25,direct,True,Ericaceae
+Arctostaphylos montana,2,0.5,direct,True,Ericaceae
+Arctostaphylos patula,10,0.5,direct,True,Ericaceae
+Argemone polyanthemos,2,1.0,direct,True,Papaveraceae
+Aristea abyssinica,1,0.0,zeroshot_text,True,Iridaceae
+Armoracia rusticana,2,0.0,zeroshot_text,True,Brassicaceae
+Arnica chamissonis,8,0.375,zeroshot_text,True,Asteraceae
+Aronia melanocarpa,63,0.7,direct,True,Rosaceae
+Artemisia campestris,4,0.0,direct,True,Asteraceae
+Aruncus dioicus,57,0.5,direct,True,Rosaceae
+Aruncus sylvester,18,0.0,zeroshot_text,True,Rosaceae
+Asclepias albicans,2,1.0,direct,True,Apocynaceae
+Asclepias humistrata,3,0.3333333333333333,direct,True,Apocynaceae
+Asclepias syriaca,43,0.3,direct,True,Apocynaceae
+Asclepias texana,3,0.0,direct,True,Apocynaceae
+Asclepias tomentosa,2,0.5,direct,True,Apocynaceae
+Asperugo procumbens,4,0.0,direct,False,Boraginaceae
+Astilbe,60,0.6,zeroshot_text,True,Saxifragaceae
+Astragalus canadensis,46,0.5,direct,True,Fabaceae
+Astragalus distortus,1,1.0,direct,True,Fabaceae
+Astragalus eremiticus,3,0.6666666666666666,zeroshot_text,True,Fabaceae
+Astragalus onobrychis,1,1.0,zeroshot_text,True,Fabaceae
+Astragalus pycnostachyus,2,0.0,direct,True,Fabaceae
+Astragalus soxmaniorum,1,0.0,zeroshot_text,True,Fabaceae
+Astragalus spruneri,1,1.0,zeroshot_text,True,Fabaceae
+Atriplex lentiformis,7,0.14285714285714285,direct,True,Amaranthaceae
+Aureolaria grandiflora,31,0.2,direct,True,Orobanchaceae
+Aureolaria pectinata,1,0.0,direct,True,Orobanchaceae
+Baccharis halimifolia,66,0.7,direct,True,Asteraceae
+Bahiopsis reticulata,1,0.0,direct,True,Asteraceae
+Baileya,11,0.4,zeroshot_text,True,Asteraceae
+Baptisia bracteata,31,0.4,zeroshot_text,True,Fabaceae
+Bauhinia,11,0.2,zeroshot_text,True,Fabaceae
+Bauhinia divaricata,3,0.3333333333333333,zeroshot_text,True,Fabaceae
+Bellis,7,0.14285714285714285,zeroshot_text,True,Asteraceae
+Berberis bealei,5,0.4,direct,True,Berberidaceae
+Berberis dictyota,1,1.0,direct,True,Berberidaceae
+Bidens mitis,4,0.25,direct,True,Asteraceae
+Bistorta bistortoides,33,0.4,direct,True,Polygonaceae
+Bistorta officinalis,4,0.0,zeroshot_text,True,Polygonaceae
+Blutaparon vermiculare,5,0.0,direct,False,Amaranthaceae
+Boechera dentata,21,0.0,zeroshot_text,True,Brassicaceae
+Boechera subpinnatifida,1,0.0,zeroshot_text,True,Brassicaceae
+Bolboschoenus maritimus,1,0.0,zeroshot_text,True,Cyperaceae
+Bouvardia,1,0.0,zeroshot_text,True,Rubiaceae
+Brickellia cordifolia,3,0.0,zeroshot_text,True,Asteraceae
+Butomus umbellatus,10,0.0,direct,False,Butomaceae
+Cajanus cajan,1,0.0,zeroshot_text,False,Fabaceae
+Callianthe,1,1.0,zeroshot_text,True,Malvaceae
+Calochortus concolor,5,0.0,direct,True,Liliaceae
+Calochortus elegans,1,0.0,direct,True,Liliaceae
+Calochortus luteus,9,0.0,direct,True,Liliaceae
+Calochortus minimus,2,0.0,direct,True,Liliaceae
+Calochortus splendens,30,0.7,direct,True,Liliaceae
+Calycadenia truncata,2,0.5,direct,True,Asteraceae
+Calyptocarpus vialis,6,0.0,direct,False,Asteraceae
+Camassia cusickii,1,0.0,direct,True,Asparagaceae
+Camellia sasanqua,9,0.1111111111111111,zeroshot_text,True,Theaceae
+Campanula divaricata,1,0.0,direct,True,Campanulaceae
+Campanula medium,1,1.0,zeroshot_text,True,Campanulaceae
+Campanula trachelium,2,0.5,zeroshot_text,True,Campanulaceae
+Canna,18,0.6,zeroshot_text,True,Cannaceae
+Capsicum,3,0.6666666666666666,zeroshot_text,True,Solanaceae
+Cardamine nuttallii,3,0.3333333333333333,direct,True,Brassicaceae
+Carpenteria,2,0.5,zeroshot_text,True,Hydrangeaceae
+Carphephorus,6,0.3333333333333333,zeroshot_text,True,Asteraceae
+Carphephorus corymbosus,49,0.6,direct,True,Asteraceae
+Carpobrotus aequilaterus,1,1.0,zeroshot_text,True,Aizoaceae
+Carpobrotus edulis,16,0.3,direct,True,Aizoaceae
+Castilleja angustifolia,1,1.0,direct,True,Orobanchaceae
+Castilleja linariifolia,1,0.0,direct,True,Orobanchaceae
+Castilleja lineariloba,1,0.0,zeroshot_text,True,Orobanchaceae
+Castilleja pulchella,1,0.0,zeroshot_text,True,Orobanchaceae
+Caulanthus lasiophyllus,2,0.0,direct,True,Brassicaceae
+Ceanothus confusus,2,0.5,zeroshot_text,True,Rhamnaceae
+Ceanothus thyrsiflorus,21,0.7,direct,True,Rhamnaceae
+Centaurea solstitialis,62,0.9,direct,True,Asteraceae
+Centromadia parryi,6,0.5,direct,True,Asteraceae
+Cephalanthus tetrandrus,215,1.0,zeroshot_text,True,Rubiaceae
+Cestrum fasciculatum,1,0.0,zeroshot_text,True,Solanaceae
+Chaenactis glabriuscula,51,0.8,direct,True,Asteraceae
+Chelone lyonii,8,0.25,direct,True,Plantaginaceae
+Chenopodiastrum murale,1,0.0,direct,True,Amaranthaceae
+Chorizanthe fimbriata,4,0.25,direct,True,Polygonaceae
+Chrysactinia mexicana,2,0.0,direct,False,Asteraceae
+Chrysanthemum,141,1.0,zeroshot_text,True,Asteraceae
+Chrysopsis mariana,13,0.0,direct,True,Asteraceae
+Cirsium cymosum,5,0.4,direct,True,Asteraceae
+Cirsium dissectum,22,0.0,zeroshot_text,True,Asteraceae
+Cirsium edule,13,0.4,direct,True,Asteraceae
+Cirsium foliosum,2,0.5,zeroshot_text,True,Asteraceae
+Cirsium muticum,31,0.8,direct,True,Asteraceae
+Cirsium pumilum,47,0.5,direct,True,Asteraceae
+Cirsium wrightii,1,1.0,zeroshot_text,True,Asteraceae
+Citharexylum spinosum,5,0.2,zeroshot_text,True,Verbenaceae
+Citrus × latifolia,4,0.25,zeroshot_text,True,Rutaceae
+Clarkia bottae,1,1.0,direct,True,Onagraceae
+Clarkia pulchella,7,0.2857142857142857,direct,True,Onagraceae
+Claytonia,33,0.5,zeroshot_text,True,Montiaceae
+Clematis addisonii,1,0.0,zeroshot_text,True,Ranunculaceae
+Clematis crispa,4,0.5,direct,True,Ranunculaceae
+Clematis morefieldii,1,1.0,zeroshot_text,True,Ranunculaceae
+Clinopodium ashei,13,0.1,direct,True,Lamiaceae
+Clinopodium brownei,1,0.0,direct,True,Lamiaceae
+Clintonia borealis,24,0.4,direct,True,Liliaceae
+Cnidoscolus stimulosus,7,0.2857142857142857,direct,True,Euphorbiaceae
+Collinsia parviflora,26,0.6,direct,True,Plantaginaceae
+Colona,2,0.0,zeroshot_text,False,Malvaceae
+Comastoma tenellum,1,0.0,zeroshot_text,False,Gentianaceae
+Combretum indicum,1,0.0,zeroshot_text,True,Combretaceae
+Conocarpus,24,0.0,zeroshot_text,True,Combretaceae
+Coreopsis delphiniifolia,96,0.6,zeroshot_text,True,Asteraceae
+Coreopsis major,3,0.6666666666666666,direct,True,Asteraceae
+Coreopsis nuecensis,4,0.0,direct,True,Asteraceae
+Corydalis caseana,1,0.0,direct,True,Papaveraceae
+Cosmos atrosanguineus,3,0.0,zeroshot_text,True,Asteraceae
+Crambe,2,0.0,zeroshot_text,True,Brassicaceae
+Crataegus crus-galli,4,0.5,direct,True,Rosaceae
+Crepis atribarba,18,0.3,zeroshot_text,True,Asteraceae
+Crocanthemum,4,0.0,zeroshot_text,True,Cistaceae
+Crocus chrysanthus,4,0.5,zeroshot_text,True,Iridaceae
+Crocus neapolitanus,1,0.0,zeroshot_text,True,Iridaceae
+Croton,13,0.2,zeroshot_text,True,Euphorbiaceae
+Croton lindheimeri,24,0.5,direct,True,Euphorbiaceae
+Croton linearis,23,0.1,zeroshot_text,True,Euphorbiaceae
+Croton setiger,28,0.5,direct,True,Euphorbiaceae
+Cylindropuntia,21,0.6,zeroshot_text,True,Cactaceae
+Cylindropuntia bernardina,1,0.0,direct,True,Cactaceae
+Cylindropuntia ramosissima,3,0.3333333333333333,direct,True,Cactaceae
+Cynara,3,0.0,zeroshot_text,False,Asteraceae
+Cynara cardunculus,16,0.1,direct,False,Asteraceae
+Cynoglossum,3,0.3333333333333333,zeroshot_text,True,Boraginaceae
+Cypripedium reginae,3,0.3333333333333333,direct,True,Orchidaceae
+Dalea pulchra,1,0.0,zeroshot_text,True,Fabaceae
+Dalea purpurea,54,0.7,direct,True,Fabaceae
+Dalea villosa,9,0.3333333333333333,direct,True,Fabaceae
+Dasistoma macrophyllum,3,0.3333333333333333,zeroshot_text,True,Orobanchaceae
+Delphinium barbeyi,3,0.6666666666666666,direct,True,Ranunculaceae
+Delphinium nudicaule,2,0.0,direct,True,Ranunculaceae
+Dendrophylax lindenii,1,0.0,direct,False,Orchidaceae
+Desmanthus illinoensis,1,1.0,direct,True,Fabaceae
+Diapensia lapponica,13,0.0,direct,False,Diapensiaceae
+Diaperia,1,0.0,zeroshot_text,False,Asteraceae
+Dichondra,2,0.0,zeroshot_text,False,Convolvulaceae
+Dicliptera,1,0.0,zeroshot_text,True,Acanthaceae
+Dicranopteris,1,0.0,zeroshot_text,False,Gleicheniaceae
+Digitalis purpurea,27,0.9,direct,True,Plantaginaceae
+Dimorphotheca sinuata,3,0.3333333333333333,direct,True,Asteraceae
+Diplacus brevipes,3,0.3333333333333333,direct,True,Phrymaceae
+Diplacus calycinus,1,0.0,direct,True,Phrymaceae
+Dipsacus sylvestris,25,0.2,zeroshot_text,True,Caprifoliaceae
+Dodecatheon clevelandii,2,0.0,zeroshot_text,True,Primulaceae
+Dodecatheon conjugens,1,1.0,zeroshot_text,True,Primulaceae
+Drosanthemum floribundum,4,0.25,zeroshot_text,True,Aizoaceae
+Drymocallis fissa,5,0.2,direct,True,Rosaceae
+Echinacea,199,1.0,zeroshot_text,True,Asteraceae
+Echium amoenum,1,0.0,zeroshot_text,True,Boraginaceae
+Eclipta prostrata,1,0.0,direct,False,Asteraceae
+Encelia frutescens,4,0.5,direct,True,Asteraceae
+Endotropis lanceolata,17,0.1,zeroshot_text,False,Rhamnaceae
+Epimedium alpinum,1,1.0,zeroshot_text,True,Berberidaceae
+Epipactis helleborine,4,0.0,direct,True,Orchidaceae
+Eranthemum pulchellum,2,0.0,zeroshot_text,True,Acanthaceae
+Eremogone congesta,4,0.25,direct,True,Caryophyllaceae
+Eriastrum eremicum,14,0.7,direct,True,Polemoniaceae
+Ericameria arborescens,6,0.5,direct,True,Asteraceae
+Ericameria linearifolia,32,0.3,direct,True,Asteraceae
+Ericameria teretifolia,1,0.0,direct,True,Asteraceae
+Erigeron peregrinus,6,0.3333333333333333,zeroshot_text,True,Asteraceae
+Eriobotrya japonica,20,0.1,direct,True,Rosaceae
+Eriocapitella japonica,5,0.4,zeroshot_text,True,Ranunculaceae
+Eriocaulon aquaticum,4,0.0,direct,True,Eriocaulaceae
+Eriodictyon angustifolium,2,0.5,direct,True,Boraginaceae
+Eriodictyon crassifolium,45,0.8,direct,True,Boraginaceae
+Eriogonum pusillum,2,0.0,direct,True,Polygonaceae
+Eriogonum pyrolifolium,4,0.25,direct,True,Polygonaceae
+Eriogonum rosense,1,0.0,zeroshot_text,True,Polygonaceae
+Eriogonum strictum,8,0.125,direct,True,Polygonaceae
+Eriogonum thomasii,1,0.0,direct,True,Polygonaceae
+Ernodea cokeri,1,0.0,zeroshot_text,False,Rubiaceae
+Ernodea littoralis,1,0.0,zeroshot_text,False,Rubiaceae
+Erodium brachycarpum,1,0.0,direct,True,Geraniaceae
+Eryngium aristulatum,1,0.0,direct,True,Apiaceae
+Eryngium leavenworthii,7,0.2857142857142857,direct,True,Apiaceae
+Eryngium mississippiense,2,0.0,zeroshot_text,True,Apiaceae
+Eubotrys racemosa,2,1.0,direct,False,Ericaceae
+Euonymus fortunei,41,0.5,direct,True,Celastraceae
+Euonymus japonicus,1,0.0,direct,True,Celastraceae
+Euphorbia albomarginata,21,0.3,direct,True,Euphorbiaceae
+Euphorbia hyssopifolia,3,0.3333333333333333,direct,True,Euphorbiaceae
+Euphorbia milii,6,0.16666666666666666,zeroshot_text,True,Euphorbiaceae
+Euploca polyphylla,14,0.1,direct,True,Boraginaceae
+Eysenhardtia texana,16,0.3,direct,True,Fabaceae
+Fallopia,3,0.0,zeroshot_text,True,Polygonaceae
+Fallugia paradoxa,27,0.1,direct,False,Rosaceae
+Ferocactus wislizeni,3,0.3333333333333333,direct,True,Cactaceae
+Forsythia suspensa,3,0.0,zeroshot_text,True,Oleaceae
+Fouquieria splendens,14,0.2,direct,True,Fouquieriaceae
+Frankenia salina,31,0.2,direct,True,Frankeniaceae
+Frasera speciosa,21,0.4,direct,True,Gentianaceae
+Frasera umpquaensis,1,0.0,zeroshot_text,True,Gentianaceae
+Fritillaria meleagris,1,0.0,zeroshot_text,True,Liliaceae
+Fuchsia magellanica,4,0.5,direct,True,Onagraceae
+Galactia elliottii,1,1.0,direct,True,Fabaceae
+Galardia,1,0.0,zeroshot_text,False,Asteraceae
+Galium circaezans,6,0.0,direct,True,Rubiaceae
+Galium palustre,5,0.4,direct,True,Rubiaceae
+Galium verum,3,0.3333333333333333,direct,True,Rubiaceae
+Gaudium laevigatum,1,0.0,direct,False,Myrtaceae
+Gaura,2,0.0,zeroshot_text,False,Onagraceae
+Gaylussacia,6,0.16666666666666666,zeroshot_text,True,Ericaceae
+Gentiana puberulenta,38,0.6,direct,True,Gentianaceae
+Gentianopsis crinita,2,0.5,direct,True,Gentianaceae
+Geranium dissectum,14,0.0,direct,True,Geraniaceae
+Geranium sanguineum,9,0.3333333333333333,direct,True,Geraniaceae
+Geum canadense,25,0.0,direct,True,Rosaceae
+Geum macrophyllum,8,0.125,direct,True,Rosaceae
+Gillenia stipulata,29,0.0,direct,True,Rosaceae
+Glandularia canadensis,10,0.4,direct,True,Verbenaceae
+Glebionis segetum,5,0.0,zeroshot_text,True,Asteraceae
+Gleditsia triacanthos,21,0.1,direct,True,Fabaceae
+Gomphrena serrata,3,0.0,direct,True,Amaranthaceae
+Grewia,1,1.0,zeroshot_text,True,Malvaceae
+Grindelia,71,0.6,zeroshot_text,True,Asteraceae
+Hackelia,1,0.0,zeroshot_text,True,Boraginaceae
+Hamamelis vernalis,11,0.2,direct,True,Hamamelidaceae
+Harrisia,1,1.0,zeroshot_text,False,Cactaceae
+Hasteola suaveolens,11,0.0,direct,False,Asteraceae
+Hedera maderensis,27,0.3,zeroshot_text,True,Araliaceae
+Hedychium coronarium,6,0.0,zeroshot_text,True,Zingiberaceae
+Helianthella castanea,1,0.0,direct,True,Asteraceae
+Helianthus laetiflorus,44,0.1,zeroshot_text,True,Asteraceae
+Helianthus schweinitzii,1,1.0,zeroshot_text,True,Asteraceae
+Heliotropium amplexicaule,4,0.5,direct,True,Heliotropiaceae
+Heliotropium curassavicum,93,0.9,direct,True,Boraginaceae
+Heliotropium verdcourtii,1,0.0,zeroshot_text,True,Heliotropiaceae
+Hemerocallis fulva,24,0.6,direct,True,Asphodelaceae
+Hemizonia congesta,18,0.3,direct,True,Asteraceae
+Heptacodium miconioides,7,0.14285714285714285,zeroshot_text,False,Caprifoliaceae
+Heterotheca hirsutissima,2,0.0,direct,True,Asteraceae
+Heterotheca mucronata,1,0.0,zeroshot_text,True,Asteraceae
+Heterotheca villosa,50,0.3,direct,True,Asteraceae
+Heuchera cylindrica,17,0.5,direct,True,Saxifragaceae
+Hibiscus syriacus,47,0.7,direct,True,Malvaceae
+Hieracium venosum,2,0.0,direct,True,Asteraceae
+Holocarpha,1,0.0,zeroshot_text,True,Asteraceae
+Houstonia,6,0.0,zeroshot_text,True,Rubiaceae
+Hulsea vestita,3,0.3333333333333333,direct,True,Asteraceae
+Hyacinthus orientalis,7,0.7142857142857143,direct,True,Asparagaceae
+Hydrocotyle,1,0.0,zeroshot_text,True,Araliaceae
+Hydrophyllum occidentale,1,1.0,direct,True,Boraginaceae
+Hylodesmum glutinosum,1,0.0,direct,True,Fabaceae
+Hylotelephium telephium,38,0.7,direct,True,Crassulaceae
+Hymenopappus flavescens,3,0.0,direct,True,Asteraceae
+Hymenopappus scabiosaeus,3,0.0,direct,True,Asteraceae
+Hymenothrix dissecta,1,0.0,direct,True,Asteraceae
+Hypericum adpressum,3,0.3333333333333333,zeroshot_text,True,Hypericaceae
+Impatiens,15,0.4,zeroshot_text,True,Balsaminaceae
+Indigofera spicata,3,1.0,direct,True,Fabaceae
+Inula helenium,24,0.1,direct,True,Asteraceae
+Ipomoea cairica,1,0.0,zeroshot_text,True,Convolvulaceae
+Ipomoea cordatotriloba,14,0.5,direct,True,Convolvulaceae
+Ipomoea indica,9,0.1111111111111111,direct,True,Convolvulaceae
+Ipomoea tricolor,3,0.6666666666666666,zeroshot_text,True,Convolvulaceae
+Iresine diffusa,3,0.0,zeroshot_text,True,Amaranthaceae
+Iris douglasiana,3,0.3333333333333333,direct,True,Iridaceae
+Iris hartwegii,1,0.0,direct,True,Iridaceae
+Isocoma,8,0.0,zeroshot_text,True,Asteraceae
+Ivesia,1,0.0,zeroshot_text,True,Rosaceae
+Ivesia unguiculata,1,0.0,zeroshot_text,True,Rosaceae
+Jacquemontia tamnifolia,9,0.0,direct,True,Convolvulaceae
+Jasminum polyanthum,5,0.2,zeroshot_text,True,Oleaceae
+Jatropha multifida,4,0.5,zeroshot_text,True,Euphorbiaceae
+Jeffersonia diphylla,5,0.0,direct,False,Berberidaceae
+Jensia,1,0.0,zeroshot_text,True,Asteraceae
+Justicia americana,59,0.2,direct,True,Acanthaceae
+Justicia angusta,1,0.0,direct,True,Acanthaceae
+Justicia runyonii,2,0.0,direct,True,Acanthaceae
+Kolkwitzia,2,0.5,zeroshot_text,False,Caprifoliaceae
+Kolkwitzia amabilis,17,0.1,direct,False,Caprifoliaceae
+Krugiodendron ferreum,4,0.0,zeroshot_text,False,Rhamnaceae
+Lactuca floridana,32,0.2,direct,True,Asteraceae
+Laguncularia racemosa,3,0.0,direct,False,Combretaceae
+Lamium,21,0.8,zeroshot_text,True,Lamiaceae
+Lantana,186,1.0,zeroshot_text,True,Verbenaceae
+Lantana velutina,11,0.4,direct,True,Verbenaceae
+Larrea tridentata,94,0.5,direct,True,Zygophyllaceae
+Lasthenia,21,0.3,zeroshot_text,True,Asteraceae
+Lasthenia californica,7,0.0,direct,True,Asteraceae
+Lathyrus japonicus,17,0.8,direct,True,Fabaceae
+Lathyrus vestitus,21,0.7,direct,True,Fabaceae
+Lavandula dentata,10,0.4,zeroshot_text,True,Lamiaceae
+Layia glandulosa,16,0.1,direct,True,Asteraceae
+Leavenworthia stylosa,1,1.0,direct,True,Brassicaceae
+Leonotis leonurus,7,0.5714285714285714,zeroshot_text,True,Lamiaceae
+Leontodon,4,0.0,zeroshot_text,True,Asteraceae
+Lepidium heterophyllum,2,0.0,zeroshot_text,True,Brassicaceae
+Leucanthemum,188,0.9,zeroshot_text,True,Asteraceae
+Leucanthemum × superbum,92,0.7,zeroshot_text,True,Asteraceae
+Levisticum officinale,18,0.0,zeroshot_text,False,Apiaceae
+Liatris elegantula,1,1.0,direct,True,Asteraceae
+Liatris punctata,46,0.5,direct,True,Asteraceae
+Liatris pycnostachya,70,0.8,direct,True,Asteraceae
+Ligusticum grayi,4,0.25,direct,True,Apiaceae
+Lilium,23,0.5,zeroshot_text,True,Liliaceae
+Lilium washingtonianum,1,0.0,direct,True,Liliaceae
+Linaria maroccana,3,0.3333333333333333,direct,True,Plantaginaceae
+Linum pratense,1,0.0,direct,True,Linaceae
+Lithophragma glabrum,9,0.2222222222222222,direct,True,Saxifragaceae
+Lobelia fenestralis,9,0.0,zeroshot_text,True,Campanulaceae
+Lobularia maritima,96,0.7,direct,True,Brassicaceae
+Lomatium multifidum,2,0.0,direct,True,Apiaceae
+Lomatium nudicaule,59,0.4,direct,True,Apiaceae
+Lomatium thompsonii,1,1.0,zeroshot_text,True,Apiaceae
+Lonicera canadensis,6,0.6666666666666666,direct,True,Caprifoliaceae
+Lonicera dioica,5,0.4,direct,True,Caprifoliaceae
+Lonicera hirsuta,2,0.5,direct,True,Caprifoliaceae
+Ludwigia peruviana,13,0.5,direct,True,Onagraceae
+Ludwigia suffruticosa,1,0.0,direct,True,Onagraceae
+Lupinus polyphyllus,46,0.9,direct,True,Fabaceae
+Lupinus texensis,11,0.1,direct,True,Fabaceae
+Lycium carolinianum,2,0.5,direct,True,Solanaceae
+Lycopus americanus,23,0.3,direct,True,Lamiaceae
+Lycopus rubellus,3,0.3333333333333333,direct,True,Lamiaceae
+Macadamia,1,0.0,zeroshot_text,True,Proteaceae
+Machaeranthera,2,0.0,zeroshot_text,True,Asteraceae
+Magnolia × soulangeana,1,0.0,zeroshot_text,True,Magnoliaceae
+Malacothamnus nuttallii,1,1.0,direct,True,Malvaceae
+Marina parryi,2,0.5,direct,False,Fabaceae
+Marrubium supinum,1,0.0,zeroshot_text,True,Lamiaceae
+Medicago arabica,1,0.0,direct,True,Fabaceae
+Melissa officinalis,10,0.1,direct,False,Lamiaceae
+Mertensia pratensis,9,0.0,zeroshot_text,True,Boraginaceae
+Metrosideros,4,0.25,zeroshot_text,True,Myrtaceae
+Micranthes fragosa,1,0.0,direct,True,Saxifragaceae
+Micranthes petiolaris,2,0.0,direct,True,Saxifragaceae
+Microseris,1,0.0,zeroshot_text,True,Asteraceae
+Microseris borealis,5,0.0,zeroshot_text,True,Asteraceae
+Microsteris gracilis,3,0.0,direct,False,Polemoniaceae
+Mitreola petiolata,4,0.0,direct,True,Loganiaceae
+Mollugo verticillata,27,0.0,direct,False,Molluginaceae
+Momordica charantia,13,0.0,direct,False,Cucurbitaceae
+Monardella sinuata,1,0.0,direct,True,Lamiaceae
+Monolopia gracilens,1,0.0,direct,True,Asteraceae
+Monoptilon bellioides,3,0.6666666666666666,direct,True,Asteraceae
+Morus,1,0.0,zeroshot_text,False,Moraceae
+Morus alba,2,0.0,direct,False,Moraceae
+Muilla maritima,7,0.0,direct,False,Asparagaceae
+Mukdenia rossii,3,0.0,zeroshot_text,False,Saxifragaceae
+Myosotis scorpioides,26,0.4,direct,True,Boraginaceae
+Nabalus asper,21,0.0,direct,True,Asteraceae
+Nelumbo nucifera,1,1.0,direct,True,Nelumbonaceae
+Nepeta racemosa,31,0.7,zeroshot_text,True,Lamiaceae
+Nestronia umbellula,1,0.0,zeroshot_text,False,Santalaceae
+Nigella papillosa,1,0.0,zeroshot_text,True,Ranunculaceae
+Noccaea fendleri,3,0.3333333333333333,direct,False,Brassicaceae
+Nothocalais,1,0.0,zeroshot_text,True,Asteraceae
+Nuphar polysepala,1,0.0,direct,True,Nymphaeaceae
+Ocimum basilicum,43,0.8,zeroshot_text,True,Lamiaceae
+Odontonema tubaeforme,9,0.2222222222222222,zeroshot_text,True,Acanthaceae
+Oenothera avita,6,0.16666666666666666,direct,True,Onagraceae
+Oenothera biennis,45,0.8,direct,True,Onagraceae
+Oenothera filiformis,3,0.3333333333333333,direct,True,Onagraceae
+Oenothera glazioviana,2,0.0,direct,True,Onagraceae
+Oenothera indecora,1,0.0,zeroshot_text,True,Onagraceae
+Oenothera parviflora,8,0.5,direct,True,Onagraceae
+Oenothera suffrutescens,8,0.125,direct,True,Onagraceae
+Okenia hypogaea,2,0.0,direct,False,Nyctaginaceae
+Onobrychis,7,0.8571428571428571,zeroshot_text,True,Fabaceae
+Onobrychis vassilczenkoi,3,1.0,zeroshot_text,True,Fabaceae
+Opuntia cymochila,2,0.5,direct,True,Cactaceae
+Opuntia ficus-indica,2,0.5,direct,True,Cactaceae
+Opuntia fragilis,2,0.5,direct,True,Cactaceae
+Opuntia monacantha,2,0.5,zeroshot_text,True,Cactaceae
+Opuntia robusta,1,0.0,zeroshot_text,True,Cactaceae
+Orlaya,2,0.0,zeroshot_text,True,Apiaceae
+Ornithopus perpusillus,1,0.0,zeroshot_text,False,Fabaceae
+Osmorhiza,2,0.0,zeroshot_text,True,Apiaceae
+Oxalis corniculata,14,0.4,direct,True,Oxalidaceae
+Oxalis pes-caprae,42,0.9,direct,True,Oxalidaceae
+Oxalis stricta,47,0.7,direct,True,Oxalidaceae
+Oxalis triangularis,1,1.0,direct,True,Oxalidaceae
+Oxydendrum arboreum,8,0.125,direct,False,Ericaceae
+Pachysandra terminalis,17,0.1,direct,True,Buxaceae
+Packera,62,1.0,zeroshot_text,True,Asteraceae
+Packera aurea,48,0.7,direct,True,Asteraceae
+Packera schweinitziana,7,0.0,direct,True,Asteraceae
+Paeonia lactiflora,4,0.25,zeroshot_text,True,Paeoniaceae
+Palafoxia arida,36,0.5,direct,True,Asteraceae
+Papaver rhoeas,5,0.2,direct,True,Papaveraceae
+Parnassia glauca,9,0.2222222222222222,direct,True,Celastraceae
+Pavonia lasiopetala,5,0.0,direct,True,Malvaceae
+Penstemon anguineus,1,1.0,zeroshot_text,True,Plantaginaceae
+Penstemon attenuatus,8,0.375,zeroshot_text,True,Plantaginaceae
+Penstemon buckleyi,1,1.0,zeroshot_text,True,Plantaginaceae
+Penstemon ellipticus,3,0.0,direct,True,Plantaginaceae
+Penstemon ovatus,3,0.3333333333333333,zeroshot_text,True,Plantaginaceae
+Penstemon pennellianus,1,0.0,zeroshot_text,True,Plantaginaceae
+Penstemon subserratus,1,1.0,direct,True,Plantaginaceae
+Pentaglottis sempervirens,5,0.6,direct,False,Boraginaceae
+Pentanisia,1,0.0,zeroshot_text,False,Rubiaceae
+Peraphyllum ramosissimum,1,0.0,zeroshot_text,False,Rosaceae
+Pericome caudata,1,0.0,direct,False,Asteraceae
+Perideridia gairdneri,14,0.3,direct,True,Apiaceae
+Persicaria robustior,1,1.0,zeroshot_text,True,Polygonaceae
+Petalonyx thurberi,28,0.1,direct,True,Loasaceae
+Peteravenia malvifolia,2,0.0,zeroshot_text,False,Asteraceae
+Peucedanum verticillare,1,0.0,zeroshot_text,False,Apiaceae
+Phacelia,101,0.8,zeroshot_text,True,Hydrophyllaceae
+Phacelia hydrophylloides,2,1.0,direct,True,Boraginaceae
+Phaseolus,7,0.2857142857142857,zeroshot_text,True,Fabaceae
+Phedimus kamtschaticus,2,0.5,zeroshot_text,True,Crassulaceae
+Phlomis russeliana,1,1.0,zeroshot_text,True,Lamiaceae
+Phlox,66,0.8,zeroshot_text,True,Polemoniaceae
+Phlox bifida,2,0.5,direct,True,Polemoniaceae
+Phlox subulata,27,0.5,direct,True,Polemoniaceae
+Phoenicaulis cheiranthoides,4,0.5,direct,False,Brassicaceae
+Phormium,1,0.0,zeroshot_text,False,Asphodelaceae
+Photinia,1,0.0,zeroshot_text,True,Rosaceae
+Phuopsis stylosa,1,0.0,zeroshot_text,False,Rubiaceae
+Physaria tenella,1,1.0,direct,True,Brassicaceae
+Physocarpus,16,0.2,zeroshot_text,True,Rosaceae
+Physostegia intermedia,1,1.0,zeroshot_text,True,Lamiaceae
+Pickeringia montana,7,0.14285714285714285,direct,False,Fabaceae
+Pisonia rotundata,4,0.0,zeroshot_text,True,Nyctaginaceae
+Plagiobothrys figuratus,6,0.3333333333333333,direct,True,Boraginaceae
+Plagiobothrys nothofulvus,14,0.2,direct,True,Boraginaceae
+Planodes virginicum,34,0.0,direct,False,Brassicaceae
+Plantago rugelii,4,0.75,direct,True,Plantaginaceae
+Platanthera × keenanii,1,1.0,zeroshot_text,True,Orchidaceae
+Plumbago,16,0.1,zeroshot_text,True,Plumbaginaceae
+Plumeria,1,0.0,zeroshot_text,True,Apocynaceae
+Poa,8,0.25,zeroshot_text,True,Poaceae
+Polemonium californicum,5,0.0,direct,True,Polemoniaceae
+Polygonatum pubescens,3,0.6666666666666666,direct,True,Asparagaceae
+Polygonella polygama,11,0.0,direct,True,Polygonaceae
+Polypremum procumbens,4,0.0,direct,False,Tetrachondraceae
+Portulaca tuberosa,9,0.1111111111111111,zeroshot_text,True,Portulacaceae
+Portulacaria afra,3,0.3333333333333333,zeroshot_text,False,Didiereaceae
+Potentilla canadensis,34,0.2,direct,True,Rosaceae
+Potentilla drummondii,1,1.0,zeroshot_text,True,Rosaceae
+Potentilla fructicosa,2,1.0,zeroshot_text,True,Rosaceae
+Potentilla hebiichigo,1,1.0,direct,True,Rosaceae
+Potentilla pulcherrima,11,0.1,direct,True,Rosaceae
+Primula,14,0.6,zeroshot_text,True,Primulaceae
+Prunus besseyi,1,0.0,zeroshot_text,True,Rosaceae
+Prunus dulcis,16,0.2,zeroshot_text,True,Rosaceae
+Prunus pensylvanica,27,0.5,direct,True,Rosaceae
+Prunus × yedoensis,4,0.5,zeroshot_text,True,Rosaceae
+Psorodendron schottii,17,0.8,direct,True,Fabaceae
+Psychotria,2,0.5,zeroshot_text,True,Rubiaceae
+Pterocaulon pycnostachyum,17,0.2,direct,True,Asteraceae
+Purshia stansburyana,1,1.0,direct,True,Rosaceae
+Puschkinia,12,0.1,zeroshot_text,False,Asparagaceae
+Puschkinia scilloides,11,0.1,direct,False,Asparagaceae
+Pycnanthemum loomisii,3,0.6666666666666666,zeroshot_text,True,Lamiaceae
+Pycnanthemum tenuifolium,220,0.9,direct,True,Lamiaceae
+Pycnanthemum virginianum,160,0.9,direct,True,Lamiaceae
+Pyrola elliptica,1,0.0,direct,True,Ericaceae
+Pyrrocoma lanceolata,1,0.0,zeroshot_text,True,Asteraceae
+Pyrrocoma racemosa,3,0.0,zeroshot_text,True,Asteraceae
+Quercus chrysolepis,1,0.0,direct,True,Fagaceae
+Rafinesquia californica,2,0.0,direct,True,Asteraceae
+Rafinesquia neomexicana,18,0.4,direct,True,Asteraceae
+Ranunculus californicus,21,0.3,direct,True,Ranunculaceae
+Ranunculus glaberrimus,19,0.4,direct,True,Ranunculaceae
+Ranunculus hispidus,1,0.0,direct,True,Ranunculaceae
+Ranunculus recurvatus,17,0.0,direct,True,Ranunculaceae
+Ratibida tagetes,2,0.0,direct,True,Asteraceae
+Rhododendron columbianum,7,0.7142857142857143,direct,True,Ericaceae
+Rhododendron menziesii,5,0.6,direct,True,Ericaceae
+Rhododendron mucronulatum,3,0.6666666666666666,zeroshot_text,True,Ericaceae
+Rhododendron simsii,1,0.0,zeroshot_text,True,Ericaceae
+Rhus copallina,95,0.3,zeroshot_text,True,Anacardiaceae
+Rhus typhina,59,0.4,direct,True,Anacardiaceae
+Rhynchosia reniformis,1,0.0,direct,True,Fabaceae
+Ribes speciosum,3,0.3333333333333333,direct,True,Grossulariaceae
+Richardia brasiliensis,5,0.2,direct,True,Rubiaceae
+Rorippa palustris,22,0.2,direct,True,Brassicaceae
+Rorippa sinuata,2,0.5,zeroshot_text,True,Brassicaceae
+Rosa californica,26,0.6,direct,True,Rosaceae
+Rosa rugosa,88,1.0,direct,True,Rosaceae
+Rosa woodsii,46,0.7,direct,True,Rosaceae
+Rotanthella floridana,3,0.0,direct,False,Campanulaceae
+Rubus,303,0.9,zeroshot_text,True,Rosaceae
+Rubus allegheniensis,65,0.7,direct,True,Rosaceae
+Rubus alumnus,1,1.0,zeroshot_text,True,Rosaceae
+Rubus bifrons,29,0.7,direct,True,Rosaceae
+Rubus laciniatus,16,0.7,direct,True,Rosaceae
+Rubus odoratus,42,0.8,direct,True,Rosaceae
+Rubus rigidus,48,0.7,zeroshot_text,True,Rosaceae
+Rubus ursinus,19,0.5,direct,True,Rosaceae
+Rudbeckia fulgida,84,0.8,direct,True,Asteraceae
+Rudbeckia mollis,3,0.3333333333333333,zeroshot_text,True,Asteraceae
+Rudbeckia texana,2,0.0,direct,True,Asteraceae
+Ruta graveolens,20,0.1,zeroshot_text,True,Rutaceae
+Sabatia brevifolia,2,0.0,direct,True,Gentianaceae
+Sabatia decandra,1,0.0,direct,True,Gentianaceae
+Sabatia kennedyana,1,0.0,direct,True,Gentianaceae
+Sabulina michauxii,2,0.0,direct,False,Caryophyllaceae
+Sagittaria lancifolia,25,0.3,direct,True,Alismataceae
+Salix acutifolia,1,1.0,zeroshot_text,True,Salicaceae
+Salix exigua,5,0.2,direct,True,Salicaceae
+Salix interior,32,0.0,direct,True,Salicaceae
+Salix nigra,30,0.3,direct,True,Salicaceae
+Salsola,4,0.25,zeroshot_text,True,Amaranthaceae
+Salvia longispicata,11,0.3,zeroshot_text,True,Lamiaceae
+Salvia sclarea,1,0.0,zeroshot_text,True,Lamiaceae
+Salvia uliginosa,9,0.6666666666666666,zeroshot_text,True,Lamiaceae
+Sanicula bipinnatifida,6,0.5,direct,True,Apiaceae
+Sanicula crassicaulis,20,0.3,direct,True,Apiaceae
+Sanicula odorata,4,0.0,direct,True,Apiaceae
+Scrophularia marilandica,39,0.3,direct,True,Scrophulariaceae
+Scutellaria incana,19,0.8,direct,True,Lamiaceae
+Senecio blochmaniae,1,1.0,zeroshot_text,True,Asteraceae
+Senecio integerrimus,30,0.4,direct,True,Asteraceae
+Senecio sylvaticus,3,0.0,direct,True,Asteraceae
+Senegalia berlandieri,5,0.0,direct,True,Fabaceae
+Sericocarpus caespitosus,2,0.0,zeroshot_text,True,Asteraceae
+Sida,9,0.0,zeroshot_text,True,Malvaceae
+Sideroxylon reclinatum,4,0.0,direct,True,Sapotaceae
+Silene coronaria,25,0.1,direct,True,Caryophyllaceae
+Silene stellata,22,0.3,direct,True,Caryophyllaceae
+Silene subciliata,1,0.0,zeroshot_text,True,Caryophyllaceae
+Silphium perfoliatum,117,1.0,direct,True,Asteraceae
+Skimmia japonica,1,0.0,zeroshot_text,False,Rutaceae
+Smilax herbacea,16,0.0,direct,True,Smilacaceae
+Solanum americanum,8,0.25,direct,True,Solanaceae
+Solanum carolinense,44,0.4,direct,True,Solanaceae
+Solanum douglasii,4,0.5,direct,True,Solanaceae
+Solanum erianthum,1,0.0,direct,True,Solanaceae
+Solidago,818,0.9,zeroshot_text,True,Asteraceae
+Solidago chapmanii,21,0.2,direct,True,Asteraceae
+Solidago hispida,7,0.14285714285714285,direct,True,Asteraceae
+Solidago macrophylla,10,0.0,direct,True,Asteraceae
+Solidago multiradiata,6,0.0,direct,True,Asteraceae
+Solidago ulmifolia,32,0.3,direct,True,Asteraceae
+Solidago virgata,2,0.5,direct,True,Asteraceae
+Sorbaria,9,0.4444444444444444,zeroshot_text,True,Rosaceae
+Sorbus americana,6,0.0,direct,True,Rosaceae
+Sorbus aucuparia,2,0.0,direct,True,Rosaceae
+Sorghastrum nutans,3,0.0,direct,False,Poaceae
+Spiraea × vanhouttei,14,0.3,zeroshot_text,True,Rosaceae
+Spiranthes cernua,16,0.3,direct,True,Orchidaceae
+Spiranthes longilabris,1,0.0,direct,True,Orchidaceae
+Sporobolus,1,0.0,zeroshot_text,True,Poaceae
+Sporobolus alterniflorus,4,0.5,direct,True,Poaceae
+Stachys drummondii,1,0.0,direct,True,Lamiaceae
+Stellaria aquatica,5,0.2,direct,True,Caryophyllaceae
+Stenanthium gramineum,22,0.0,direct,True,Melanthiaceae
+Stenaria nigricans,9,0.0,direct,False,Rubiaceae
+Stenotaphrum secundatum,1,0.0,direct,False,Poaceae
+Stewartia malacodendron,1,0.0,direct,True,Theaceae
+Stokesia,4,0.0,zeroshot_text,False,Asteraceae
+Stokesia laevis,48,0.2,direct,False,Asteraceae
+Streptanthus barbiger,1,0.0,direct,True,Brassicaceae
+Styrax japonicus,4,0.25,zeroshot_text,True,Styracaceae
+Symphyotrichum chilense,41,0.5,direct,True,Asteraceae
+Symphyotrichum dumosum,33,0.4,direct,True,Asteraceae
+Symphyotrichum falcatum,11,0.2,zeroshot_text,True,Asteraceae
+Symphyotrichum georgianum,5,0.2,zeroshot_text,True,Asteraceae
+Symphyotrichum ontarionis,9,0.2222222222222222,direct,True,Asteraceae
+Symphyotrichum shortii,11,0.3,direct,True,Asteraceae
+Symphyotrichum tenuifolium,14,0.3,direct,True,Asteraceae
+Symplocos tinctoria,4,0.5,direct,False,Symplocaceae
+Synotis cappa,18,0.0,zeroshot_text,False,Asteraceae
+Syringa villosa,3,0.6666666666666666,zeroshot_text,True,Oleaceae
+Tabebuia heterophylla,1,0.0,direct,False,Bignoniaceae
+Taenidia integerrima,28,0.0,direct,False,Apiaceae
+Taraxacum,361,0.9,zeroshot_text,True,Asteraceae
+Taraxacum palustre,1,0.0,zeroshot_text,True,Asteraceae
+Tetradium daniellii,1,0.0,zeroshot_text,False,Rutaceae
+Tetradymia axillaris,1,0.0,direct,True,Asteraceae
+Tetraneuris linearifolia,1,0.0,direct,True,Asteraceae
+Teucrium laciniatum,2,0.5,direct,True,Lamiaceae
+Thalictrum delavayi,1,1.0,zeroshot_text,True,Ranunculaceae
+Thalictrum fendleri,2,0.5,direct,True,Ranunculaceae
+Thalictrum lucidum,1,1.0,zeroshot_text,True,Ranunculaceae
+Tiarella stolonifera,14,0.3,direct,True,Saxifragaceae
+Tiarella trifoliata,2,0.0,direct,True,Saxifragaceae
+Torilis japonica,5,0.4,direct,True,Apiaceae
+Toxicodendron pubescens,16,0.0,direct,True,Anacardiaceae
+Trachelospermum,1,0.0,zeroshot_text,True,Apocynaceae
+Tradescantia pallida,4,0.5,direct,True,Commelinaceae
+Trautvetteria caroliniensis,1,0.0,direct,False,Ranunculaceae
+Trifolium angustifolium,1,1.0,direct,True,Fabaceae
+Trifolium fucatum,6,0.6666666666666666,direct,True,Fabaceae
+Trifolium hybridum,66,0.8,direct,True,Fabaceae
+Trifolium plumosum,1,1.0,zeroshot_text,True,Fabaceae
+Trifolium repens,292,1.0,direct,True,Fabaceae
+Trifolium wormskioldii,11,0.7,direct,True,Fabaceae
+Triodanis,2,0.5,zeroshot_text,True,Campanulaceae
+Triosteum aurantiacum,1,0.0,direct,True,Caprifoliaceae
+Triteleia clementina,1,0.0,direct,True,Asparagaceae
+Ulmus rubra,21,0.0,direct,True,Ulmaceae
+Unkown,1,0.0,zeroshot_text,False,
+Utricularia vulgaris,1,1.0,zeroshot_text,True,Lentibulariaceae
+Vaccinium elliottii,2,1.0,direct,True,Ericaceae
+Vaccinium macrocarpon,31,0.7,direct,True,Ericaceae
+Vaccinium parvifolium,5,0.6,direct,True,Ericaceae
+Vachellia,1,0.0,zeroshot_text,True,Fabaceae
+Verbena rigida,6,0.3333333333333333,direct,True,Verbenaceae
+Verbesina,22,0.5,zeroshot_text,True,Asteraceae
+Verbesina walteri,3,0.3333333333333333,direct,True,Asteraceae
+Vernonia blodgettii,2,0.5,direct,True,Asteraceae
+Vernonia lettermannii,11,0.4,zeroshot_text,True,Asteraceae
+Vernonia missurica,22,0.5,direct,True,Asteraceae
+Viburnum cassinoides,11,0.1,direct,True,Viburnaceae
+Viburnum lentago,7,0.14285714285714285,direct,True,Adoxaceae
+Viburnum rufidulum,2,0.0,direct,True,Viburnaceae
+Vicia gigantea,2,0.5,direct,True,Fabaceae
+Vicia grandiflora,3,0.6666666666666666,direct,True,Fabaceae
+Vigna luteola,19,0.4,direct,True,Fabaceae
+Vinca minor,37,0.1,direct,True,Apocynaceae
+Vincetoxicum nigrum,1,0.0,direct,True,Apocynaceae
+Viola ocellata,1,1.0,direct,True,Violaceae
+Viola primulifolia,2,0.0,direct,True,Violaceae
+Waltheria bahamensis,1,1.0,zeroshot_text,True,Malvaceae
+Wyethia helianthoides,10,0.7,direct,True,Asteraceae
+Wyethia sagittata,20,0.3,zeroshot_text,True,Asteraceae
+Zenia,4,0.25,zeroshot_text,False,Fabaceae
+Zephyranthes,2,0.0,zeroshot_text,True,Amaryllidaceae
+Zizania aquatica,5,0.2,direct,True,Poaceae

@@ -869,3 +869,52 @@ controlled for.
 
 Nothing tried beats the two standing results: the boosted ranker at 0.3199-0.3259 nrecall@10 and the
 embedding model at 0.1647 PR-AUC. Further search on this feature set is not warranted.
+
+## Error analysis of the boosted ranker (09-07) — **the failure mode is an unseen genus**
+
+Ten architecture variants had failed before this was run, which was the wrong order.
+
+**Misses are catastrophic, not near.** Of 11,489 held-out partners over 13,124 candidates:
+
+| rank | share |
+|---|---:|
+| 1–10 | 10.9% |
+| 11–50 | 14.4% |
+| 51–200 | 17.3% |
+| 201–1,000 | 16.9% |
+| **1,001–13,124** | **40.5%** |
+
+Median rank 333. The model is not almost right; 40% of partners are nowhere near the top.
+
+**One stratum dominates the error.**
+
+| stratum | nrecall@10 | n |
+|---|---:|---:|
+| plant genus seen in training | **0.351** | 584 |
+| **plant genus unseen** | **0.086** | 79 |
+| feature source direct | 0.323 | 399 |
+| feature source zeroshot_text | 0.315 | 264 |
+| degree 1–2 | 0.273 | 247 |
+| degree 51+ | 0.755 | 42 |
+
+A plant whose genus never appears in training scores **four times worse**. By contrast the feature
+source barely matters — 0.323 direct against 0.315 zero-shot — so the modelled surfaces and text
+embeddings serve unobserved taxa as well as observed ones. The weakness is not coverage of the
+inputs; it is that the taxonomic affinity table, the strongest single signal, is empty for an unseen
+genus and the model falls back to little more than popularity.
+
+**The spatio-temporal signal does not separate the misses.** Missed partners sit at the 0.776
+percentile of their plant's per-cell co-activity against 0.943 for found partners — lower, but far
+from absent. The signal is present for the partners we miss and is not decisive between them, which
+is consistent with every marginal use of it failing.
+
+**Part of the apparent error is unrecorded rather than wrong.** Of 5,377 top-10 predictions that are
+not recorded partners, 15.2% are congeneric with a recorded partner of that plant and 35.1% are
+confamilial. Under positive-unlabelled data that is an upper bound on how much of the measured error
+is a labelling gap rather than a modelling one.
+
+**Direction.** The highest-leverage remaining target is the unseen-genus stratum: 12% of test plants
+at a quarter of the accuracy. That is exactly where a smooth taxonomic representation should beat a
+lookup table, and where plant-side phylogeny with branch lengths would apply. It is also testable
+without new inputs, by asking whether the embedding model — which has no affinity table and reaches
+unseen genera through BioCLIP-2 text space — already wins that stratum.

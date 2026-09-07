@@ -42,13 +42,31 @@ RUNS = [
 ]
 
 
+def joint_runs(field_dirs):
+    """Arms for the joint two-kingdom field model: the same vector space on both sides, trained
+    rows only (untrained taxa are zero and the per-block LayerNorm maps them to zero)."""
+    runs = [("reference", dict(blocks=FULL))]
+    for d in field_dirs:
+        tag = Path(d).name.replace("joint_field_", "")
+        runs.append((f"joint {tag}", dict(blocks=("text", "field", "pca", "scale"), field_path=str(d), field_impute=False)))
+        runs.append((f"joint {tag} + surface", dict(blocks=("text", "surface", "field", "pca", "scale"),
+                                                     field_path=str(d), field_impute=False)))
+        runs.append((f"no-text joint {tag}", dict(blocks=("field", "pca", "scale"), field_path=str(d), field_impute=False)))
+    return runs
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--epochs", type=int, default=25)
     ap.add_argument("--only", nargs="*", default=None, help="subset of arm names")
+    ap.add_argument("--preset", default="swap", choices=["swap", "joint"])
+    ap.add_argument("--field-dirs", nargs="*", default=None, help="joint_field_<scheme> directories (preset joint)")
     ap.add_argument("--device", default="cuda")
     args = ap.parse_args()
+    global RUNS
+    if args.preset == "joint":
+        RUNS = joint_runs(args.field_dirs)
 
     store = UniverseStore(curves="modelled")
     split = json.load(open(ROOT / "data/splits/plants_75_10_15.json"))
@@ -94,9 +112,10 @@ def main():
         del m; torch.cuda.empty_cache()
 
     out = ROOT / "results"
-    pd.DataFrame(rows).to_csv(out / f"field_swap_val_tierA_s{args.seed}.csv", index=False)
-    np.savez(out / f"field_swap_perplant_s{args.seed}.npz", plants=np.array(tp), seen=seen, **per_plant)
-    print(f"[wrote] results/field_swap_val_tierA_s{args.seed}.csv")
+    stem = "field_swap" if args.preset == "swap" else "joint_field_swap"
+    pd.DataFrame(rows).to_csv(out / f"{stem}_val_tierA_s{args.seed}.csv", index=False)
+    np.savez(out / f"{stem}_perplant_s{args.seed}.npz", plants=np.array(tp), seen=seen, **per_plant)
+    print(f"[wrote] results/{stem}_val_tierA_s{args.seed}.csv")
 
 
 if __name__ == "__main__":

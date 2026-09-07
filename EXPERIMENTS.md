@@ -1088,3 +1088,45 @@ spatio-temporal / same-location-different-species. The current SDM is accidental
 (negatives only at observed points, no random background). Readout = unseen-genus stratum.
 
 **Step 3 (planned):** encounter integral by Monte Carlo (parameter-free), then the pair head.
+
+### Step 2 result — sampling-scheme ablation of the joint field model (09-07)
+
+`pipelines/sdm/train_joint_field.py`: one SINR encoder (Fourier lat/lon + Climplicit monthly climate of
+the cell + Fourier week, 276-D) over both kingdoms, 12,268 species (6,446 plants, flowering records
+only; 5,822 pollinators), 2.99M rows capped at 1,000 per species, 20 epochs, seed 0. Only the
+all-negative background distribution differs between arms. Held-out = 5% of rows; ranking within
+kingdom. `eval/run_field_encounter.py` scores the trained sub-universe (379 val plants, 5,354 candidate
+pollinators, 5,750 partners) -- untrained taxa have the zero vector, i.e. presence 0.5 everywhere, so
+they cannot be candidates; nulls are recomputed on the same subset. **Not comparable to full-universe
+tables.**
+
+| scheme | held-out top-10 | direction-only effort R^2 (plants / polls) | encounter alone nR@10 | encounter re-ranking popularity's top-200: nR@50 / PR | cosine re-rank: nR@10 / unseen |
+|---|---:|---:|---:|---:|---:|
+| popularity (same subset) | -- | -- | 0.2346 | 0.3528 / 0.0663 | 0.2346 / 0.2603 |
+| N (same subset) | -- | -- | 0.1697 | -- | -- |
+| uniform | 0.158 | 0.519 / 0.779 | 0.0629 | **0.4475 / 0.0980** | 0.1364 / 0.0536 |
+| tg_spatial | 0.185 | 0.586 / 0.796 | **0.0779** | 0.4183 / 0.0952 | 0.1574 / 0.1122 |
+| tg_spatiotemporal | **0.193** | 0.615 / 0.820 | 0.0613 | 0.4259 / 0.0903 | 0.1607 / 0.1013 |
+| slds | 0.171 | 0.662 / 0.836 | 0.0715 | 0.4190 / 0.0897 | **0.1865 / 0.1403** |
+
+Three readings, two of them negative.
+
+1. **The sampling scheme changes the SDM, not the retrieval.** Effort-matched background improves
+   held-out species discrimination monotonically (0.158 -> 0.185 -> 0.193), as the SINR literature
+   predicts. Every retrieval column moves by less than the gap to N.
+2. **The "effort cancels" hypothesis is refuted in its stated form.** The unit-normalised species
+   vector predicts log record count *better* under target-group backgrounds (plants 0.52 -> 0.62,
+   polls 0.78 -> 0.84), not worse. Against a background that already follows effort, a heavily
+   recorded species is exactly the one that exceeds the effort surface, so effort-relative prevalence
+   is what the direction encodes. `corr(|u|, log n_obs)` is +0.70 to +0.76 under every scheme and is
+   not diagnostic.
+3. **Filter, not ranker -- third time.** Alone, the exact encounter integral ranks at 0.061-0.078
+   (N: 0.170). Re-ranking popularity's own top 200 by it lifts nR@50 from 0.353 to 0.42-0.45 and
+   PR-AUC from 0.066 to 0.090-0.098 while costing at k=10. This is the same signature as the SVD
+   grid surfaces (AUC 0.851, nR@10 0.011) and the SDM pollinator head (step 1): the spatio-temporal
+   field orders the list below the head and cannot pick the head.
+
+Step 1 (SDM pollinator head into the embedding model, three seeds, pooled below once seed 1 lands)
+was neutral in the full model and worse than the SVD projection without text -- the two sides were
+in different coordinate systems. The joint model removes that; the both-sides arms are running
+(`results/joint_field_swap_*`).

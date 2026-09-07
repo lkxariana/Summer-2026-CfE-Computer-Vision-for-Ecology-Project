@@ -17,7 +17,9 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import torch
+from sklearn.linear_model import Ridge
 from sklearn.metrics import average_precision_score
+from sklearn.model_selection import KFold
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
@@ -84,16 +86,53 @@ def main():
                 enc[:, s:s + 1024] = A @ B.T / M
             cos = torch.nn.functional.normalize(Up, dim=1) @ torch.nn.functional.normalize(Uq, dim=1).T
         tag = run.name.replace("joint_field_", "")
-        cov = f"(plants {d_p[pi].mean():.0%} / polls {d_q.mean():.0%} trained)"
-        print(f"[{tag}] {cov}", flush=True)
-        _, r = evaluate(torch.log(enc + 1e-12).cpu().numpy(), tp, part, seen, Y, f"{tag}: encounter", ref); r["scheme"] = tag; rows.append(r)
-        _, r = evaluate(cos.cpu().numpy(), tp, part, seen, Y, f"{tag}: cosine", ref); r["scheme"] = tag; rows.append(r)
+        # effort leakage, direction only: how well the unit-normalised species vector predicts
+        # the species' record count. |u| tracks count under every scheme (more positives push
+        # the weights harder), so the norm is not the diagnostic; the direction is.
+        meta = json.load(open(run / "species.json"))
+        W = torch.load(run / "model.pt", map_location="cpu", weights_only=False)["state_dict"]["cls.weight"].numpy()
+        n_obs = np.asarray(meta["n_obs"], np.float64); nps = meta["n_plant_species"]
+        probe = {}
+        for kname, sl in (("plants", slice(0, nps)), ("polls", slice(nps, None))):
+            Xu = W[sl] / (np.linalg.norm(W[sl], axis=1, keepdims=True) + 1e-9); y = np.log1p(n_obs[sl])
+            pred = np.zeros_like(y)
+            for tr_, te_ in KFold(5, shuffle=True, random_state=0).split(Xu):
+                pred[te_] = Ridge(alpha=1.0).fit(Xu[tr_], y[tr_]).predict(Xu[te_])
+            probe[kname] = 1 - ((y - pred) ** 2).sum() / ((y - y.mean()) ** 2).sum()
+        print(f"[{tag}] direction-only effort probe, held-out R^2 of log n_obs from unit(u): "
+              f"plants {probe['plants']:.3f}  polls {probe['polls']:.3f}", flush=True)
+        # an untrained species has the zero vector, i.e. presence 0.5 everywhere, which outranks
+        # most real species. Score only where both sides were trained, and put the nulls on the
+        # same sub-universe so the comparison is fair. Numbers are therefore NOT comparable to the
+        # full-universe tables, only across rows within this block.
+        keep_p = d_p[pi]
+        cand = np.flatnonzero(d_q)
+        tp_r = [sp for sp, k in zip(tp, keep_p) if k]
+        part_r = {sp: {int(np.searchsorted(cand, q)) for q in part[sp] if d_q[q]} for sp in tp_r}
+        tp_r = [sp for sp in tp_r if part_r[sp]]
+        seen_r = np.array([sp.split()[0] in train_gen for sp in tp_r])
+        Y_r = np.zeros((len(tp_r), len(cand)), np.int8)
+        for i, sp in enumerate(tp_r):
+            Y_r[i, list(part_r[sp])] = 1
+        rows_p = np.array([tp.index(sp) for sp in tp_r])
+        print(f"[{tag}] trained sub-universe: {len(tp_r)} val plants (genus unseen {(~seen_r).sum()}), "
+              f"{len(cand)} candidate pollinators, {int(Y_r.sum()):,} partners", flush=True)
+        L = torch.log(enc + 1e-12).cpu().numpy()[rows_p][:, cand]
+        C = cos.cpu().numpy()[rows_p][:, cand]
+        pop_r = np.tile(np.log1p(pop[cand]), (len(tp_r), 1))
+        N_r = np.log1p(store.N_full[pi[rows_p]][:, cand].astype(np.float64))
+        ref_r, r = evaluate(pop_r, tp_r, part_r, seen_r, Y_r, f"{tag}: popularity")
+        r.update(scheme=tag, effort_r2_plants=probe["plants"], effort_r2_polls=probe["polls"]); rows.append(r)
+        _, r = evaluate(N_r, tp_r, part_r, seen_r, Y_r, f"{tag}: N", ref_r); r["scheme"] = tag; rows.append(r)
+        _, r = evaluate(L, tp_r, part_r, seen_r, Y_r, f"{tag}: encounter", ref_r); r["scheme"] = tag; rows.append(r)
+        _, r = evaluate(C, tp_r, part_r, seen_r, Y_r, f"{tag}: cosine", ref_r); r["scheme"] = tag; rows.append(r)
         # the encounter term is prevalence-loaded by construction; the cheapest conditional read is
         # to re-rank popularity's own top 200 by the encounter score
-        top = np.argsort(-pop)[:200]
-        L = torch.log(enc + 1e-12).cpu().numpy()
-        S2 = np.full((len(tp), len(U_q)), L.min() - 1.0); S2[:, top] = L[:, top]   # finite floor: PR-AUC rejects -inf
-        _, r = evaluate(S2, tp, part, seen, Y, f"{tag}: encounter | pop top-200", ref); r["scheme"] = tag; rows.append(r)
+        top = np.argsort(-pop[cand])[:200]
+        S2 = np.full(L.shape, L.min() - 1.0); S2[:, top] = L[:, top]   # finite floor: PR-AUC rejects -inf
+        _, r = evaluate(S2, tp_r, part_r, seen_r, Y_r, f"{tag}: encounter | pop top-200", ref_r); r["scheme"] = tag; rows.append(r)
+        S3 = np.full(L.shape, L.min() - 1.0); S3[:, top] = C[:, top]
+        _, r = evaluate(S3, tp_r, part_r, seen_r, Y_r, f"{tag}: cosine | pop top-200", ref_r); r["scheme"] = tag; rows.append(r)
 
     out = ROOT / "results/field_encounter_val_tierA.csv"
     pd.DataFrame(rows).to_csv(out, index=False)

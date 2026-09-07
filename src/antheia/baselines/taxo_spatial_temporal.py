@@ -26,6 +26,15 @@ class TaxoSpatialTemporal(Baseline):
     no marginal can reconstruct. Against a species-permuted control it is worth +0.013 nrecall@10
     and +0.013 PR-AUC, and it helps calibration more than the top of the ranking.
 
+    With `genus_fallback`, family affinity is carried as its own column beside the composite, along
+    with an indicator for whether the plant's genus was seen in training. The composite alone weights
+    family at 1e-3, which is enough to break ties among candidates but not to carry a prediction: on
+    the 12% of held-out plants whose genus never appears in training, this model scores 0.086
+    nrecall@10 against 0.256 for truncated SVD with taxonomic imputation and 0.213 for congeneric
+    transfer, both of which degrade gracefully. Splitting the signals lets the trees condition on the
+    indicator and fall back to family where the genus lookup is empty. Whether a genus was seen is
+    known at inference and uses no test label.
+
     With `residualise`, the spatial and per-cell terms are regressed on the two prevalence terms --
     the pollinator's range size and the plant's -- and the residual is used in their place. Marginally
     those features are confounded with how widespread and how heavily recorded a taxon is: ranked
@@ -43,9 +52,10 @@ class TaxoSpatialTemporal(Baseline):
     reference = "this work"
 
     def __init__(self, n_neg=10, seed=42, pca_dim=15, family_weight=1e-3, use_local=True,
-                 device="cuda", residualise=False, local_mode="proj", **kw):
+                 device="cuda", residualise=False, local_mode="proj", genus_fallback=True, **kw):
         self.n_neg, self.seed, self.pca_dim, self.family_weight = n_neg, seed, pca_dim, family_weight
         self.use_local, self.device, self.residualise = use_local, device, residualise
+        self.genus_fallback = genus_fallback
         self.local_mode = local_mode   # 'exact' loads 8.4 GB of surfaces; 'proj' uses the
                                        # rank-256 basis, pearson 1.000 against it, no GPU memory
         self.name = ("Taxonomy + spatial + per-cell temporal (ours)" if use_local
@@ -85,9 +95,13 @@ class TaxoSpatialTemporal(Baseline):
         sp = self._spatial(pi, qi)
         if self.residualise:
             sp = sp - self._prevalence(pi, qi) @ self.res_W
+        extra = ([np.log1p(self.Cf[qi, self.FI[pi]])[:, None],
+                  self.seen_genus[pi][:, None].astype(np.float64)]
+                 if self.genus_fallback else [])
         return np.hstack([
             np.log1p(st.Prs[qi])[:, None],
             comp[:, None],
+            *extra,
             sp,
             self.Fp[pi] * self.Pp[qi],
             st.FC[pi], st.AC[qi],
@@ -112,6 +126,8 @@ class TaxoSpatialTemporal(Baseline):
             q = store.q2i[po]
             self.Cg[q, self.GI[store.p2i[pl]]] += 1
             self.Cf[q, self.FI[store.p2i[pl]]] += 1
+        seen = {g for g in gen[store.idx_plants(edges["plant"])]}
+        self.seen_genus = np.array([g in seen for g in gen])
 
         f = TruncatedSVD(self.pca_dim, random_state=self.seed).fit_transform(store.F.astype(np.float32))
         p = TruncatedSVD(self.pca_dim, random_state=self.seed).fit_transform(store.P.astype(np.float32))

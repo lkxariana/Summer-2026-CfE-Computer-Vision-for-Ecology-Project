@@ -918,3 +918,42 @@ at a quarter of the accuracy. That is exactly where a smooth taxonomic represent
 lookup table, and where plant-side phylogeny with branch lengths would apply. It is also testable
 without new inputs, by asking whether the embedding model — which has no affinity table and reaches
 unseen genera through BioCLIP-2 text space — already wins that stratum.
+
+## Genus-aware routing (09-07) — **the first significant gain over the boosted ranker**
+
+The error analysis localised the failure to plants whose genus never appears in training: 79 of 663
+held-out plants, at 0.086 nrecall@10 against 0.351 for the rest. Comparing methods within that
+stratum shows the boosted ranker is the *worst* of the four there, not the best:
+
+| model | overall | genus seen (n=584) | genus unseen (n=79) |
+|---|---:|---:|---:|
+| boosted ranker | 0.320 | **0.351** | 0.086 |
+| embedding model | 0.292 | 0.313 | 0.134 |
+| congeneric transfer | 0.293 | 0.304 | 0.213 |
+| truncated SVD + taxonomic | 0.292 | 0.296 | **0.256** |
+
+The composite affinity feature weights family at 1e-3 -- enough to break ties, not enough to carry a
+prediction -- so when the genus lookup is empty the model falls back to little more than popularity,
+while methods that impute from taxonomy degrade gracefully.
+
+**Whether a plant's genus appears in training is known at inference and uses no test label**, so
+routing on it is a deployable rule rather than an oracle. Scoring with the boosted ranker where the
+genus is seen and truncated SVD where it is not:
+
+| | nR@10 | PR-AUC |
+|---|---:|---:|
+| boosted ranker | 0.3200 | 0.1015 |
+| **routed** | **0.3360** | **0.1032** |
+
+**+0.0160 [+0.0079, +0.0254], p = 0.0004**, and pooled PR-AUC improves rather than degrading.
+
+Two implementation notes. Splicing raw scores from two models destroys cross-plant comparability and
+collapsed PR-AUC to 0.0245; mapping the SVD scores onto the boosted ranker's global score
+distribution by quantile, fit on the seen-genus plants where both models apply, fixes it. And the
+in-model alternative -- carrying family affinity as its own column with a genus-seen indicator --
+lifts the target stratum from 0.086 to 0.122 but costs slightly on the rest, netting +0.0001
+(p=0.97). The gap to 0.256 is not a missing family count; it is that the SVD latent factors carry
+co-visitation structure a raw count does not.
+
+This is a mixture of experts with a deterministic, interpretable gate, not a score-averaging
+ensemble: exactly one model scores each plant, chosen by a property of that plant.

@@ -982,3 +982,31 @@ that degrades at inference. Imputing for every plant leave-one-out recovers most
 Routing remains the only configuration that beats the boosted ranker on retrieval, and the reason is
 visible in the strata: no single feature set recovers the 0.256 that truncated SVD reaches on unseen
 genera while keeping the 0.351 the booster reaches on seen ones.
+
+## Tier A against Tier A+B (09-07) — **the method ranking reverses**
+
+Scoring the same models on the flower-visitation tier and on both tiers together is a robustness
+check, and several methods fail it.
+
+| model | A nR@10 | A+B nR@10 | A PR | A+B PR |
+|---|---:|---:|---:|---:|
+| boosted ranker | **0.3197** | 0.2897 | 0.0998 | 0.0811 |
+| congeneric transfer | 0.2930 | **0.3046** | 0.0568 | 0.0511 |
+| truncated SVD + taxonomic | 0.2915 | 0.2163 | 0.0951 | 0.0719 |
+| embedding model | 0.2920 | 0.2779 | **0.1586** | **0.1294** |
+| neural pair ranker | 0.2806 | 0.2659 | 0.1163 | 0.1007 |
+| two-tower | 0.2786 | 0.2666 | 0.0994 | 0.0817 |
+
+**Congeneric transfer is the only method that improves when the general-association tier is added**,
+and it takes first place there. Truncated SVD falls hardest, 0.2915 to 0.2163, which is consistent
+with its mechanism: it factorises the interaction matrix, and Tier B adds edges recording that an
+insect was found on a plant rather than visiting its flowers, so the matrix it factorises becomes
+noisier. Pure taxonomy is indifferent to that.
+
+The boosted ranker keeps first place on Tier A and loses it on A+B. The embedding model is the most
+stable of the learned models and keeps the best PR-AUC under both tiers.
+
+**Consequence for the paper.** A single headline model cannot be claimed without stating the tier.
+The protocol already fixes Tier A as the scoring tier on evidence-quality grounds, decided before
+these numbers existed, so the reported result stands -- but the reversal belongs in the supplement as
+a robustness check, and it is a point in favour of reporting both tiers rather than one.

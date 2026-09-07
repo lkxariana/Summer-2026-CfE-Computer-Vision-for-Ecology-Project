@@ -753,3 +753,79 @@ Prevalence is not a nuisance to be divided out here; it is a large and genuinely
 the signal, which the logQ result says independently. The encounter term earns its place as a
 correction alongside taxonomy and prevalence, worth +0.013 nR@10 and +0.013 PR-AUC against a
 species-permuted control, not as a multiplicative backbone.
+
+## Architecture search on the embedding model (09-07) — **one positive finding, six negatives**
+
+Every row below is a complete 25-epoch run on the 663 validation plants, tier A, with a paired
+bootstrap against the stated reference. Smoke runs on 200 plants proved unreliable and were dropped
+as a basis for decisions after one over-claimed by 0.10 nrecall@10.
+
+| change | nR@10 | Δ vs reference | p |
+|---|---:|---:|---:|
+| embedding model, deep only (reference) | 0.2920 | — | |
+| Linnaean hierarchy prompts | 0.2949 | +0.0029 | 0.80 |
+| wide path, single cross + degree | 0.3055 | +0.0135 | 0.26 |
+| wide path + hierarchy prompts | 0.3108 | +0.0188 | 0.12 |
+| **hierarchical back-off crosses** | **0.2699** | **−0.0221** | **0.036** |
+| back-off + degree | 0.2865 | −0.0054 | 0.72 |
+| back-off + single cross + degree | 0.2904 | −0.0016 | 0.92 |
+| **DCN-V2, 2 cross layers** | **0.2628** | **−0.0292** | **0.003** |
+| explicit affinity through the MLP | 0.2911 | −0.0008 | 0.99 |
+| affinity through MLP + genus context | 0.2953 | +0.0033 | 0.78 |
+
+**The wide path does not reproduce.** A 200-plant four-epoch smoke gave 0.4048; the full run gives
++0.0135 at p=0.26, and pooled PR-AUC falls 0.165 → 0.144. Routing the affinity *through* the MLP
+instead leaves retrieval untouched and collapses PR-AUC to 0.073 — the Wide & Deep prediction holds
+qualitatively, but the magnitude does not.
+
+**Back-off crosses fail, and the motivating measurement was sound.** The memorised cross has 96,651
+occupied cells at median count 1 and is empty for 57% of pollinators; coarser crosses reach median
+count 12. Adding all five granularities costs 0.022 nrecall@10 (p=0.036). Rare-partner recall@10
+moves from 0.0000 to 0.0114 — the mechanism does what it was built to do — but the coarse crosses
+add more noise than the rare partners are worth.
+
+**DCN-V2 hurts.** Learned bounded-degree crossing over the encoded pair is 0.029 worse than no
+crossing (p=0.003), so on this data the failure of hand-chosen crosses is not a feature-engineering
+problem that automation solves.
+
+### The positive finding: the spatio-temporal signal is conditional, not marginal
+
+Held-out (fit on half the validation plants, evaluated on the other half), incremental AUC of
+per-cell co-activity over popularity and range overlap:
+
+| candidate head | pop + N | + per-cell | Δ |
+|---|---:|---:|---:|
+| all 13,124 | 0.823 | 0.879 | +0.057 |
+| top 1,000 | 0.682 | 0.805 | +0.123 |
+| top 200 | 0.630 | 0.756 | **+0.125** |
+
+The increment **grows** as the head narrows. Ranked on its own the same feature looks useless —
+AUC 0.665 inside its own top 200, and only 25.9% of a plant's partners in that top 200 — because its
+own head fills with widespread, heavily recorded pollinators.
+
+**This explains the run of null results.** The encounter backbone (0.011 as a ranker), the niche
+bilinear at every rank, the marginal curves that failed their permutation control: all used the
+signal marginally, where prevalence swamps it. An earlier version of this test was in-sample; redone
+on disjoint plants the effect grew rather than shrank.
+
+Residualising the spatial terms against prevalence is null on the boosted ranker (−0.0014, p=0.75),
+as expected — trees condition natively by splitting on prevalence first. Prevalence-matched
+negatives, which remove the route by construction, are the live test.
+
+### Inputs settled
+
+- **z_static is redundant**: 99.2% linearly predictable from the BioCLIP-2 text embedding on held-out
+  species. e98's species conditioning *is* that embedding, which is also why its text-conditioned
+  zero-shot head works. The LE-SINR `spec` head likewise maps text to the species vector.
+- **BioCLIP-2 hierarchy prompts are its native format** — seven text sequences per image, one per
+  Linnaean rank — but neutral here, because bare binomials already place congeners at cosine 0.716.
+- **GBOTB.extended places 94.0% of the plant universe** (59.3% exact tips, 94.7% genus present), so
+  plant-side phylogeny is feasible; there is no comparable branch-length tree for 13,124 insects.
+- **Image centroids are impractical.** TreeOfLife-200M is ordered by kingdom — a first attempt on
+  shards 0–31 hit BIOSCAN insects and returned 41/11,031 plants, a sampling artifact. Strided across
+  all 933 shards, 48 shards give 1,620/11,031 plants and 736/13,124 pollinators (9.8% overall). Full
+  coverage needs most of 455 GB, which is not worth a feature that would still be missing on the
+  majority of taxa.
+- **Post-hoc calibration cannot change PR-AUC**: Platt is monotone and average precision is
+  rank-based, so it returns a bit-identical value. Pooled PR-AUC measures cross-plant *ordinal*
+  comparability, not probability calibration, and the write-up should say so.

@@ -1130,3 +1130,29 @@ Step 1 (SDM pollinator head into the embedding model, three seeds, pooled below 
 was neutral in the full model and worse than the SVD projection without text -- the two sides were
 in different coordinate systems. The joint model removes that; the both-sides arms are running
 (`results/joint_field_swap_*`).
+
+### Step 1 result, pooled — SDM pollinator head into the embedding model (3 seeds, 09-07)
+
+`eval/pool_field_swap.py` -> `results/field_swap_pooled.csv`. Seed-averaged per-plant nR@10, paired
+bootstrap over 663 validation plants (tier A). Reference = embedding model, blocks text+surface+pca+scale.
+
+| arm | nR@10 | genus seen | genus unseen | vs reference | unseen-genus contrast |
+|---|---:|---:|---:|---:|---:|
+| reference | 0.2820 | 0.3040 | 0.1193 | -- | -- |
+| field replaces surface (pollinator) | 0.2727 | 0.2907 | 0.1393 | -0.0093 p=0.15 | +0.020 p=0.23 |
+| field added | 0.2820 | 0.3018 | 0.1360 | +0.0001 p=0.99 | +0.017 p=0.26 |
+| field, trained rows only | 0.2836 | 0.3031 | 0.1392 | +0.0016 p=0.77 | +0.020 p=0.13 |
+| no-text surface | 0.2196 | 0.2296 | 0.1459 | -0.0624 p<0.0001 | +0.027 p=0.29 |
+| no-text field | 0.1991 | 0.2069 | 0.1420 | vs no-text surface **-0.0205 p<0.0001** | -0.004 p=0.81 |
+
+- **Neutral in the full model, worse without text.** The SDM head vector adds nothing on top of the
+  SVD grid projection and, as the only spatio-temporal input, is significantly worse than it. The two
+  sides were in different coordinate systems (plant: grid basis; pollinator: SDM encoder), so the pair
+  head's product and difference features had nothing to compare. That is the incommensurability
+  problem restated at the representation level; the joint model (step 2/3) is the test of that reading.
+- **A consistent but underpowered unseen-genus sign.** Every field arm lifts the 79 unseen-genus
+  plants by +0.017 to +0.020 (p 0.13-0.26). Three seeds cannot resolve an effect of that size on 79
+  plants; the pooled joint-field runs add the same plants again but are not independent evidence.
+- **Text hurts where the genus is unseen.** Removing the BioCLIP-2 block costs 0.062 overall yet
+  *raises* the unseen-genus stratum (0.119 -> 0.146). The identity signal misleads exactly where it
+  has nothing to say -- consistent with the error analysis and with the booster's collapse there.

@@ -168,6 +168,9 @@ class EmbedConfig:
     hard_warmup: int = 5             # epochs before mining begins
     hard_refresh: int = 3            # epochs between pool refreshes
     blocks: tuple = ("text", "surface", "pca", "scale")
+    blocks_q: tuple = None           # pollinator-side blocks; defaults to `blocks`
+    field_impute: bool = True        # "field": keep text-imputed rows, or zero them (trained vectors only)
+    field_path: str = str(Path(__file__).resolve().parents[2] / "data/features/poll_field.npy")
     seed: int = 42
     device: str = "cuda"
     text_dir: str = TEXT_DIR
@@ -343,13 +346,24 @@ class EmbedRanker:
         q_all = {"text": unit(tq), "surface": store.poll_proj,
                  "pca": svd(store.P),
                  "scale": np.stack([np.log1p(store.Prs), (store.Prs > 0).astype(np.float32)], 1)}
+        blocks_q = cfg.blocks_q or cfg.blocks
+        if "field" in blocks_q:
+            # the SDM's per-species head: a learned spatio-temporal influence vector, not a
+            # projection of its output surface (scripts/build_field_embeddings.py)
+            fld = np.load(cfg.field_path).astype(np.float32)
+            if not cfg.field_impute:
+                direct = np.load(Path(cfg.field_path).with_name("poll_field_direct.npy"))
+                fld = fld * direct[:, None]
+            assert len(fld) == len(store.polls), (fld.shape, len(store.polls))
+            q_all["field"] = fld
         self.P_blocks = [T(p_all[b]) for b in cfg.blocks]
-        self.Q_blocks = [T(q_all[b]) for b in cfg.blocks]
+        self.Q_blocks = [T(q_all[b]) for b in blocks_q]
         dims = [b.shape[1] for b in self.P_blocks]
+        dims_q = [b.shape[1] for b in self.Q_blocks]
         self.n_p, self.n_q = len(store.plants), len(store.polls)
 
         self.enc_p = BlockEncoder(dims, cfg.d_model, cfg.hidden, cfg.dropout).to(dev)
-        self.enc_q = BlockEncoder(dims, cfg.d_model, cfg.hidden, cfg.dropout).to(dev)
+        self.enc_q = BlockEncoder(dims_q, cfg.d_model, cfg.hidden, cfg.dropout).to(dev)
         n_out = 2 if cfg.use_tier_head else 1
         self.head = PairHead(cfg.d_model, cfg.hidden, cfg.dropout, n_out=n_out,
                              p_mult=2 if cfg.use_genus_context else 1,

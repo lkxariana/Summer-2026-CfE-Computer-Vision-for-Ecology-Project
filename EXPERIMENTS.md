@@ -1055,3 +1055,36 @@ That is a real finding rather than three failures: methods that generalise taxon
 over relatives lose more on the well-covered majority than they recover on the sparse tail. The only
 construction that helped was routing -- keeping the sharp model where it works and switching models
 entirely where it does not.
+
+---
+
+## Field-embedding phase (09-07) — **species as learned spatio-temporal influence**
+
+Direction change agreed with Dan: the boosted ranker is the ceiling of scalar features, not the
+method. The pollinator SDM (`pipelines/sdm/build_deliverable.py`) is already a spatio-temporal
+SINR -- Fourier(lat,lon) + Climplicit monthly climate + Fourier(week) -> shared encoder -> per-species
+linear head. Its `cls.weight` rows [5,822 x 256] are each species' learned spatio-temporal influence
+and had never been used; only the model's *output* surfaces were, via an SVD grid projection.
+
+**Diagnostics that motivated this (validation, tier A, 663 plants):**
+- SVD surface projection is 64% (plants) / 84% (pollinators) unexplained by prevalence + taxonomy +
+  BioCLIP-2 text combined: a genuine third input axis.
+- Per-cell co-activity is 87.5% independent of N and range size, but 39% is the product of the two
+  surface masses (model confidence x extent), and separating that scale term raises its solo nR@10
+  0.011 -> 0.029. Used alone it is a filter (AUC 0.851 > N's 0.782), not a ranker (popularity 0.244).
+- **The SDM head vector is 4.7% explained by BioCLIP-2 text** (held-out ridge R^2, 5,354 species;
+  mean cosine 0.45). It is not taxonomy. Consequence: text imputation for the 7,770 zero-shot
+  pollinators is weak, so the "no impute" arm is the clean one.
+
+**Step 1 (running):** `scripts/build_field_embeddings.py` -> `data/features/poll_field.npy`;
+`eval/run_field_swap.py`, six arms x seeds {42, 0, 1}, per-plant nR@10 saved for pooling, split by
+genus seen/unseen. Reference config = embedding model, no genus context / tier head, 25 epochs.
+Plant side unchanged (no plant field model yet).
+
+**Step 2 (planned):** one spatio-temporal SINR over both kingdoms (plants from
+`phenofield_cache/.../inat_train.npz`, pollinators from `pollinator_occ_gbifv3.npz`), ablating only
+the negative-sampling scheme: uniform background / target-group spatial / target-group
+spatio-temporal / same-location-different-species. The current SDM is accidentally target-group
+(negatives only at observed points, no random background). Readout = unseen-genus stratum.
+
+**Step 3 (planned):** encounter integral by Monte Carlo (parameter-free), then the pair head.

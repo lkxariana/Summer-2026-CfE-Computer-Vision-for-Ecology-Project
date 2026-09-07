@@ -1193,3 +1193,33 @@ decade of marginal-curve overlap statistics have found little.
 
 Caveat unchanged: this is the conditional (re-ranking) regime; used alone the joint statistic ranks
 at 0.063 against popularity's 0.235.
+
+### Step 3 result, pooled — joint two-kingdom field into the embedding model (3 seeds, 09-07)
+
+`eval/pool_field_swap.py --preset joint` -> `results/joint_field_swap_pooled.csv`. Both sides now share
+one encoder space (field on plants and pollinators, trained rows only; 41.5% / 40.8% of the universe
+have a trained vector, the rest are zero and LayerNorm maps them to zero).
+
+| arm | nR@10 | genus seen | genus unseen | unseen/seen | vs reference |
+|---|---:|---:|---:|---:|---:|
+| reference (text+surface+pca+scale) | 0.2820 | 0.3040 | 0.1193 | 0.39 | -- |
+| joint field (uniform) replaces surface | 0.2795 | 0.3004 | 0.1243 | 0.41 | -0.0025 p=0.70 |
+| joint field (uniform) + surface | 0.2737 | 0.2948 | 0.1177 | 0.40 | -0.0083 p=0.18 |
+| joint field (tg_spatiotemporal) replaces surface | 0.2715 | 0.2906 | 0.1308 | 0.45 | -0.0104 p=0.10 |
+| joint field (tg_spatiotemporal) + surface | 0.2853 | 0.3065 | 0.1287 | 0.42 | +0.0033 p=0.58 |
+| no-text surface | 0.2196 | 0.2296 | 0.1459 | 0.64 | -- |
+| no-text joint field (uniform) | 0.2048 | 0.2071 | **0.1877** | **0.91** | vs no-text surface -0.0148 p=0.14; unseen +0.042 p=0.21 |
+| no-text joint field (tg_spatiotemporal) | 0.2075 | 0.2126 | 0.1693 | 0.80 | vs no-text surface -0.0121 p=0.25; unseen +0.023 p=0.56 |
+
+- **Commensurability was not the bottleneck.** Putting both sides in one learned field space changes
+  nothing in the full model (all p >= 0.10) and does not beat the SVD grid projection as the sole
+  spatio-temporal input. Step 1's deficit (-0.021) closes to a non-significant -0.012 to -0.015, so the
+  coordinate mismatch cost something, but the field carries no *ranking* information the surfaces lack.
+- **Graceful degradation, descriptively.** With no identity input, the field model scores unseen-genus
+  plants at 91% of its seen-genus level (0.188 vs 0.207); the reference is at 39%. Every arm carrying
+  text collapses across the genus boundary. The contrast against the surface control (+0.042) is not
+  significant on 79 plants and is reported as a pattern, not a result. On that stratum SVD-taxonomic
+  (0.256) and popularity (0.234) remain better than any field arm.
+- **Closes the field-embedding phase for retrieval.** Three representations of the niche axis (grid
+  surfaces, SDM head, joint field), two sampling schemes, three seeds: none moves nR@10. The axis is
+  real (sections above), and what it does is re-order the list below the head (marginalisation test).

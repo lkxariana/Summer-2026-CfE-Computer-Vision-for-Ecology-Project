@@ -1027,3 +1027,31 @@ TabICL trails on retrieval and leads on pooled PR-AUC, which is the same split t
 representations show against the booster. The framing survives: on this task, for ranking the head of
 a candidate list, a boosted tree remains the stronger model on hand-built features even against a
 2026 foundation model. Inference cost is not close -- three hours against seventy seconds.
+
+## Plant phylogeny (09-07) — **smoothing the taxonomic signal destroys it, for the third time**
+
+GBOTB.extended places 10,372 of 11,031 universe plants (5,620 exact tips, 4,752 bound to their
+genus's most recent common ancestor). Affinity was then smoothed over patristic distance,
+weighting each training plant exp(-d/tau), which is congeneric transfer made continuous.
+
+| bandwidth | nR@10 | PR-AUC | genus seen | genus unseen | Δ vs reference | p |
+|---|---:|---:|---:|---:|---:|---:|
+| boosted ranker | 0.3199 | 0.0998 | 0.3514 | 0.0864 | — | |
+| tau = 50 Myr | 0.2931 | 0.0817 | 0.3198 | 0.0956 | −0.0268 | 0.0004 |
+| tau = 100 Myr | 0.3008 | 0.0865 | 0.3278 | 0.1011 | −0.0191 | 0.0068 |
+| tau = 200 Myr | 0.3022 | 0.0912 | 0.3282 | 0.1095 | −0.0177 | 0.0088 |
+
+Every bandwidth hurts. The target stratum improves slightly -- 0.086 to 0.110 at the widest
+bandwidth -- and the cost falls on the 88% of plants whose genus *is* seen, where a sharp lookup was
+working.
+
+The diagnosis is in the density: the smoothed affinity has 119 million non-zero cells against roughly
+97,000 for the genus cross. **The taxonomic signal's value is its sparsity.** This is now the third
+independent confirmation, after hierarchical back-off crosses (−0.0221, p=0.036) and BioCLIP-2
+nearest-neighbour smoothing of the same table (−0.019, and its species-permuted control did equal
+damage). Three different smoothers, three losses.
+
+That is a real finding rather than three failures: methods that generalise taxonomy by averaging
+over relatives lose more on the well-covered majority than they recover on the sparse tail. The only
+construction that helped was routing -- keeping the sharp model where it works and switching models
+entirely where it does not.

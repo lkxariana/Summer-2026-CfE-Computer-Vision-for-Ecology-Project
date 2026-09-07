@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import numpy as np
 from sklearn.decomposition import TruncatedSVD
 from sklearn.ensemble import HistGradientBoostingClassifier
@@ -42,6 +44,14 @@ class TaxoSpatialTemporal(Baseline):
     the factorisation. Carrying the latent product as features rather than routing between models
     keeps one score scale, which pooled PR-AUC depends on.
 
+    With `use_phylo`, taxonomic affinity is smoothed over a dated phylogeny instead of a flat genus
+    key: a candidate's score contribution from a training plant is weighted exp(-d/tau) in its
+    patristic distance. Genus membership is a two-level key that treats plants in different genera of
+    one family as equidistant whether they diverged five or eighty million years ago, and it returns
+    exactly zero for a genus absent from training -- the stratum where this model scores 0.086
+    nrecall@10 against 0.256 for truncated SVD. A continuous distance degrades instead of vanishing.
+    Weights exclude the plant itself, so a training plant never contributes to its own feature.
+
     With `residualise`, the spatial and per-cell terms are regressed on the two prevalence terms --
     the pollinator's range size and the plant's -- and the residual is used in their place. Marginally
     those features are confounded with how widespread and how heavily recorded a taxon is: ranked
@@ -59,10 +69,12 @@ class TaxoSpatialTemporal(Baseline):
     reference = "this work"
 
     def __init__(self, n_neg=10, seed=42, pca_dim=15, family_weight=1e-3, use_local=True,
-                 device="cuda", residualise=False, local_mode="proj", genus_fallback=True, use_mf=False, mf_rank=12, **kw):
+                 device="cuda", residualise=False, local_mode="proj", genus_fallback=True, use_mf=False, mf_rank=12,
+                 use_phylo=False, phylo_tau=50.0, **kw):
         self.n_neg, self.seed, self.pca_dim, self.family_weight = n_neg, seed, pca_dim, family_weight
         self.use_local, self.device, self.residualise = use_local, device, residualise
         self.genus_fallback, self.use_mf, self.mf_rank = genus_fallback, use_mf, mf_rank
+        self.use_phylo, self.phylo_tau = use_phylo, phylo_tau
         self.local_mode = local_mode   # 'exact' loads 8.4 GB of surfaces; 'proj' uses the
                                        # rank-256 basis, pearson 1.000 against it, no GPU memory
         self.name = ("Taxonomy + spatial + per-cell temporal (ours)" if use_local
@@ -108,6 +120,8 @@ class TaxoSpatialTemporal(Baseline):
         if self.use_mf:
             pv = self.P_imp[pi]                                   # [n, rank], taxonomy-imputed
             extra += [pv * self.Q_lat[qi], (pv * self.Q_lat[qi]).sum(1)[:, None]]
+        if self.use_phylo:
+            extra.append(self.A_phylo[pi, qi][:, None])
         return np.hstack([
             np.log1p(st.Prs[qi])[:, None],
             comp[:, None],
@@ -169,6 +183,21 @@ class TaxoSpatialTemporal(Baseline):
                 else:
                     imp.append(by_fam.get(fam[i], glob))
             self.P_imp = np.vstack(imp)
+
+        if self.use_phylo:
+            D = np.load(Path(__file__).resolve().parents[3] / "data/features/phylo_dist.npy")
+            tr_p = np.unique(store.idx_plants(edges["plant"]))
+            K = np.exp(-D[:, tr_p] / self.phylo_tau)              # [P, n_train]
+            K[np.isnan(K)] = 0.0
+            K[np.arange(len(K))[:, None] == tr_p[None, :]] = 0.0  # never weight a plant by itself
+            K /= np.maximum(K.sum(1, keepdims=True), 1e-9)
+            M = np.zeros((len(tr_p), len(store.polls)), np.float32)
+            pos = {p_: j for j, p_ in enumerate(tr_p)}
+            for p_, q_ in zip(store.idx_plants(edges["plant"]), store.idx_polls(edges["pollinator"])):
+                M[pos[p_], q_] += 1.0
+            self.A_phylo = (K.astype(np.float32) @ M)
+            print(f"    phylo affinity: tau={self.phylo_tau} Myr, "
+                  f"{int((self.A_phylo > 0).sum()):,} non-zero cells", flush=True)
 
         f = TruncatedSVD(self.pca_dim, random_state=self.seed).fit_transform(store.F.astype(np.float32))
         p = TruncatedSVD(self.pca_dim, random_state=self.seed).fit_transform(store.P.astype(np.float32))

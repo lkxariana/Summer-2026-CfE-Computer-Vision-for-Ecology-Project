@@ -829,3 +829,43 @@ negatives, which remove the route by construction, are the live test.
 - **Post-hoc calibration cannot change PR-AUC**: Platt is monotone and average precision is
   rank-based, so it returns a bit-identical value. Pooled PR-AUC measures cross-plant *ordinal*
   comparability, not probability calibration, and the write-up should say so.
+
+## Prevalence is signal, not confound to be removed (09-07) — **three independent confirmations**
+
+Per-cell co-activity adds 0.125 held-out AUC at the top 200 *given* popularity and range overlap,
+so the conditional signal is real. The inference drawn from it -- that the model should be forced onto
+that conditioning -- is wrong, and three separate interventions say so:
+
+| intervention | effect on nR@10 | p |
+|---|---:|---:|
+| remove the logQ correction | −0.0891 | <0.001 |
+| normalise the encounter term by prevalence (lift / PMI / cosine) | 0.011 → 0.005 as a ranker | — |
+| **50% degree-matched negatives** | **−0.0391** | **<0.001** |
+| **100% degree-matched negatives** | **−0.0478** | **<0.001** |
+
+Matching negatives to their positive's recorded degree removes the route by which the loss can be
+satisfied with prevalence. It costs 0.048 nrecall@10. The conditional signal it exposes is worth less
+than the prevalence signal it hides, and the models already carry both features, so the incremental
+AUC was being realised without the intervention.
+
+The general statement, now supported three ways: **on this data prevalence is a large and genuinely
+predictive component, and any method whose selling point is removing abundance confounding loses
+accuracy.** That is a constraint on what can be claimed as novel, and it is worth stating in the paper
+because the ecological literature treats co-occurrence-driven abundance as a nuisance to be
+controlled for.
+
+### The architecture search is closed
+
+| change | Δ nR@10 vs the embedding model | p |
+|---|---:|---:|
+| DCN-V2, 2 cross layers | −0.0292 | 0.003 |
+| DCN-V2, 4 cross layers | −0.0390 | <0.001 |
+| back-off crosses | −0.0221 | 0.036 |
+| degree-matched negatives | −0.0478 | <0.001 |
+| genus-context attention + tier head | −0.0079 | — |
+| learned niche metric (bilinear, ranks 16/64/128) | +0.002 / −0.010 / +0.004 | 0.76 / 0.09 / 0.54 |
+| text bilinear (ranks 32/64/128) | +0.001 / −0.009 / −0.009 | 0.82 / 0.17 / 0.20 |
+| wide path, single cross + degree | +0.0135 | 0.26 |
+
+Nothing tried beats the two standing results: the boosted ranker at 0.3199-0.3259 nrecall@10 and the
+embedding model at 0.1647 PR-AUC. Further search on this feature set is not warranted.

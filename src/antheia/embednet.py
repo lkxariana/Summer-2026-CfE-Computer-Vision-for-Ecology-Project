@@ -80,6 +80,27 @@ cross-product feature belongs on a *linear* path added to the logit, bypassing t
 high-rank" -- which describes a network at 0.12% connectance exactly. `use_wide_affinity` puts the
 affinity, co-occurrence and degree terms on that linear path instead.
 
+**Hierarchical back-off crosses.** A single cross, pollinator species by plant genus, has 96,651
+occupied cells at a median count of one, and is empty for the 57% of pollinators with fewer than three
+training edges. It is barely a count. Five granularities are therefore placed on the wide path at
+once -- species by genus, pollinator genus by plant genus, pollinator family by plant genus, family by
+family, order by family -- whose occupancy rises from a median of 1 to a median of 12 as they coarsen.
+The linear layer weights them, so where the fine cross is empty a coarser one still carries signal
+instead of contributing a zero. This is Katz back-off, and it matches the biology: pollination
+syndromes operate at family and order level, and "bees visit Fabaceae" is a regularity a
+species-by-genus cross cannot express.
+
+**Cross network (DCN-V2).** The wide path memorises crosses a person chose. DCN-V2 (Wang et al.,
+WWW 2021) makes the point that choosing them "falls back to the feature engineering problem for
+linear models", and replaces the choice with explicit bounded-degree crossing: each layer computes
+x_{l+1} = x_0 * (W_l x_l + b_l) + x_l, so l layers span interactions up to degree l+1 with a weight
+*matrix* rather than DCN-V1's vector. It runs in parallel with the deep path and their outputs are
+concatenated, the arrangement Google productionised in place of Wide & Deep.
+
+Crossing is applied to the encoded pair, [h_p, h_q] at 512 dimensions, rather than to the raw 2,082
+input dimensions: the latter is 4.3M parameters per layer and 2e11 multiply-adds per training step,
+the former 262k and 1.3e10.
+
 **Cold start.** No per-plant parameters of any kind. A held-out plant is represented only by inputs
 computable from its name and its predicted surfaces, so nothing about it is fitted during training.
 """
@@ -92,6 +113,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 MASK_FILL = -1e4
+ROOT_TAX = Path(__file__).resolve().parents[2] / "data/features/taxonomy.parquet"
 TEXT_DIR = "/scratch/cher/antheia-data/text_embeddings"
 
 
@@ -126,6 +148,8 @@ class EmbedConfig:
     tier_weight: float = 0.3
     use_affinity: bool = False       # hand the sharp taxonomic lookup to the pair head directly
     use_wide_affinity: bool = False  # Wide & Deep: the same signal on a linear path, added to the logit
+    backoff_crosses: bool = False    # five taxonomic granularities on the wide path, Katz-style
+    cross_layers: int = 0            # DCN-V2 depth over the encoded pair; 0 disables
     use_degree_offset: bool = False  # A3: log-degree as an explicit term with a learned coefficient
     learn_temperature: bool = True   # scale the head output; flat logits cost top-k precision
     hard_negatives: int = 0          # per plant per step, mined from the model's current top ranks
@@ -181,10 +205,13 @@ class GenusContext(nn.Module):
 class PairHead(nn.Module):
     """[h_p, h_q, h_p*h_q, |h_p-h_q|] -> logit."""
 
-    def __init__(self, d_model, hidden, dropout, n_out=1, p_mult=1, n_extra=0):
+    def __init__(self, d_model, hidden, dropout, n_out=1, p_mult=1, n_extra=0, cross_layers=0):
         super().__init__()
+        self.cross = CrossNet(2 * d_model, cross_layers) if cross_layers else None
+        cross_dim = 2 * d_model if cross_layers else 0
         self.mlp = nn.Sequential(
-            nn.Linear((2 + 2 * p_mult) * d_model + n_extra, hidden), nn.GELU(), nn.Dropout(dropout),
+            nn.Linear((2 + 2 * p_mult) * d_model + n_extra + cross_dim, hidden),
+            nn.GELU(), nn.Dropout(dropout),
             nn.Linear(hidden, hidden // 2), nn.GELU(), nn.Dropout(dropout),
             nn.Linear(hidden // 2, n_out))
         for m in self.mlp:
@@ -203,10 +230,31 @@ class PairHead(nn.Module):
         if ctx is not None:
             c = ctx.unsqueeze(1).expand(B, C, d)
             parts += [c * b, (c - b).abs()]                       # candidate against the genus profile
+        if self.cross is not None:
+            pair = torch.cat([a, b], -1)                          # [B, C, 2d]
+            parts.append(self.cross(pair.reshape(-1, pair.shape[-1])).view_as(pair))
         if extra is not None:
             parts.append(extra)                                   # [B, C, n_extra]
         out = self.mlp(torch.cat(parts, -1)) * self.logit_scale.exp()   # [B, C, n_out]
         return out.squeeze(-1) if out.shape[-1] == 1 else out
+
+
+class CrossNet(nn.Module):
+    """DCN-V2 cross layers: x_{l+1} = x_0 * (W_l x_l + b_l) + x_l, weight matrix per layer."""
+
+    def __init__(self, dim, depth):
+        super().__init__()
+        self.layers = nn.ModuleList([nn.Linear(dim, dim) for _ in range(depth)])
+        for lin in self.layers:
+            nn.init.xavier_uniform_(lin.weight)
+            nn.init.zeros_(lin.bias)
+
+    def forward(self, x0):
+        """x0 [M, dim] -> [M, dim]."""
+        x = x0
+        for lin in self.layers:
+            x = x0 * lin(x) + x
+        return x
 
 
 class WidePath(nn.Module):
@@ -294,7 +342,8 @@ class EmbedRanker:
         n_out = 2 if cfg.use_tier_head else 1
         self.head = PairHead(cfg.d_model, cfg.hidden, cfg.dropout, n_out=n_out,
                              p_mult=2 if cfg.use_genus_context else 1,
-                             n_extra=1 if cfg.use_affinity else 0).to(dev)
+                             n_extra=1 if cfg.use_affinity else 0,
+                             cross_layers=cfg.cross_layers).to(dev)
         mods = [self.enc_p, self.enc_q, self.head]
         if cfg.use_genus_context:
             self.ctx = GenusContext(cfg.d_model, cfg.ctx_heads, cfg.dropout).to(dev)
@@ -333,6 +382,39 @@ class EmbedRanker:
             print(f"    genus context: {int((~msk).any(1).sum())}/{self.n_p} plants have a non-empty "
                   f"leave-one-out genus profile", flush=True)
 
+        if cfg.backoff_crosses:
+            import pandas as _pd
+            tx = _pd.read_parquet(ROOT_TAX)
+            fam_of = dict(zip(tx.label, tx.family.fillna("UNK")))
+            ord_of = dict(zip(tx.label, tx["order"].fillna("UNK"))) if "order" in tx else {}
+            pg = [x.split()[0] for x in store.plants]
+            pf = [fam_of.get(x, "UNK") for x in store.plants]
+            qg = [x.split()[0] for x in store.polls]
+            qf = [fam_of.get(x, "UNK") for x in store.polls]
+            qo = [ord_of.get(x, "UNK") for x in store.polls]
+
+            def code(vals):
+                m = {v: i for i, v in enumerate(sorted(set(vals)))}
+                return np.array([m[v] for v in vals]), len(m)
+
+            PG, nPG = code(pg); PF, nPF = code(pf)
+            QG, nQG = code(qg); QF, nQF = code(qf); QO, nQO = code(qo)
+            self.cross_specs = []
+            for qcode, nq_, pcode, np_, name in [
+                    (np.arange(self.n_q), self.n_q, PG, nPG, "poll x plantgenus"),
+                    (QG, nQG, PG, nPG, "pollgenus x plantgenus"),
+                    (QF, nQF, PG, nPG, "pollfamily x plantgenus"),
+                    (QF, nQF, PF, nPF, "pollfamily x plantfamily"),
+                    (QO, nQO, PF, nPF, "pollorder x plantfamily")]:
+                M = np.zeros((nq_, np_), np.float32)
+                np.add.at(M, (qcode[qi], pcode[pi]), 1.0)
+                self.cross_specs.append((T(M),
+                                         torch.from_numpy(qcode).long().to(dev),
+                                         torch.from_numpy(pcode).long().to(dev), name))
+            print("    back-off crosses: " + ", ".join(
+                f"{n} ({int((m.cpu().numpy() > 0).sum())} cells)" for m, _, _, n in self.cross_specs),
+                flush=True)
+
         if cfg.use_affinity or cfg.use_wide_affinity:
             gen_a = np.array([x.split()[0] for x in store.plants])
             fam_a = np.array([store.family.get(x, "UNK") for x in store.plants])
@@ -357,8 +439,9 @@ class EmbedRanker:
             self.bias = BiasHead(self.bias_p.shape[1] + self.bias_q.shape[1]).to(dev)
             mods.append(self.bias)
 
-        if cfg.use_wide_affinity or cfg.use_degree_offset:
-            n_wide = (3 if cfg.use_wide_affinity else 0) + (2 if cfg.use_degree_offset else 0)
+        if cfg.use_wide_affinity or cfg.use_degree_offset or cfg.backoff_crosses:
+            n_wide = ((3 if cfg.use_wide_affinity else 0) + (2 if cfg.use_degree_offset else 0)
+                      + (len(self.cross_specs) if cfg.backoff_crosses else 0))
             self.wide = WidePath(n_wide).to(dev)
             mods.append(self.wide)
             self.deg_q = T(np.log1p(np.bincount(qi, minlength=self.n_q).astype(np.float32)))
@@ -414,7 +497,7 @@ class EmbedRanker:
                                      + 1e-3 * self.Cf_t[tc_i][:, self.aff_FI[bp]].T).unsqueeze(-1)
                 out = self.head(hp, hq, ctx, ex)                           # [B,C] or [B,C,2]
                 logits = out[..., 0] if cfg.use_tier_head else out
-                if cfg.use_wide_affinity or cfg.use_degree_offset:
+                if cfg.use_wide_affinity or cfg.use_degree_offset or cfg.backoff_crosses:
                     logits = logits + self.wide(self._wide_feats(tp_i, tc_i))
                 if cfg.use_bias_head:
                     bp_f = self.bias_p[tp_i].unsqueeze(1).expand(B, C, -1)
@@ -493,6 +576,9 @@ class EmbedRanker:
         if self.cfg.use_degree_offset:
             parts += [self.deg_q[qi].view(1, C).expand(B, C),
                       self.deg_p[pi].view(B, 1).expand(B, C)]
+        if self.cfg.backoff_crosses:
+            for M, qcode, pcode, _ in self.cross_specs:
+                parts.append(torch.log1p(M[qcode[qi]][:, pcode[pi]].T))     # [B, C]
         return torch.stack(parts, -1)
 
     def _mine(self, mods, plants, pool, partners):
@@ -549,7 +635,7 @@ class EmbedRanker:
                 z = self.head(hp, hq, ctx, ex)
                 if self.cfg.use_tier_head:
                     z = z[..., 0]
-                if self.cfg.use_wide_affinity or self.cfg.use_degree_offset:
+                if self.cfg.use_wide_affinity or self.cfg.use_degree_offset or self.cfg.backoff_crosses:
                     z = z + self.wide(self._wide_feats(
                         torch.tensor([p], device=self.dev, dtype=torch.long), qs_all))
                 out[s:s + len(hq)] = z.squeeze(0).float().cpu().numpy()

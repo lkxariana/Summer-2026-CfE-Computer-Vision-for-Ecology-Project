@@ -10,6 +10,9 @@ These are ViT-H/14 embeddings from BioCLIP 2.5 (1024-d), a different model from 
 encoder used elsewhere here (768-d), so the two are not in a shared space and the centroid is not a
 re-encoding of the name.
 
+The archive is ordered by kingdom -- the low shards are BIOSCAN insects, the high shards Plantae --
+so shards must be strided across the range or a contiguous sample returns one kingdom.
+
 The full set is 933 shards and roughly 455 GB. Only rows whose species or genus is in the universe
 are kept, so a sample of shards is streamed and centroids accumulated; coverage is reported so the
 sample size can be chosen against it rather than guessed.
@@ -31,6 +34,9 @@ DIM = 1024
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--shards", type=int, default=32)
+    ap.add_argument("--stride", action="store_true",
+                    help="spread shards across the whole range; the archive is ordered by kingdom, "
+                         "so contiguous shards return a single kingdom")
     ap.add_argument("--universe", default=ROOT / "data/network/modelled_universe.json")
     ap.add_argument("--out", default=ROOT / "data/features")
     args = ap.parse_args()
@@ -46,7 +52,9 @@ def main():
     tot = np.zeros((n, DIM), np.float64)
     cnt = np.zeros(n, np.int64)
 
-    for k in range(args.shards):
+    order = (np.linspace(0, 932, args.shards).astype(int) if args.stride
+             else np.arange(args.shards))
+    for k in order:
         f = hf_hub_download(REPO, PATTERN.format(k), repo_type="dataset")
         pf = pq.ParquetFile(f)
         for g in range(pf.num_row_groups):

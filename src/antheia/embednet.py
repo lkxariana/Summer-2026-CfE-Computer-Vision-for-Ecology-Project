@@ -101,6 +101,15 @@ Crossing is applied to the encoded pair, [h_p, h_q] at 512 dimensions, rather th
 input dimensions: the latter is 4.3M parameters per layer and 2e11 multiply-adds per training step,
 the former 262k and 1.3e10.
 
+**Prevalence-matched negatives.** Ranked on its own, per-cell co-activity puts widespread,
+heavily-recorded pollinators at the top rather than partners -- AUC 0.665 inside its own top 200.
+Conditioned on prevalence it is strongly discriminative, worth 0.125 held-out AUC at the top 200 over
+popularity and range overlap together. Uniformly sampled negatives let the loss be satisfied by
+predicting prevalence, so the conditional signal is never required. Matching each negative to its
+positive's recorded degree removes that route: within a matched pair the prevalence term is
+uninformative by construction, and only the conditional signal separates them. This is the standard
+propensity-matched control transplanted into negative sampling.
+
 **Cold start.** No per-plant parameters of any kind. A held-out plant is represented only by inputs
 computable from its name and its predicted surfaces, so nothing about it is fitted during training.
 """
@@ -150,6 +159,8 @@ class EmbedConfig:
     use_wide_affinity: bool = False  # Wide & Deep: the same signal on a linear path, added to the logit
     backoff_crosses: bool = False    # five taxonomic granularities on the wide path, Katz-style
     cross_layers: int = 0            # DCN-V2 depth over the encoded pair; 0 disables
+    matched_negatives: float = 0.0   # share of uniform negatives replaced by degree-matched ones
+    match_bins: int = 32             # log-degree strata used for matching
     use_degree_offset: bool = False  # A3: log-degree as an explicit term with a learned coefficient
     learn_temperature: bool = True   # scale the head output; flat logits cost top-k precision
     hard_negatives: int = 0          # per plant per step, mined from the model's current top ranks
@@ -455,6 +466,16 @@ class EmbedRanker:
         for a, b in zip(pi.tolist(), qi.tolist()):
             partners.setdefault(a, set()).add(b)
         cnt = np.bincount(qi, minlength=self.n_q).astype(np.float64)
+        if cfg.matched_negatives > 0:
+            # strata of equal log-degree; a negative drawn from the positive's own stratum cannot be
+            # told apart from it by prevalence
+            ld = np.log1p(cnt)
+            edges_ = np.quantile(ld, np.linspace(0, 1, cfg.match_bins + 1))
+            strat = np.clip(np.searchsorted(edges_, ld, side="right") - 1, 0, cfg.match_bins - 1)
+            members = [np.flatnonzero(strat == b) for b in range(cfg.match_bins)]
+            members = [m if len(m) else np.arange(self.n_q) for m in members]
+            print(f"    matched negatives: {cfg.match_bins} degree strata, "
+                  f"sizes {min(len(m) for m in members)}-{max(len(m) for m in members)}", flush=True)
         logQ_pop = T(np.log(np.maximum(cnt / cnt.sum(), 1e-12)))
         logQ_uni = float(np.log(1.0 / self.n_q))
         n_uni = cfg.n_cand - cfg.in_batch
@@ -473,7 +494,15 @@ class EmbedRanker:
                 bp, bq = pi[b], qi[b]
                 B = len(bp)
                 sub = rng.choice(B, min(cfg.in_batch, B), replace=False)
-                cand = np.concatenate([bq[sub], rng.integers(0, self.n_q, n_uni)])
+                if cfg.matched_negatives > 0:
+                    n_match = int(n_uni * cfg.matched_negatives)
+                    src = bq[rng.integers(0, B, n_match)]
+                    matched = np.array([members[strat[q]][rng.integers(0, len(members[strat[q]]))]
+                                        for q in src])
+                    uni = np.concatenate([matched, rng.integers(0, self.n_q, n_uni - n_match)])
+                else:
+                    uni = rng.integers(0, self.n_q, n_uni)
+                cand = np.concatenate([bq[sub], uni])
                 if hard_pool is not None and cfg.hard_negatives:
                     hp_rows = np.stack([hard_pool[int(a)] for a in bp])          # [B, pool]
                     picks = hp_rows[np.arange(len(bp))[:, None],

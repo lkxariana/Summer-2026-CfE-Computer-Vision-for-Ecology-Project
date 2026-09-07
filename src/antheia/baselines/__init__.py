@@ -23,6 +23,6 @@ REGISTRY = {
     "ours_gbm": TaxoSpatialTemporal,
     "two_tower": lambda **kw: NeuralRanker(use_surface=False, **kw),
     "two_tower_percell": NeuralRanker,
-    "two_tower_text": lambda **kw: NeuralRanker(use_surface=True, use_text=True, **kw),
+    "two_tower_text": lambda **kw: NeuralRanker(use_surface=False, use_text=True, **kw),
     "pairnet": PairRanker,
 }

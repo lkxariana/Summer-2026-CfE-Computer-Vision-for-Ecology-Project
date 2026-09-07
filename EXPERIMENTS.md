@@ -703,3 +703,53 @@ bilinear form — the embedding as a tower input, where the model chooses the pr
 **Exact vs projected per-cell overlap** costs about 0.006 nR@10 (0.326 exact against 0.320 via the
 rank-256 basis), so the projection is the right choice inside a training loop and the exact feature
 is worth keeping for the final model.
+
+## Why the neural pair ranker trails the booster (09-07) — **it is the tabular inductive bias, not the implementation**
+
+Seven complete training runs, each differing from the reference in exactly one design decision, same
+seed, split, features and evaluation; differences by paired bootstrap over the same 663 plants.
+
+| configuration | nR@10 | Δ vs reference | p |
+|---|---:|---:|---:|
+| reference (per-feature standardisation) | 0.2806 | — | |
+| norm = LayerNorm | 0.2867 | +0.0061 | 0.37 |
+| norm = none | 0.2762 | −0.0044 | 0.52 |
+| **no logQ correction** | **0.1915** | **−0.0891** | **<0.001** |
+| loss = softmax only | 0.2767 | −0.0039 | 0.45 |
+| **loss = binary only** | **0.1468** | **−0.1338** | **<0.001** |
+| no pollinator embedding | 0.2788 | −0.0018 | 0.73 |
+
+**Four hypotheses, all refuted.** Feature normalisation does not matter, though the scales span
+0.03 to 16,481 and skews reach 20.8 — LayerNorm, per-feature standardisation and none are within
+noise of one another. The logQ correction is not discarding useful popularity signal; removing it
+costs 0.089, because without it a popular pollinator appears as a sampled negative far more often
+than a rare one and the model learns to penalise exactly the taxa most likely to be true partners.
+The pollinator embedding neither helps nor overfits. The binary term adds nothing on either
+objective for this architecture (softmax-only PR-AUC 0.1190 against 0.1163 with both), unlike the
+two-tower where it took PR-AUC from 0.054 to 0.098.
+
+**What remains is the model class.** Every implementation choice is neutral or already correct, and
+the gap to the booster (0.281 against 0.326) persists. This is the documented behaviour of
+gradient-boosted trees against neural networks on tabular features (Grinsztajn, Oyallon & Varoquaux
+2022, NeurIPS Datasets and Benchmarks): neural networks are biased toward smooth functions, and the
+strongest feature here is maximally non-smooth — taxonomic affinity is zero for almost every pair
+and jumps sharply for a handful, which is exactly the irregular target trees fit natively.
+
+**Consequence for the architecture.** A neural model will not win by fitting the same tabular
+features better. It has to express something the booster structurally cannot. The candidate is a
+learned metric over the shared niche basis: the booster sees one scalar, the inner product of two
+256-dimensional surface projections, and cannot form a 256×256 bilinear map over them.
+
+### The encounter term does not work as a backbone
+
+A neutral model of the form P(interact) = P(encounter) × P(interact | encounter) is attractive
+because the encounter term is computable analytically from two independently fitted distribution
+models. It fails empirically: as a standalone ranker the per-cell encounter term reaches 0.0109
+nR@10, against 0.1046 for a plain co-occurrence count, because it scales with range size and a
+widespread pollinator co-occurs with everything. Every prevalence normalisation makes it worse —
+lift 0.0053, PMI 0.0053, cosine 0.0176, square-root normalisation 0.0309.
+
+Prevalence is not a nuisance to be divided out here; it is a large and genuinely predictive part of
+the signal, which the logQ result says independently. The encounter term earns its place as a
+correction alongside taxonomy and prevalence, worth +0.013 nR@10 and +0.013 PR-AUC against a
+species-permuted control, not as a multiplicative backbone.

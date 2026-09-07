@@ -66,7 +66,12 @@ only in what is summed out first. Re-ranking popularity's top 200, nR@50:
 | slds | **0.419** | 0.393 | 0.225 | 0.207 |
 
 Strict ladder joint > space > time > scalar under every scheme; every joint-vs-marginal contrast
-p ≤ 0.0024. **Phenology retains almost nothing when marginalised (time ≈ scalar) and adds over range
+p ≤ 0.0024. **Replicated on the production surfaces over the full protocol universe** (663 plants,
+13,124 candidates; `eval/run_marginalisation_surfaces.py`): re-ranking nR@50 0.360 / 0.344 / 0.255 /
+0.200, all contrasts p ≤ 0.008, including on the unseen-genus stratum; pooled PR-AUC 0.077 against
+popularity's 0.053 (+46%). On the production surfaces the niche term improves cross-plant ordering
+(PR-AUC) but not within-plant recall at 50; the learned joint field did both. Figure:
+`results/figures/marginalisation_ladder.png`. **Phenology retains almost nothing when marginalised (time ≈ scalar) and adds over range
 overlap only when kept per cell (joint − space = +0.044, p<0.001).** That is the original ANTHEIA
 asymmetry hypothesis, finally tested without changing the data or the model between arms, and it is
 the reason marginal-curve overlap statistics have found so little.

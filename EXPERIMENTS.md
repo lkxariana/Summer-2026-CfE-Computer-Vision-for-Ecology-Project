@@ -1241,7 +1241,8 @@ values, not for the within-pair contrast).
 | scalar | 0.0012 / 0.0126 | 0.0498 / 0.2000 / 0.0612 | +0.160 p<0.001 | 0.0259 (p=0.003) |
 
 - **The ladder replicates on the full protocol universe:** joint > space > time > scalar on every
-  column, all joint-vs-marginal contrasts p <= 0.008, including on the unseen-genus stratum.
+  recall column, all joint-vs-marginal contrasts p <= 0.008, including on the unseen-genus stratum.
+  On pooled PR-AUC alone the two marginals swap (time 0.070, space 0.068); joint stays first.
 - **PR-AUC gain survives, the nR@50 gain does not.** Re-ranking popularity's top 200 by the joint
   statistic raises pooled PR-AUC 0.053 -> 0.077 (+46%) but leaves nR@50 at 0.360 against popularity's
   0.373 -- on the production surfaces the niche term improves cross-plant ordering without improving

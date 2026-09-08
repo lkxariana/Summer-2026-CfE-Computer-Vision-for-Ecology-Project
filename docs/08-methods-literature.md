@@ -135,3 +135,28 @@ GloBI ingests iNaturalist, USGS/BISON and 200+ sources. The curated bee subset o
 
 **iNaturalist interaction fields** — Gazdic & Groom 2019, Biodiversity Information Science and Standards 3:e37303. https://doi.org/10.3897/biss.3.37303
 Mining "Interaction→Visited flower of" observation fields; CONUS-weighted, but these records already flow into GloBI.
+
+## 5. Cold-start link prediction in adjacent fields (checked 2026-09-08)
+
+Relevant because the R-GCN system is evaluated under a DTI-style regime battery (cold plant / cold pollinator / cold both /
+warm) and the cold-pollinator split exposed a one-sided training scheme (see EXPERIMENTS.md, refinement stage).
+
+- **ColdstartMHDTI** (Frontiers in Chemistry 2026; PMC13381500). Frozen pretrained entity encoders (ChemBERTa for drugs,
+  ESM-2 for targets) projected to 128-D, fused by meta-path attention over a heterogeneous graph (drug–target–disease–side
+  effect). Entity-disjoint splits (drug-cold, target-cold), five seeds, 1:1 and imbalanced (1:5, 1:10) negatives. Warm
+  AUROC 0.974 / AUPR 0.979; drug-cold 0.954 / 0.956; target-cold 0.944 / 0.948 (Hetero-A). Lessons that transfer: keep the
+  pretrained encoders frozen (end-to-end fine-tuning degraded cold-start), residual paths that preserve the pretrained
+  signal, and "relational bridges" (side relations that connect an unseen entity to the graph) -- our taxon and cell x month
+  nodes play that role. Their numbers are at 1:1 negatives, so comparable to our AUPR 1:1 column, not to prevalence AUPR.
+- **ColdDTI** (arXiv 2510.04126, 2025): hierarchical attention over multi-level protein structure; the general lesson is
+  that structured domain priors beat pure representation learning for unseen entities.
+- **ColdstartCPI** (Zhao et al. 2025): protein language-model embeddings with inductive bias substantially improve
+  generalisation to novel drugs/targets -- the same finding as our BioCLIP-2 text inputs.
+- **Graphormer centrality encoding** (Ying et al., NeurIPS 2021): a learned function of node degree added to the input
+  features. Used here as R5 (`degree_encoding`): log(1 + in-degree per relation) through a linear layer, so a plant with its
+  edges removed (anchor or cold) has the same zero interaction degree at train and test time. PNA (Corso et al., NeurIPS
+  2020) makes the related point that mean aggregation discards neighbourhood size.
+- **Abramov et al. 2026, MEE** (bioRxiv 10.1101/2025.11.20.689463): spatially explicit thresholded-SVD imputation that
+  pairs a target local network with auxiliary networks from other locations; Canary Islands plant–pollinator networks. A
+  candidate baseline for the within-site completion task (it is the site-level analogue of Strydom's SVD imputation).
+  Details pending full-text access.

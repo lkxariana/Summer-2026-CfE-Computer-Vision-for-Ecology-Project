@@ -49,6 +49,7 @@ GROUPS = [
         ("M2.9_fusion_coocneg", "Fusion re-ranker + co-occurrence negatives", "this work"),
         ("M2.10_fusion_genus", "Fusion re-ranker + genus-profile tokens (plant-level LOO)", "this work"),
         ("M2.10b_fusion_genus_pair", "Fusion re-ranker + genus-profile tokens (pair-level mask)", "this work"),
+        ("M2.10c_fusion_genus_own", "Fusion re-ranker + genus-profile tokens (own-count subtraction)", "this work"),
         ("M2.11_fusion_genus_coocneg", "Fusion re-ranker + genus tokens + co-occurrence negatives", "this work"),
         ("M3.1_rgcn", "R-GCN over species, taxa, cell x month", "this work"),
         ("M2.12_fusion_on_rgcn", "Fusion re-ranker on the R-GCN retriever", "this work"),

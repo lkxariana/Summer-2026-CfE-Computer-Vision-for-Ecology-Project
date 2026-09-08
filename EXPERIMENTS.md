@@ -1563,3 +1563,9 @@ run first (the readout), then the universe seeds.
 while each component alone sits at ~0.19 on every seed. Likely conflict: co-occurring negatives include pollinators that
 appear in the plant's genus profile, so the same token is presented as "visits this genus" and labelled negative for the
 plant. Not pursued further; the pair-masked genus tokens (M2.10b) are the clean version.
+
+**M2.10b (pair-masked genus tokens), local networks: 0.165 -- no change.** Second construction flaw: masking the candidate's
+token entirely during training removes congener evidence too, so the model can never learn "candidate appears in the genus
+profile -> partner", the trees' signal. **M2.10c** subtracts only the plant's own contribution to the candidate's count
+(mask only if nothing from congeners remains). This matches the information the trees' affinity table has for a held-out
+pair. Local-network run first; M2.10b's remaining universe seeds were stopped as uninformative.

@@ -65,8 +65,10 @@ class FusionConfig:
     rand_per_plant: int = 8             # uniform negatives
     cooc_per_plant: int = 0             # negatives among pollinators that co-occur with the plant (N > 0): the within-site regime
     genus_tokens: int = 0               # k_g tokens: pollinators recorded with the plant's genus, the trees' lookup as a set
-    genus_loo: str = "pair"             # "pair": profile includes the plant's own edges, only the scored candidate is masked
-                                        # (warm information kept); "plant": the plant's own edges are removed from its profile
+    genus_loo: str = "pair"             # "plant": the plant's own edges removed from its profile (no warm information);
+                                        # "pair": the scored candidate's token is masked entirely (hides congener evidence too);
+                                        # "own": only the plant's OWN contribution to the candidate's count is subtracted --
+                                        #        congener evidence stays, which is what the trees' affinity table sees
     base_affine: bool = False           # logit = a * s_retriever + b + delta, a,b learned (identity at init); needed when the
                                         # retriever's scores are not logits (trees / quantile-mapped scores)
     grad_clip: float = 1.0
@@ -175,8 +177,16 @@ class FusionReranker:
             return ()
         gi = self.g_idx[pi]; gc = self.g_cnt[pi]                       # [B, kg], -1 where padded
         pad = gi < 0
-        if qi is not None:
-            pad = pad | (gi == qi[:, None])                            # never let the scored candidate see itself in the profile
+        if qi is not None and self.cfg.genus_loo == "pair":
+            pad = pad | (gi == qi[:, None])                            # candidate token masked entirely
+        elif qi is not None and self.cfg.genus_loo == "own":
+            # subtract the plant's own count for the candidate; mask only if nothing from congeners remains
+            hit = gi == qi[:, None]                                    # [B, kg]
+            if hit.any():
+                own = self.own_cnt[pi, qi]                             # [B] own count of (p, q), dense lookup
+                adj = torch.log1p(torch.clamp(torch.expm1(gc) - own[:, None], min=0.0))
+                gc = torch.where(hit, adj, gc)
+                pad = pad | (hit & (adj <= 0))
         return (self.text_q[gi.clamp_min(0)], gc, pad)
 
     def _batch(self, pi, qi):
@@ -235,6 +245,12 @@ class FusionReranker:
                 for j, (b, n) in enumerate(top):
                     g_idx[a, j] = b; g_cnt[a, j] = np.log1p(n)
             self.g_idx = torch.from_numpy(g_idx).to(dev); self.g_cnt = torch.from_numpy(g_cnt).to(dev)
+            if cfg.genus_loo == "own":
+                oc = torch.zeros(len(store.plants), len(store.polls), dtype=torch.float16)
+                for a, d_ in own.items():
+                    for b, n in d_.items():
+                        oc[a, b] = n
+                self.own_cnt = oc.to(dev)                              # [P, Q] fp16 (~290 MB on GPU)
             print(f"    genus tokens: {int((g_idx[:, 0] >= 0).sum())}/{len(store.plants)} plants have a non-empty profile", flush=True)
         cooc = None
         if cfg.cooc_per_plant > 0:

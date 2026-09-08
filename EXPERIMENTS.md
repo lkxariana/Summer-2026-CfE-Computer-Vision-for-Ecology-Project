@@ -1589,3 +1589,8 @@ inside the trees' CI. It is the best ranker on the universe by a clear margin an
 candidate (for Dan): the R-GCN, with the identity re-ranker on top (M2.12, running) as the full system** -- if the
 re-ranker's +0.03 AUPR transfers, the system leads or ties every column except within-site precision@L.
 Remaining gap: precision@L 0.231 vs 0.252 and cold-plant 0.238 vs 0.268 within sites.
+
+**M2.10c (own-count subtraction), local networks: 0.165.** Three masking schemes (plant-LOO, pair mask, own-count
+subtraction) all leave the re-ranker at 0.165 within sites: the token-set re-ranker does not convert a genus profile
+into within-site gains, whereas the R-GCN's message passing does (0.204). The genus-token route is closed; the neural
+warm-information channel is the graph. Remaining M2.10c universe seeds stopped as uninformative.

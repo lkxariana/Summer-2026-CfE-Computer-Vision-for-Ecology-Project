@@ -50,6 +50,7 @@ GROUPS = [
         ("M2.10_fusion_genus", "Fusion re-ranker + genus-profile tokens", "this work"),
         ("M2.11_fusion_genus_coocneg", "Fusion re-ranker + genus tokens + co-occurrence negatives", "this work"),
         ("M3.1_rgcn", "R-GCN over species, taxa, cell x month", "this work"),
+        ("M2.12_fusion_on_rgcn", "Fusion re-ranker on the R-GCN retriever", "this work"),
     ]),
 ]
 COLS = [("aupr", "AUPR"), ("aupr_at_0.25", "AUPR 1:3"), ("aupr_at_0.5", "AUPR 1:1"), ("auroc", "AUROC"),

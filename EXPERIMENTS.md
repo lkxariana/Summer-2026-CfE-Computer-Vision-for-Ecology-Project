@@ -1530,3 +1530,25 @@ on either table; the hybrid is closed. M2.9 (co-occurrence-conditioned negatives
 re-ranker; the within-site deficit is not a negative-sampling artefact. Consistent with the warm-plant diagnosis: the
 neural system lacks a channel for a plant's own surviving edges. M2.10 (genus-profile tokens) is the arm that tests
 that directly; M3.1 R-GCN (corrected loss) is the second.
+
+### M3.1 R-GCN, corrected loss (09-08, seed 42, provisional) — **the best cold-start ranker so far**
+
+R-GCN over species / genus+family / cell x month nodes, two relation-typed layers, leave-own-edges-out, the frozen
+retriever's objective (softmax 1.0, BCE 0.5, elementwise head):
+
+| | AUPR | AUROC | nR@10 | nR@50 | unseen-genus nR@10 |
+|---|---:|---:|---:|---:|---:|
+| embedding model (seed 42) | 0.165 | 0.955 | 0.292 | 0.432 | 0.134 |
+| routed trees | 0.103 | 0.883 | 0.336 | 0.447 | 0.256 |
+| identity-only re-ranker (seed 42) | 0.197 | 0.956 | 0.329 | 0.481 | 0.176 |
+| **R-GCN (seed 42)** | 0.154 | **0.963** | **0.369** | **0.528** | 0.235 |
+
+The first run of this model (0.038) used the pooled-only loss that phase A showed collapses; with the retriever's
+objective it is the strongest ranker of the project and within 0.01 of the embedding model on AUPR. Mechanism: the
+genus nodes carry interaction-derived identity (what the trees' affinity table holds) and the cell x month nodes
+carry the field, both reached by message passing; unseen-genus recall 0.235 says the family node backs off where the
+genus is empty. Seeds 0/1 and the local-network run follow.
+
+**Pre-registered next arm (M2.12):** fusion re-ranker (identity tokens) on the R-GCN as retriever. Hypothesis: the
++0.03 AUPR re-ranking gain transfers, giving a system that leads AUPR *and* recall; the local-network run of the
+R-GCN decides whether message passing over a plant's own edges closes the warm-plant gap.

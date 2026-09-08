@@ -42,9 +42,10 @@ GROUPS = [
         ("baseline_ours_gbm", "Boosted ranker: taxonomy + spatial + per-cell", "this work"),
         ("baseline_routed", "Genus-routed experts", "this work"),
         ("M1.0_reference", "Embedding model (identity + field blocks)", "this work"),
-        ("retriever_v1", "Embedding model, retriever config", "this work"),
-        ("fusion_v1", "Fusion re-ranker over identity + field tokens", "this work"),
-        ("rgcn_v1", "R-GCN over species, taxa, cell x month", "this work"),
+        ("M2.1_fusion_identity", "Fusion re-ranker on the embedding model (identity tokens)", "this work"),
+        ("M2.2_fusion_joint", "Fusion re-ranker + joint field tokens", "this work"),
+        ("M2.8_fusion_routed", "Fusion re-ranker on the routed tree retriever", "this work"),
+        ("M3.1_rgcn", "R-GCN over species, taxa, cell x month", "this work"),
     ]),
 ]
 COLS = [("aupr", "AUPR"), ("aupr_at_0.25", "AUPR 1:3"), ("aupr_at_0.5", "AUPR 1:1"), ("auroc", "AUROC"),

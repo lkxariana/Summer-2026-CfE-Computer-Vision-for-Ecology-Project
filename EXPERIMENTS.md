@@ -1695,3 +1695,14 @@ Fails the adoption rule (local must rise). Second arm in a row where a universe 
 
 **R3 symmetric anchors, cold-plant seed 42:** universe AUPR 0.169, AUROC 0.966, nR@10 0.371, nR@50 0.543, unseen-genus 0.221 --
 also +0.019 over the frozen retriever on cold plants. Local networks and cold_poll pending.
+
+**R3 symmetric anchors, local networks seed 42:** mean AUPR 0.215 [0.199, 0.233] (M3.1 0.204; trees 0.222 [0.205, 0.239]), warm
+0.217 (0.206), cold 0.227 (0.241), precision@L 0.232 (0.233), pooled AUROC 0.631, NODF 51.5 (obs 36). With the universe +0.019,
+R3 is the first arm that passes the adoption rule on seed 42 on both tables (local +0.011, universe +0.019). Rehearsing
+pollinators without edges regularises the pollinator side, which is what the within-site task ranks over. Seeds 0/1 and the
+cold_poll seeds are queued (`scripts/queue_refine2.sh`); if they hold, the system (re-ranker on the R3 retriever) is queued
+behind a go-file (`logs/r3_system.go`, `scripts/queue_r3_system.sh`) -- adopting it as the frozen retriever is Dan's call.
+
+**Site-time term at inference (R-site), on the R3 local bundle:** beta cross-fitted two-fold (0.25 selected in both folds);
+mean AUPR 0.215 -> 0.218 (+0.002 [-0.000, +0.005], p = 0.09), precision@L 0.232 -> 0.237, AUROC unchanged. Within a site the
+field's phenology at that cell adds essentially nothing over the graph model. Negative; closed (inference-only, no seeds needed).

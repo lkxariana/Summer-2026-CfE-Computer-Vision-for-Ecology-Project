@@ -1343,3 +1343,22 @@ of withheld pairs (53.8% vs 25.2% for the genus-constrained null), no negatives,
 local-network evaluation as comparative rows. **Possible test data (for Dan):** their Zenodo bundle is embargoed to
 2026-10-01; after that, their species-level pairs from non-GloBI sources would be an external positive-only California test
 set. The predicted metaweb is model output, not ground truth, and should not be used as labels.
+
+### S1 phase A verdict (09-08) — **the reference weighting stays; no pooled-objective variant improves AUPR**
+
+`eval/report_ladder.py`, 3 seeds, paired plant bootstrap (300 resamples) vs the reference (softmax 1.0, BCE 0.5):
+
+| arm | AUPR | Delta AUPR vs reference | p | nR@10 |
+|---|---:|---:|---:|---:|
+| reference (softmax 1.0, BCE 0.5) | 0.159 | -- | -- | 0.282 |
+| softmax 1.0, BCE 0.25 | 0.161 | +0.002 | 0.50 | 0.274 |
+| softmax 1.0, BCE 2.0 | 0.151 | -0.009 | <0.001 | 0.276 |
+| softmax 1.0, BCE 1.0 | 0.149 | -0.010 | <0.001 | 0.274 |
+| softmax 0.25, BCE 1.0 | 0.147 | -0.013 | <0.001 | 0.289 |
+| BCE only (softmax 0) | 0.033 | -0.126 | <0.001 | 0.110 |
+
+Gate (Delta >= 0.01, p < 0.05) not met by any arm -> **retriever config = reference**. Reading: the within-plant
+softmax is necessary even for the pooled metric (removing it collapses AUPR by 0.13); *more* binary weight
+flattens logits and lowers AUPR; the reference sits at the optimum of this family. The plan's hypothesis "0.159 is
+objective-limited" is rejected for this loss family. Phase B (degree heads, nnPU prior, concat+bilinear head) runs
+on the reference base.

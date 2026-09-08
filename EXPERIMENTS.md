@@ -1421,3 +1421,27 @@ re-rank benefit, and it is what every other arm must now beat. Leakage check: re
 only; val plants and their pairs never enter training; the residual head starts at the retriever's scores. Caveats:
 one seed (0 and 1 queued); retriever recall@500 0.684 caps what re-ranking can recover (plan: K=1000 if < 0.85 -> to
 be tested after the core arms).
+
+### Table 3, warm vs cold plants (09-08) — **the trees' within-site lead is not memorisation**
+
+A plant in a surveyed network is *warm* if any of its edges survives the removal of local-network pairs from
+training, *cold* otherwise (45 of 91 networks contain cold plants; cold connectance 0.077 vs warm 0.136).
+
+| method | AUPR warm plants | AUPR cold plants |
+|---|---:|---:|
+| popularity | 0.194 | 0.205 |
+| co-occurrence N | 0.169 | 0.102 |
+| congeneric transfer | 0.223 | 0.260 |
+| SVD + taxonomic | 0.180 | 0.244 |
+| NECTAR-style (genus x overlap) | 0.191 | 0.242 |
+| pair GBM (Pichler) | 0.205 | 0.209 |
+| **boosted ranker / routed** | 0.223 | **0.268** |
+
+Every taxonomy-carrying method scores *higher* on cold plants than on warm ones, at roughly half the connectance --
+a 3.5x lift on cold plants for the booster against 1.6x on warm. The within-site lead of the trees and of
+congeneric transfer therefore does not come from having seen the plant's other partners; it comes from
+identity signal (genus-level co-visitation) that generalises to a plant with no edges at all. Co-occurrence N,
+by contrast, collapses on cold plants (0.102 at 0.077 connectance). The embedding model's warm/cold values arrive
+with its rerun; its fusion re-ranker (identity tokens) sits at 0.164 overall, i.e. the universe gain (+0.03 AUPR)
+does not transfer to within-site prediction. Table 3 now carries: mean AUPR [CI], mean AUROC, precision@L, plant-
+degree rho, NODF, warm/cold AUPR; pooled metrics and lift moved to the appendix.

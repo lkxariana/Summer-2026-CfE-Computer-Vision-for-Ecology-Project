@@ -1,8 +1,9 @@
 """Pool PR-AUC over seeds for a set of saved score matrices, with a paired bootstrap over plants.
 
-PR-AUC is pooled over all (plant, candidate) pairs, so there is no per-plant value to average.
-Instead: average each arm's score matrix over seeds (scores are on one scale within an arm),
-compute pooled AP, and bootstrap by resampling *plants* (rows) with replacement, paired across arms.
+PR-AUC is pooled over all (plant, candidate) pairs, so there is no per-plant value to average, and
+averaging score matrices across seeds would be an ensemble (it inflates AP). So every quantity is
+computed per seed and averaged over seeds; the paired bootstrap resamples *plants* with the same
+draws for every arm and seed, and the arm difference is averaged over seeds before its interval.
 Also reports PR-AUC re-expressed at other prevalences: precision at every threshold is recomputed
 with negatives down-weighted so that the positive share equals the target prevalence -- the
 population version of "PR-AUC under balanced / 3:1 negative sampling", using every negative rather
@@ -56,19 +57,35 @@ def main():
     print(f"{len(runs)} seeds, {len(tp)} plants x {Y.shape[1]} candidates, {int(Y.sum()):,} positives, "
           f"prevalence {prev:.5f} (chance PR-AUC)\n")
 
-    S = {a: np.mean([r[a].astype(np.float32) for r in runs if a in r.files], 0) for a in arms}
     rng = np.random.default_rng(42)
     idx = [rng.integers(0, len(tp), len(tp)) for _ in range(args.boot)]
+    plant_of = np.repeat(np.arange(len(tp)), Y.shape[1])
+
+    def boot_ap(y, s):
+        """AP under plant-resampling as a weighted AP along one global sort: O(N) per resample."""
+        order = np.argsort(-s, kind="stable"); ys = y[order].astype(np.float64); ps = plant_of[order]
+        out = np.empty(len(idx))
+        for k, ii in enumerate(idx):
+            wv = np.bincount(ii, minlength=len(tp)).astype(np.float64)[ps]
+            tp_ = np.cumsum(wv * ys); tot = np.cumsum(wv)
+            prec = np.divide(tp_, tot, out=np.zeros_like(tp_), where=tot > 0)
+            out[k] = (wv * ys * prec).sum() / tp_[-1]
+        return out
     boots = {}
     rows = []
     hdr = f"{'arm':<18} {'PR-AUC':>7} {'per-seed':<24} {'ROC':>6} " + " ".join(f"PR@{p:g}" for p in args.prevalences)
     print(hdr)
+    y = Y.ravel()
     for a in arms:
-        y, s = Y.ravel(), S[a].ravel()
-        pr = average_precision_score(y, s); roc = roc_auc_score(y, s)
-        per = [average_precision_score(y, r[a].astype(np.float32).ravel()) for r in runs if a in r.files]
-        adj = [ap_at_prevalence(y, s, p) for p in args.prevalences]
-        boots[a] = np.array([average_precision_score(Y[i].ravel(), S[a][i].ravel()) for i in idx])
+        per, rocs, adjs, bs = [], [], [], []
+        for r in runs:
+            if a not in r.files:
+                continue
+            s = r[a].astype(np.float32).ravel()
+            per.append(average_precision_score(y, s)); rocs.append(roc_auc_score(y, s))
+            adjs.append([ap_at_prevalence(y, s, p) for p in args.prevalences]); bs.append(boot_ap(y, s))
+        pr, roc, adj = np.mean(per), np.mean(rocs), np.mean(adjs, 0)
+        boots[a] = np.mean(bs, 0)
         print(f"{a:<18} {pr:7.4f} {' '.join(f'{v:.4f}' for v in per):<24} {roc:6.3f} " + " ".join(f"{v:6.3f}" for v in adj))
         rows.append(dict(arm=a, pr_auc=pr, pr_auc_seeds=";".join(f"{v:.4f}" for v in per), roc_auc=roc,
                          **{f"pr_at_{p:g}": v for p, v in zip(args.prevalences, adj)}))

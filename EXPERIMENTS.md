@@ -1607,3 +1607,7 @@ R-GCN retriever (recall@500 on val plants 0.745, vs 0.684 for the embedding mode
 
 The re-ranking gain (+0.037 AUPR here) transfers to the R-GCN retriever, and the R-GCN's ranking advantage is kept.
 Pending: seeds 0/1 and the local-network run (the R-GCN alone is at 0.204 there).
+
+**R-GCN local networks, 3 seeds:** mean AUPR 0.204 / 0.205 / 0.203; warm-plant 0.206 / 0.207 / 0.206; cold 0.238 / 0.243 /
+0.241; pooled AUROC 0.643 on all; precision@L 0.231. Stable to the third decimal. **M2.12 universe, seed 0:** AUPR 0.186,
+AUROC 0.970, nR@10 0.383 (seed 42: 0.191 / 0.970 / 0.384) -- replicates.

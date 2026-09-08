@@ -1552,3 +1552,9 @@ genus is empty. Seeds 0/1 and the local-network run follow.
 **Pre-registered next arm (M2.12):** fusion re-ranker (identity tokens) on the R-GCN as retriever. Hypothesis: the
 +0.03 AUPR re-ranking gain transfers, giving a system that leads AUPR *and* recall; the local-network run of the
 R-GCN decides whether message passing over a plant's own edges closes the warm-plant gap.
+
+**M2.10 genus tokens, local networks: 0.165 -- no change.** Cause identified on inspection: the profile was built
+leave-one-out at the *plant* level, so a warm plant's own surviving edges were excluded from its own tokens -- the very
+information the trees use. Pre-registered fix **M2.10b**: profile includes the plant's own edges; only the scored
+candidate is masked (pair-level leave-one-out), which is what the trees' affinity table effectively does. Local-network
+run first (the readout), then the universe seeds.

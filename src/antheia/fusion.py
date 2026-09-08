@@ -64,7 +64,9 @@ class FusionConfig:
     hard_per_plant: int = 16            # negatives from the retriever's top-K
     rand_per_plant: int = 8             # uniform negatives
     cooc_per_plant: int = 0             # negatives among pollinators that co-occur with the plant (N > 0): the within-site regime
-    genus_tokens: int = 0               # k_g tokens: pollinators recorded with the plant's genus (leave-one-out), the trees' lookup as a set
+    genus_tokens: int = 0               # k_g tokens: pollinators recorded with the plant's genus, the trees' lookup as a set
+    genus_loo: str = "pair"             # "pair": profile includes the plant's own edges, only the scored candidate is masked
+                                        # (warm information kept); "plant": the plant's own edges are removed from its profile
     base_affine: bool = False           # logit = a * s_retriever + b + delta, a,b learned (identity at init); needed when the
                                         # retriever's scores are not logits (trees / quantile-mapped scores)
     grad_clip: float = 1.0
@@ -168,11 +170,13 @@ class FusionReranker:
         assert len(self.text_p) == len(store.plants) and len(self.text_q) == len(store.polls)
         assert self.tok_p[0].shape[0] == len(store.plants) and self.tok_q[0].shape[0] == len(store.polls)
 
-    def _genus(self, pi):
+    def _genus(self, pi, qi=None):
         if self.cfg.genus_tokens <= 0:
             return ()
         gi = self.g_idx[pi]; gc = self.g_cnt[pi]                       # [B, kg], -1 where padded
         pad = gi < 0
+        if qi is not None:
+            pad = pad | (gi == qi[:, None])                            # never let the scored candidate see itself in the profile
         return (self.text_q[gi.clamp_min(0)], gc, pad)
 
     def _batch(self, pi, qi):
@@ -180,9 +184,9 @@ class FusionReranker:
         k = 0 if self.cfg.identity_only else self.tok_p[0].shape[1]
         if k == 0:
             e = torch.empty(len(pi), 0, self.H.shape[1], device=self.dev); z = torch.empty(len(pi), 0, device=self.dev)
-            return (self.text_p[pi], e, z, self.text_q[qi], e, z) + self._genus(pi)
+            return (self.text_p[pi], e, z, self.text_q[qi], e, z) + self._genus(pi, qi)
         ip, lpp = self.tok_p[0][pi], self.tok_p[1][pi]; iq, lpq = self.tok_q[0][qi], self.tok_q[1][qi]
-        return (self.text_p[pi], self.H[ip], lpp, self.text_q[qi], self.H[iq], lpq) + self._genus(pi)
+        return (self.text_p[pi], self.H[ip], lpp, self.text_q[qi], self.H[iq], lpq) + self._genus(pi, qi)
 
     # ---- training -------------------------------------------------------------------------------
     def fit(self, edges, store, retriever_scores_train, retriever_cands_train, train_plants_idx):
@@ -223,9 +227,10 @@ class FusionReranker:
             g_idx = np.full((len(store.plants), kg), -1, np.int64); g_cnt = np.zeros((len(store.plants), kg), np.float32)
             for a in range(len(store.plants)):
                 c = dict(gcount.get(pg[a], {}))
-                for b, n in own.get(a, {}).items():
-                    c[b] = c.get(b, 0) - n
-                    if c[b] <= 0: c.pop(b, None)
+                if cfg.genus_loo == "plant":
+                    for b, n in own.get(a, {}).items():
+                        c[b] = c.get(b, 0) - n
+                        if c[b] <= 0: c.pop(b, None)
                 top = sorted(c.items(), key=lambda kv: -kv[1])[:kg]
                 for j, (b, n) in enumerate(top):
                     g_idx[a, j] = b; g_cnt[a, j] = np.log1p(n)

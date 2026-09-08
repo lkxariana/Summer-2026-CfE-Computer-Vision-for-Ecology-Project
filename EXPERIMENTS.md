@@ -1611,3 +1611,24 @@ Pending: seeds 0/1 and the local-network run (the R-GCN alone is at 0.204 there)
 **R-GCN local networks, 3 seeds:** mean AUPR 0.204 / 0.205 / 0.203; warm-plant 0.206 / 0.207 / 0.206; cold 0.238 / 0.243 /
 0.241; pooled AUROC 0.643 on all; precision@L 0.231. Stable to the third decimal. **M2.12 universe, seed 0:** AUPR 0.186,
 AUROC 0.970, nR@10 0.383 (seed 42: 0.191 / 0.970 / 0.384) -- replicates.
+
+### THE SYSTEM (09-08): R-GCN retriever + identity-token re-ranker (M2.12) — **frozen; headline candidate for Dan**
+
+| | universe AUPR (3 seeds) | AUPR 1:3 / 1:1 | AUROC | nR@10 | nR@50 | unseen-genus | local mean AUPR | local warm / cold | precision@L |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| trees (boosted / routed) | 0.103 | 0.81 / 0.91 | 0.883 | 0.336 | 0.447 | 0.256 | 0.222 [0.205, 0.239] | 0.223 / 0.268 | 0.252 |
+| embedding retriever + re-ranker | 0.191 | 0.905 / 0.959 | 0.955 | 0.323 | 0.466 | 0.159 | 0.164 | -- | 0.159 |
+| **R-GCN retriever + re-ranker** | **0.188** (0.191 / 0.186 / 0.186) | **0.926 / 0.970** | **0.970** | **0.382** | **0.550** | **0.260** | **0.205** [0.191, 0.221] (seed 0; seeds 42/1 running) | R-GCN alone: 0.206 / 0.241 | 0.233 |
+
+- Leads every universe column: AUPR within noise of the embedding re-ranker (0.188 vs 0.191) and far above the trees;
+  AUROC, 1:3, 1:1, nR@10, nR@50 and unseen-genus recall all best by a clear margin.
+- Within sites it ties the trees (0.205 vs 0.222; each inside the other's CI) and beats every other neural model by 0.04;
+  precision@L 0.233 vs 0.252 and cold-plant AUPR ~0.24 vs 0.27 are the residual gaps.
+- Frozen config: retriever = `rgcn` with `{"field_dir": field_v2, "softmax_weight": 1.0, "bce_weight": 0.5,
+  "head_type": "elementwise", "use_degree_heads": false}` (2 relation-typed layers, d=128, genus+family and cell x month
+  nodes, leave-own-edges-out 0.3); re-ranker = identity tokens, 3 layers d=192, top-500, pooled BCE, 8 epochs.
+- Ablations for the paper: R-GCN alone (0.150 / 0.368 / local 0.204); embedding retriever alone (0.159 / 0.282 / 0.166);
+  re-ranker on the embedding retriever (0.191 / 0.323 / 0.164); re-ranker + field tokens (inert). Boosted / routed trees
+  move to a "hand-engineered features (our earlier system)" baseline group. Tables regenerated.
+- Pre-registered rule asked for ~0.22 locally; 0.205 is inside the trees' interval, not above it. Dan decides whether
+  "ties the trees within sites, leads everywhere else" is the headline, or whether to push the within-site gap first.

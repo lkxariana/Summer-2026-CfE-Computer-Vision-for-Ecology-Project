@@ -18,19 +18,14 @@
 | *Published architectures, re-implemented* | | |  |  |  |  |  |  |  |
 | Wide & Deep | Cheng et al. 2016 | 3 | 0.153 | 0.533 | 0.146 | 0.029 | 44.0 | — | — |
 | DCN-V2 (2 cross layers) | Wang et al. 2021, WWW | 3 | 0.166 | 0.576 | 0.167 | 0.036 | **42.5** | — | — |
-| *Ours* | | |  |  |  |  |  |  |  |
-| Boosted ranker: taxonomy + spatial + per-cell | this work | 1 | 0.222 [0.205,0.239] | 0.627 | 0.252 | **0.197** | 62.4 | 0.223 | **0.268** |
-| Genus-routed experts | this work | 1 | 0.222 [0.205,0.239] | **0.627** | **0.252** | 0.197 | 62.5 | 0.223 | 0.268 |
-| Embedding model (identity + field blocks) | this work | 3 | 0.166 | 0.570 | 0.168 | 0.029 | 42.5 | 0.165 | 0.257 |
-| Fusion re-ranker on the embedding model (identity tokens) | this work | 1 | 0.164 [0.151,0.177] | 0.572 | 0.159 | 0.009 | 45.6 | — | — |
-| Fusion re-ranker + joint field tokens | this work | 1 | 0.165 [0.152,0.178] | 0.574 | 0.160 | 0.008 | 45.5 | — | — |
-| Fusion re-ranker on the routed tree retriever | this work | 1 | 0.214 [0.199,0.230] | 0.613 | 0.240 | 0.135 | 87.1 | — | — |
-| Fusion re-ranker on the routed tree retriever (affine base) | this work | 1 | 0.219 [0.203,0.234] | 0.619 | 0.243 | 0.153 | 79.7 | — | — |
-| Fusion re-ranker + co-occurrence negatives | this work | 1 | 0.165 [0.151,0.178] | 0.572 | 0.159 | 0.015 | 44.8 | — | — |
-| Fusion re-ranker + genus-profile tokens (plant-level LOO) | this work | 1 | 0.165 [0.152,0.178] | 0.573 | 0.159 | 0.016 | 45.3 | — | — |
-| Fusion re-ranker + genus-profile tokens (pair-level mask) | this work | 1 | 0.165 [0.152,0.178] | 0.573 | 0.161 | 0.031 | 45.3 | — | — |
-| Fusion re-ranker + genus-profile tokens (own-count subtraction) | this work | 1 | 0.165 [0.152,0.178] | 0.573 | 0.159 | 0.027 | 45.2 | — | — |
-| Fusion re-ranker + genus tokens + co-occurrence negatives | this work | 1 | 0.165 [0.152,0.178] | 0.574 | 0.161 | 0.018 | 45.0 | — | — |
-| R-GCN over species, taxa, cell x month | this work | 1 | 0.204 [0.190,0.219] | 0.620 | 0.231 | 0.102 | 48.0 | 0.206 | 0.238 |
+| *Hand-engineered features (our earlier system)* | | |  |  |  |  |  |  |  |
+| Boosted ranker: taxonomy + spatial + per-cell features | this work, v2 | 1 | 0.222 [0.205,0.239] | 0.627 | 0.252 | **0.197** | 62.4 | 0.223 | **0.268** |
+| Genus-routed experts (booster / SVD by genus) | this work, v2 | 1 | 0.222 [0.205,0.239] | **0.627** | **0.252** | 0.197 | 62.5 | 0.223 | 0.268 |
+| *Ours: graph retriever + re-ranker* | | |  |  |  |  |  |  |  |
+| **System: R-GCN retriever + identity re-ranker** | this work | 1 | 0.205 [0.191,0.221] | 0.620 | 0.233 | 0.114 | 50.4 | — | — |
+|   ablation: R-GCN retriever alone | this work | 3 | 0.204 | 0.620 | 0.231 | 0.113 | 48.8 | 0.206 | 0.241 |
+|   ablation: re-ranker on the embedding-model retriever | this work | 1 | 0.164 [0.151,0.177] | 0.572 | 0.159 | 0.009 | 45.6 | — | — |
+|   ablation: embedding-model retriever alone | this work | 3 | 0.166 | 0.570 | 0.168 | 0.029 | 42.5 | 0.165 | 0.257 |
+|   ablation: re-ranker + joint field tokens | this work | 1 | 0.165 [0.152,0.178] | 0.574 | 0.160 | 0.008 | 45.5 | — | — |
 
 *Each network's plants x pollinators block is scored with every local-network pair removed from training. An absent pair among surveyed species is an observed non-interaction. precision@L and NODF use the top-L pairs, L = observed links; NODF closest to observed is bold. A plant is warm if any of its edges survives the removal, cold otherwise. Bootstrap CI over networks. Pooled metrics, lift and pollinator-degree correlation: appendix.*

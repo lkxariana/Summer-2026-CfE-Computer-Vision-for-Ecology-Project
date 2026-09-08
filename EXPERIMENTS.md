@@ -1686,3 +1686,12 @@ without edges; its pollinator side is pure identity. Field-based baselines win w
 field-independence measurement (84% of pollinator field variance unexplained by taxonomy/text). R3 (symmetric anchors) is the
 principled fix and is queued as `M3.7_rgcn_sym` (cold_plant + local + cold_poll, 3 seeds; smoke after 1 epoch on cold_poll:
 AUPR 0.0375, AUROC 0.87 -- a smoke, not a result). Adopting R3 into the frozen system is Dan's call (it changes the retriever).
+
+**R1 warm residual, seed 42:** universe AUPR 0.170 (M3.1 s42 0.150), AUROC 0.966, nR@10 0.374 (0.368), nR@50 0.542, unseen-genus
+0.223; local mean AUPR 0.179 [0.166, 0.193] (0.204), warm 0.182 (0.206), cold 0.237 (0.241), precision@L 0.191 (0.233), plant
+degree rho 0.03 (0.13). The universe gain arrives through the pollinator side (every pollinator is warm on this split and now
+carries a memory vector); within sites the same memory over-weights universe-level generalists and the model loses 0.025.
+Fails the adoption rule (local must rise). Second arm in a row where a universe gain and a within-site loss travel together.
+
+**R3 symmetric anchors, cold-plant seed 42:** universe AUPR 0.169, AUROC 0.966, nR@10 0.371, nR@50 0.543, unseen-genus 0.221 --
+also +0.019 over the frozen retriever on cold plants. Local networks and cold_poll pending.

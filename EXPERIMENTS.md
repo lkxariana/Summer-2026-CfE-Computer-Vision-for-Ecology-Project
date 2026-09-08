@@ -1275,3 +1275,51 @@ Chance PR-AUC = prevalence = 0.00132.
   0.90 / 0.96. Report all three with the prevalence stated.
 - Note for pooling: averaging score matrices across seeds is an ensemble and inflated PR-AUC to 0.182;
   the table uses per-seed metrics averaged.
+
+---
+
+## Connectivity ladder — S0 and S1 log (09-08)
+
+Plan: `docs/plan/connectivity-ladder-v1.md`. Harness: `eval/run_ladder.py` -> `runs/<model>/<cfg>/<split>/s<seed>/`
+(scores, Y, per-query, metrics, config, git). Report: `eval/report_ladder.py`.
+
+### S0 — shared encoders and caches
+
+- **Field v2 (text-conditioned head) — gate FAILS on pollinators, passes on plants.** `pipelines/sdm/train_field_v2.py`,
+  scheme tg_spatiotemporal, 20 epochs, 5% held-out rows + 5% held-out *species* (zero-shot).
+
+  | variant | held-out top-10 (observed species) | zero-shot AUROC plants | zero-shot AUROC pollinators |
+  |---|---:|---:|---:|
+  | residual, drop 0.3 | 0.194 | 0.866 | 0.759 |
+  | residual, drop 0.5 | 0.185 | 0.866 | 0.766 |
+  | text only (no residual) | -- | -- | min 0.745 |
+
+  Observed-species quality is unchanged from v1 (0.193), so the text head costs nothing there. The
+  pollinator zero-shot ceiling is ~0.77 whatever the head: BioCLIP-2 text places an unseen insect's
+  climate niche less well than a plant's. **DECISION FOR DAN (pre-registered gate 0.80):** (a) mixed
+  sources -- field v2 for observed taxa, production PPE/SDM surfaces for zero-shot taxa, with a
+  `field_source` stratum; (b) kingdom-specific -- field v2 for all plants (passes), production SDM for
+  zero-shot pollinators; (c) lower the gate to 0.75 and use field v2 everywhere (one encoder, one scale,
+  the stratum tracks the weaker zero-shot pollinators). I lean (c) for consistency with the shared-encoder
+  premise, but it changes a pre-registered gate. Token caches (joint / space / time) are built for field v2
+  (`scripts/build_field_tokens.py`), so M2 can run under any choice; (a)/(b) need a rebuild for zero-shot taxa.
+- **Splits (frozen):** cold_plant (existing), cold_poll (existing `pollinators_75_10_15.json`, 9,843/1,312/1,969),
+  cold_both (1,085 x 1,312 val, 947 tier-A positives), warm (75,777 / 10,103 / 15,155 edges among 8,123 x 9,843).
+  `scripts/build_splits_battery.py`, `data/splits/battery_summary.json`.
+- **Local networks:** `scripts/extract_local_networks.py` -> 91 (dataset, citation, locality) networks with >= 10 plants
+  and >= 10 pollinators, all with coordinates; 71 inside the CONUS grid. Robertson 1929 (Carlinville IL, 421 x 682,
+  9,772 pairs), LaManna (Montana), Clements 1923 (Colorado), 24 Guzman 2022 sites (BC). Within-network connectance
+  0.096. **Design note:** these edges are in GloBI and hence in training, so the clean evaluation trains with the
+  source held out (existing `--holdout-source` machinery) and scores its networks -- S4 work. Two historical
+  networks (1923, 1929) are a temporal caveat.
+
+### S1 — retriever loss sweep (in progress; bundles under runs/)
+
+- Harness reproduces the earlier reference bit-for-bit (seed 42: AUPR 0.1647, nR@10 0.2920).
+- **M1.1 (pooled BCE only, softmax weight 0) collapses: seed 42 AUPR 0.032, nR@10 0.108, AUROC 0.951.** The
+  within-plant softmax is what gives the ranking its head; without it the binary term with 383 negatives per
+  positive flattens the logits (the score-contrast failure already documented in `embednet.py`). This is a real
+  result for the two-task story: a *purely* pooled objective is not the fix, the pooled metric still needs the
+  within-plant term. **Queue re-ordered (plan §8.3):** phase A = loss sweep (softmax/bce weights), phase B =
+  degree heads / PU / bilinear on the phase-A winner, since M1.3-M1.5 as first queued would have inherited the
+  collapse.

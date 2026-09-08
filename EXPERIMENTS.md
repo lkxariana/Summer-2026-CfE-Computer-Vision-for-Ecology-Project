@@ -1632,3 +1632,8 @@ AUROC 0.970, nR@10 0.383 (seed 42: 0.191 / 0.970 / 0.384) -- replicates.
   move to a "hand-engineered features (our earlier system)" baseline group. Tables regenerated.
 - Pre-registered rule asked for ~0.22 locally; 0.205 is inside the trees' interval, not above it. Dan decides whether
   "ties the trees within sites, leads everywhere else" is the headline, or whether to push the within-site gap first.
+
+**Pre-registered probe (09-08): R-GCN with 3 message-passing layers** (M3.2), one universe seed + local networks s42.
+Hypothesis: a third hop reaches plant -> genus -> sibling plant -> pollinator paths the two-layer model only sees through
+the pooled genus node, and may move the within-site residuals (precision@L 0.232 vs trees 0.252; cold plants ~0.24 vs
+0.27). Adopt only if local mean AUPR rises by >= 0.01 without a universe AUPR loss > 0.01. M2.12 local seed 42: 0.203.

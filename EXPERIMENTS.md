@@ -1654,3 +1654,7 @@ The re-ranking stage is worth +0.038 AUPR on the R-GCN (p<0.001), the same size 
 re-ranked systems tie on AUPR (p=0.69) and the R-GCN-based one wins ranking by 0.059 nR@10 and the unseen-genus
 stratum by 0.10 (p<0.001). Against the trees: +0.089 AUPR, +0.049 nR@10, tie on unseen genera. Local networks (2 seeds
 so far): 0.205 / 0.203 vs trees 0.222 [0.205, 0.239].
+
+**System on local networks, 3 seeds:** 0.203 / 0.205 / 0.203 (mean 0.204), pooled AUROC 0.642-0.643, precision@L 0.230-0.233,
+NODF 50-53 (obs 36). Identical to the R-GCN alone (0.204): the re-ranker neither helps nor hurts within sites. Trees:
+0.222 [0.205, 0.239]. GPU 1 idle by design (no new arms beyond the pre-registered M3.2 probe without Dan).

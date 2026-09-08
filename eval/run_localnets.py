@@ -85,7 +85,7 @@ def main():
     grid = pd.read_parquet(ROOT / "data/features/grid.parquet")
     from scipy.spatial import cKDTree
     tree = cKDTree(np.c_[grid.centroid_lat, grid.centroid_lon])
-    cache = {}
+    cache = {}; blocks = {}; block_names = []
     for net, g in nets.groupby("network"):
         P = sorted(set(g.plant)); Q = sorted(set(g.pollinator))
         if len(P) < args.min_plants or len(Q) < args.min_polls:
@@ -117,6 +117,9 @@ def main():
                          nodf_obs=nodf(Y), nodf_pred=nodf(Yhat), link_precision_at_L=float((Yhat & Y).sum() / L),
                          in_grid=bool(d <= 0.5), year_min=g.year.min(), year_max=g.year.max()))
         pooled_y.append(y); pooled_s.append(s)
+        blocks[f"S{len(block_names)}"] = S.astype(np.float32); blocks[f"Y{len(block_names)}"] = Y
+        block_names.append(dict(network=str(net), plants=P, polls=Q, cell_lat=float(lat) if np.isfinite(lat) else None,
+                                cell_lon=float(lon) if np.isfinite(lon) else None))
     df = pd.DataFrame(rows)
     y_all, s_all = np.concatenate(pooled_y), np.concatenate(pooled_s)
     rng = np.random.default_rng(42)
@@ -137,6 +140,8 @@ def main():
     h = config_hash({"model": args.model, **cfg})
     out = RUNS / name / h / "localnet" / f"s{args.seed}"; out.mkdir(parents=True, exist_ok=True)
     df.to_csv(out / "per_network.csv", index=False)
+    np.savez_compressed(out / "blocks.npz", **blocks)                       # per-network score and label blocks for post-hoc analyses
+    json.dump(block_names, open(out / "blocks.json", "w"))
     json.dump(met, open(out / "metrics.json", "w"), indent=1)
     json.dump({"model": name, "config": {"model": args.model, **cfg}, "config_hash": h, "split": "localnet", "seed": args.seed,
                "git": git_commit(), "n_queries": len(df), "n_candidates": int(y_all.size)}, open(out / "config.json", "w"), indent=1)

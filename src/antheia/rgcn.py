@@ -52,6 +52,8 @@ class RGCNConfig:
     res_drop: float = 0.5               #     zeroed for anchors and a random `res_drop` share of species each epoch (DropoutNet)
     genus_edges: bool = False           # R2: direct genus <-> partner relations weighted by log1p(training count), leave-own-edges-out
     aggregation: str = "mean"           # "mean" (R-GCN) | "attention" (per-relation GAT-style attention, SimpleHGN-like control)
+    pair_stat: str = "none"             # R4: explicit co-presence statistic of the pair into the head: joint | space | time | scalar
+    degree_encoding: bool = False       # R5: Graphormer-style centrality encoding -- log(1 + in-degree per relation) added to node inputs
     head_type: str = "concat_bilinear"
     bilinear_rank: int = 64
     use_degree_heads: bool = True
@@ -216,10 +218,16 @@ class RGCNRanker:
                 rels["genus_q_partner"] = (u % n_p, off_t + u // n_p, np.log1p(cnt))              # plant <- pollinator genus
             else:
                 rels["genus_p_partner"] = rels["genus_q_partner"] = empty
+        degs = []
         for name in self.rel_names:
             r, c, w = rels[name]
             adjs.append(norm_adj(r, c, w, N, dev))
             adjs.append(norm_adj(c, r, w, N, dev))                            # reverse
+            if self.cfg.degree_encoding:
+                w = np.asarray(w, np.float64)
+                degs.append(np.bincount(r, weights=w, minlength=N)); degs.append(np.bincount(c, weights=w, minlength=N))
+        if self.cfg.degree_encoding:
+            self._deg = torch.from_numpy(np.log1p(np.stack(degs, 1)).astype(np.float32)).to(dev)     # [N, n_rel]
         return adjs
 
     def _node_inputs(self):
@@ -228,6 +236,8 @@ class RGCNRanker:
         x[:n_p] = self.proj_text(self.text_p); x[n_p:n_p + n_q] = self.proj_text(self.text_q)
         if self.cfg.warm_residual:
             x[:n_p + n_q] = x[:n_p + n_q] + self.res_emb.weight * self._res_mask[:, None]
+        if self.cfg.degree_encoding:
+            x = x + self.proj_deg(self._deg)
         if self.n_t:
             x[self.off[2]:self.off[2] + self.n_t] = self.tax_emb.weight
         if self.cell_feat is not None:
@@ -252,8 +262,13 @@ class RGCNRanker:
         self.tax_emb = nn.Embedding(max(self.n_t, 1), cfg.d).to(dev)
         self.proj_cell = nn.Linear(self.cell_feat.shape[1] if self.cell_feat is not None else 1, cfg.d).to(dev)
         self.layers = nn.ModuleList([RelLayer(cfg.d, self.n_rel, cfg.bases, cfg.dropout, cfg.aggregation) for _ in range(cfg.layers)]).to(dev)
-        self.head = PairHead(cfg.d, 2 * cfg.d, cfg.dropout, head_type=cfg.head_type, bilinear_rank=cfg.bilinear_rank).to(dev)
+        self.head = PairHead(cfg.d, 2 * cfg.d, cfg.dropout, head_type=cfg.head_type, bilinear_rank=cfg.bilinear_rank,
+                             n_extra=1 if cfg.pair_stat != "none" else 0).to(dev)
         mods = [self.proj_text, self.tax_emb, self.proj_cell, self.layers, self.head]
+        if cfg.degree_encoding:
+            self.proj_deg = nn.Linear(self.n_rel, cfg.d).to(dev); nn.init.normal_(self.proj_deg.weight, std=0.01); mods.append(self.proj_deg)
+        if cfg.pair_stat != "none":
+            self._load_pair_stat(store)
         n_sp = len(store.plants) + len(store.polls)
         if cfg.warm_residual:
             self.res_emb = nn.Embedding(n_sp, cfg.d).to(dev); nn.init.zeros_(self.res_emb.weight); mods.append(self.res_emb)
@@ -296,7 +311,10 @@ class RGCNRanker:
                 cand = np.concatenate([bq[sub], rng.integers(0, n_q, n_uni)]); Cn = len(cand)
                 h = self._encode(adjs)                                            # full graph, [N, d]
                 hp = h[torch.from_numpy(bp).long().to(dev)]; hq = h[off_q + torch.from_numpy(cand).long().to(dev)]
-                logits = self.head(hp, hq)
+                extra = None
+                if cfg.pair_stat != "none":
+                    extra = self._pair_stat(torch.from_numpy(bp).long().to(dev), torch.from_numpy(cand).long().to(dev))
+                logits = self.head(hp, hq, extra=extra)
                 if cfg.use_degree_heads:
                     logits = logits + self.deg_p(hp) + self.deg_q(hq).T
                 where = {}
@@ -331,10 +349,41 @@ class RGCNRanker:
             self.dq_all = self.deg_q(self.hq_all).squeeze(-1) if cfg.use_degree_heads else None
         return self
 
+    # ---- explicit pair statistic (R4) ---------------------------------------------------------------
+    def _load_pair_stat(self, store):
+        """Expected co-presence of the pair from the production surfaces, in the four marginalisation forms of
+        eval/run_marginalisation_surfaces.py; stored as factor matrices so a B x C block is one matmul."""
+        F_ = ROOT / "data/features"; k = self.cfg.pair_stat; dev = self.dev
+        if k == "joint":
+            A, Bm, scale = np.asarray(store.plant_proj, np.float32), np.asarray(store.poll_proj, np.float32), 1.0
+        elif k == "space":
+            A, Bm, scale = np.load(F_ / "plant_surf_space.npy"), np.load(F_ / "poll_surf_space.npy"), 1.0 / 52
+        elif k == "time":
+            A, Bm, scale = np.load(F_ / "plant_surf_time.npy"), np.load(F_ / "poll_surf_time.npy"), 1.0 / 3335
+        elif k == "scalar":
+            A, Bm, scale = np.load(F_ / "plant_surf_mass.npy")[:, None], np.load(F_ / "poll_surf_mass.npy")[:, None], 1.0 / (3335 * 52)
+        else:
+            raise ValueError(k)
+        self.ps_p = torch.from_numpy(np.ascontiguousarray(A, dtype=np.float32)).to(dev)
+        self.ps_q = torch.from_numpy(np.ascontiguousarray(Bm, dtype=np.float32)).to(dev)
+        self.ps_scale = scale
+        rng = np.random.default_rng(0)
+        with torch.no_grad():
+            sample = self._pair_stat(torch.from_numpy(rng.choice(A.shape[0], 512, replace=False)).to(dev),
+                                     torch.from_numpy(rng.choice(Bm.shape[0], 2048, replace=False)).to(dev), raw=True)
+            self.ps_mu, self.ps_sd = float(sample.mean()), float(sample.std().clamp_min(1e-6))
+
+    def _pair_stat(self, pidx, qidx, raw=False):
+        v = torch.log1p(torch.clamp(self.ps_p[pidx] @ self.ps_q[qidx].T * self.ps_scale, min=0))   # [B, C]
+        return v if raw else ((v - self.ps_mu) / self.ps_sd).unsqueeze(-1)
+
     @torch.no_grad()
     def score_plant(self, p):
         hp = self.h_all[p:p + 1]
-        z = self.head(hp, self.hq_all).squeeze(0)
+        extra = None
+        if self.cfg.pair_stat != "none":
+            extra = self._pair_stat(torch.tensor([p], device=self.dev), torch.arange(self.hq_all.shape[0], device=self.dev))
+        z = self.head(hp, self.hq_all, extra=extra).squeeze(0)
         if self.cfg.use_degree_heads:
             z = z + self.deg_p(hp).squeeze() + self.dq_all
         return z.float().cpu().numpy()

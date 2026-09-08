@@ -1478,3 +1478,23 @@ Nothing clears the gate; the concat+bilinear head is significantly worse than th
 (the SBERT-style inductive bias earns its place), and the content-based degree heads buy nothing for pooled AUPR.
 **retriever_v1 := M1.0_reference** (`configs`: blocks text+surface+pca+scale, softmax 1.0, BCE 0.5, elementwise
 head, 25 epochs). The stage-2 re-ranker (S2) sits on this retriever.
+
+### The neural within-site deficit is a warm-plant deficit (09-08)
+
+Embedding model on local networks, warm/cold split (seed 42): **warm plants 0.165, cold plants 0.257** (cold
+connectance 0.077). Against the trees' 0.223 / 0.268 and popularity's 0.194 / 0.205:
+
+| | warm plants (own edges survive) | cold plants (no edges) |
+|---|---:|---:|
+| boosted ranker | 0.223 | 0.268 |
+| embedding model | 0.165 | 0.257 |
+| popularity | 0.194 | 0.205 |
+
+On cold plants the neural model is within 0.01 of the trees and well above popularity; its whole deficit is on
+plants whose other edges are in training. The trees' genus x pollinator affinity table includes a warm plant's own
+surviving edges, so within a site it effectively knows the plant's other partners; the embedding model, built for
+cold start, has no channel for that information. Consequences: (i) the earlier "neural models are weak within
+sites" reading is too strong -- they are weak at *using warm information*; (ii) the fixes are the ones already
+queued: genus-profile tokens in the re-ranker (M2.10; the lookup as a set), the R-GCN (message passing over the
+plant's own edges), and a DropoutNet-style warm residual; (iii) M2.8 (mis-scaled base) is worse than the trees on
+both tables (universe 0.114, local 0.214) and is superseded by M2.8b.

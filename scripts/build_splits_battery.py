@@ -1,7 +1,7 @@
 """The four evaluation splits of the connectivity ladder (plan §1.4), frozen to data/splits/.
 
   cold_plant   the existing plants_75_10_15.json (S2): train plants x all pollinators -> val/test plants
-  cold_poll    (S3) a degree-stratified 75/10/15 split of pollinators; evaluated pairs are
+  cold_poll    (S3) the frozen degree-stratified pollinators_75_10_15.json; evaluated pairs are
                train plants x val (test) pollinators, trained on all plants x train pollinators
   cold_both    (S4) plant split x pollinator split: trained on train x train, evaluated on val x val
   warm         (S1) an edge-level 85/15 hold-out among train plants x train pollinators (tier A+B
@@ -44,10 +44,9 @@ def main():
     plants = {k: v for k, v in plants.items() if isinstance(v, list)}
     e = e[e.pollinator.isin(set(polls_all)) & e.plant.isin(set(sum(plants.values(), [])))].reset_index(drop=True)
 
-    # pollinator split, degree-stratified on the full network (pollinators with no edges go to train)
-    deg = e.groupby("pollinator").size().reindex(polls_all).fillna(0)
-    polls = stratified_split(polls_all, deg.to_numpy(), rng)
-    json.dump(polls, open(out / "polls_75_10_15.json", "w"))
+    # pollinator split: the frozen one already in the repo (seed 42, degree-stratified, 5 strata)
+    polls = json.load(open(out / "pollinators_75_10_15.json"))
+    polls = {k: v for k, v in polls.items() if isinstance(v, list)}
 
     # warm: edge-level hold-out among train plants x train pollinators
     tp, tq = set(plants["train"]), set(polls["train"])

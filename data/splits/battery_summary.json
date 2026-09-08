@@ -1,0 +1,32 @@
+{
+ "cold_plant": {
+  "stratum_edges": 5,
+  "train": 8123,
+  "val": 1085,
+  "test": 1624,
+  "no_interactions": 199
+ },
+ "cold_poll": {
+  "stratum_edges": 5,
+  "train": 9843,
+  "val": 1312,
+  "test": 1969,
+  "no_interactions": 0
+ },
+ "cold_both": {
+  "train": "8123 x 9843",
+  "val": "1085 x 1312",
+  "test": "1624 x 1969"
+ },
+ "warm": {
+  "species": "8123 x 9843",
+  "train_pairs": 75777,
+  "val_pairs": 10103,
+  "test_pairs": 15155
+ },
+ "val_tierA_positives": {
+  "cold_plant": 11489,
+  "cold_poll": 5829,
+  "cold_both": 947
+ }
+}

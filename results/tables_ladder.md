@@ -23,12 +23,15 @@
 | TabICL (in-context tabular) | Qu et al. 2025 | 1 | 0.110 | 0.826 | 0.915 | 0.897 | 0.313 | 0.437 | 0.168 |
 | *Ours* | | |  |  |  |  |  |  |  |
 | Boosted ranker: taxonomy + spatial + per-cell | this work | 1 | 0.102 | 0.806 | 0.904 | 0.881 | 0.320 | 0.426 | 0.122 |
-| Genus-routed experts | this work | 1 | 0.103 | 0.810 | 0.906 | 0.883 | **0.336** | 0.447 | 0.256 |
+| Genus-routed experts | this work | 1 | 0.103 | 0.810 | 0.906 | 0.883 | 0.336 | 0.447 | 0.256 |
 | Embedding model (identity + field blocks) | this work | 3 | 0.159 | 0.899 | 0.957 | 0.954 | 0.282 | 0.416 | 0.119 |
 | Fusion re-ranker on the embedding model (identity tokens) | this work | 3 | 0.191 | 0.905 | 0.959 | 0.955 | 0.323 | 0.466 | 0.159 |
 | Fusion re-ranker + joint field tokens | this work | 3 | 0.191 | 0.905 | 0.959 | 0.955 | 0.321 | 0.472 | 0.155 |
 | Fusion re-ranker on the routed tree retriever | this work | 3 | 0.114 | 0.814 | 0.907 | 0.887 | 0.289 | 0.443 | 0.234 |
 | Fusion re-ranker on the routed tree retriever (affine base) | this work | 3 | 0.114 | 0.801 | 0.901 | 0.881 | 0.297 | 0.453 | 0.245 |
-| Fusion re-ranker + co-occurrence negatives | this work | 2 (incomplete) | 0.193 | **0.906** | 0.960 | 0.956 | 0.326 | **0.473** | 0.172 |
+| Fusion re-ranker + co-occurrence negatives | this work | 3 | 0.192 | 0.905 | 0.959 | 0.955 | 0.323 | 0.465 | 0.158 |
+| Fusion re-ranker + genus-profile tokens (plant-level LOO) | this work | 3 | 0.191 | 0.905 | 0.959 | 0.955 | 0.322 | 0.466 | 0.163 |
+| Fusion re-ranker + genus tokens + co-occurrence negatives | this work | 3 | 0.154 | 0.895 | 0.955 | 0.953 | 0.318 | 0.458 | 0.127 |
+| R-GCN over species, taxa, cell x month | this work | 3 | 0.150 | **0.908** | **0.962** | **0.962** | **0.368** | **0.532** | 0.244 |
 
 *AUPR at network prevalence is primary; AUPR 1:3 and 1:1 re-weight negatives from the full ranking (the population version of sampled-negative evaluation). Deterministic baselines are single runs; learned models are averaged over seeds {42, 0, 1}. Bold = column best.*

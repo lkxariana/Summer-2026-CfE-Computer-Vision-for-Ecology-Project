@@ -1569,3 +1569,23 @@ token entirely during training removes congener evidence too, so the model can n
 profile -> partner", the trees' signal. **M2.10c** subtracts only the plant's own contribution to the candidate's count
 (mask only if nothing from congeners remains). This matches the information the trees' affinity table has for a held-out
 pair. Local-network run first; M2.10b's remaining universe seeds were stopped as uninformative.
+
+### M3.1 R-GCN, complete (09-08) — **the neural model that approaches the trees within sites while beating them everywhere else**
+
+Universe (3 seeds): AUPR 0.150, AUROC 0.962, nR@10 0.368, nR@50 0.532, unseen-genus nR@10 0.244.
+Local networks (seed 42): **mean AUPR 0.204 [0.190, 0.219]**, pooled AUROC 0.643 (best), precision@L 0.231, NODF 48 (obs 36),
+warm-plant AUPR **0.206**, cold-plant 0.238.
+
+| | universe AUPR | nR@10 | local mean AUPR | local warm / cold | NODF pred |
+|---|---:|---:|---:|---:|---:|
+| boosted / routed trees | 0.103 | 0.336 | 0.222 | 0.223 / 0.268 | 62 |
+| embedding model | 0.159 | 0.282 | 0.165 | 0.165 / 0.257 | 43 |
+| identity re-ranker on embedding model | 0.191 | 0.323 | 0.164 | -- | 46 |
+| **R-GCN** | 0.150 | **0.368** | **0.204** | **0.206** / 0.238 | 48 |
+
+Message passing over the plant's own surviving edges (through genus and cell x month nodes) is the warm-information
+channel the pair models lacked: warm-plant AUPR rises from 0.165 to 0.206 (trees 0.223), and the local mean lands
+inside the trees' CI. It is the best ranker on the universe by a clear margin and third on universe AUPR. **Headline
+candidate (for Dan): the R-GCN, with the identity re-ranker on top (M2.12, running) as the full system** -- if the
+re-ranker's +0.03 AUPR transfers, the system leads or ties every column except within-site precision@L.
+Remaining gap: precision@L 0.231 vs 0.252 and cold-plant 0.238 vs 0.268 within sites.

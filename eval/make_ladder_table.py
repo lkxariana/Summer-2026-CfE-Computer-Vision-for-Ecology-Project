@@ -25,8 +25,8 @@ GROUPS = [
         ("baseline_phenology_abundance", "Phenology x abundance", "Vizentin-Bugoni et al. 2014, Proc R Soc B"),
         ("baseline_congeneric", "Congeneric transfer", "cf. Strydom et al. 2022, MEE"),
         ("baseline_svd_taxonomic", "Truncated SVD + taxonomic imputation", "Strydom et al. 2022, MEE"),
-        ("baseline_antheia_spatial", "ANTHEIA v1 spatial (PCA-15 + N, logistic)", "Li, Cher & Jacobs 2026"),
-        ("baseline_antheia_scalar", "ANTHEIA v1 scalar (+ Delta)", "Li, Cher & Jacobs 2026"),
+        ("baseline_antheia_spatial", "Co-occurrence PCA-15 + N (roadmap proof-of-concept; ANTHEIA v1)", "Strydom et al. 2021, Phil Trans R Soc B; Li, Cher & Jacobs 2026"),
+        ("baseline_antheia_scalar", "Co-occurrence PCA-15 + N + Delta (ANTHEIA v1 scalar)", "Li, Cher & Jacobs 2026"),
         ("baseline_pair_gbm", "Gradient boosting on pair features", "Pichler et al. 2020, MEE"),
     ]),
     ("Published architectures, re-implemented", [

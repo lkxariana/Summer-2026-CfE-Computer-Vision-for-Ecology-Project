@@ -43,6 +43,11 @@ Consensus statement of concepts, methods and pitfalls for plant–pollinator int
 
 ---
 
+
+**Concurrent work (found 2026-09-08).** *Local interaction networks reconstructed from global biodiversity data improve pollinator restoration decision making* (NECTAR), bioRxiv 2026-04-01, https://www.biorxiv.org/content/10.64898/2026.03.30.715389v1 — infers flower visitation from spatial, temporal and phylogenetic **overlap** (species distributions, phenometrics, phylogeny) into a California metaweb of 1,247,081 interactions over 5,131 pollinators x 5,178 plants, used for planting recommendations. Directly relevant: an overlap-based (marginal) inference rule at the scale we work at; our marginalisation result speaks to it. Evaluation details still to be read (site rate-limited).
+
+**Precedent for the ANTHEIA v1 spatial baseline.** The roadmap (Strydom et al. 2021, above) contains the proof-of-concept our v1 model follows: a species-pool co-occurrence matrix reduced by probabilistic PCA to 15 components per species, pairs of feature vectors fed to a four-layer feed-forward network, evaluated by ROC and precision-recall curves. ANTHEIA v1 replaced the network with logistic regression and added N; Table 2 cites both.
+
 ## 2. Learned species-range and location representations (alternatives to PCA of occupancy grids)
 
 **SINR — Cole, Van Horn, Lange, Shepard, Leary, Perona, Loarie & Mac Aodha 2023.** *Spatial implicit neural representations for global-scale species mapping.* ICML 2023 (PMLR v202). https://arxiv.org/abs/2306.02564

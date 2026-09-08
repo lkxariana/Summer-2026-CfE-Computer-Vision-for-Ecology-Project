@@ -65,6 +65,8 @@ class FusionConfig:
     rand_per_plant: int = 8             # uniform negatives
     cooc_per_plant: int = 0             # negatives among pollinators that co-occur with the plant (N > 0): the within-site regime
     genus_tokens: int = 0               # k_g tokens: pollinators recorded with the plant's genus (leave-one-out), the trees' lookup as a set
+    base_affine: bool = False           # logit = a * s_retriever + b + delta, a,b learned (identity at init); needed when the
+                                        # retriever's scores are not logits (trees / quantile-mapped scores)
     grad_clip: float = 1.0
     seed: int = 42
     device: str = "cuda"
@@ -88,6 +90,7 @@ class Fusion(nn.Module):
         self.head = nn.Sequential(nn.Linear(d, d), nn.GELU(), nn.Dropout(cfg.dropout), nn.Linear(d, 1))
         nn.init.zeros_(self.head[-1].weight); nn.init.zeros_(self.head[-1].bias)   # start as the retriever
         self.pres_scale = nn.Parameter(torch.tensor(1.0))
+        self.base_a = nn.Parameter(torch.tensor(1.0)); self.base_b = nn.Parameter(torch.tensor(0.0))
 
     def forward(self, id_p, fld_p, lp_p, id_q, fld_q, lp_q, g_txt=None, g_cnt=None, g_pad=None):
         """id_*: [B, 768]; fld_*: [B, k, 256]; lp_*: [B, k] log presence; optional genus-profile tokens
@@ -262,7 +265,10 @@ class FusionReranker:
                 b = perm[s:s + cfg.batch_pairs]
                 tpi = torch.from_numpy(P[b]).long().to(dev); tqi = torch.from_numpy(Q[b]).long().to(dev)
                 delta = self.net(*self._batch(tpi, tqi))
-                logit = torch.from_numpy(Sr[b]).float().to(dev) + delta
+                base = torch.from_numpy(Sr[b]).float().to(dev)
+                if cfg.base_affine:
+                    base = self.net.base_a * base + self.net.base_b
+                logit = base + delta
                 loss = F.binary_cross_entropy_with_logits(logit, torch.from_numpy(Yl[b]).float().to(dev), pos_weight=pos_w)
                 opt.zero_grad(set_to_none=True); loss.backward()
                 nn.utils.clip_grad_norm_(self.net.parameters(), cfg.grad_clip); opt.step(); sched.step()
@@ -280,5 +286,8 @@ class FusionReranker:
         tpi = torch.full((K,), int(plant_idx), dtype=torch.long, device=self.dev)
         tqi = torch.from_numpy(np.asarray(ret_cands_row)).long().to(self.dev)
         delta = torch.cat([self.net(*self._batch(tpi[i:i + 512], tqi[i:i + 512])) for i in range(0, K, 512)]).cpu().numpy()
-        new = np.asarray(ret_scores_row, np.float32) + delta
+        base = np.asarray(ret_scores_row, np.float32)
+        if self.cfg.base_affine:
+            base = float(self.net.base_a) * base + float(self.net.base_b)
+        new = base + delta
         return new, tqi.cpu().numpy()

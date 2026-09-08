@@ -9,7 +9,7 @@
 | *Ecological baselines* | | |  |  |  |  |  |  |  |
 | Phenology x abundance | Vizentin-Bugoni et al. 2014, Proc R Soc B | 1 | 0.024 | 0.692 | 0.844 | 0.822 | 0.158 | 0.237 | 0.107 |
 | Congeneric transfer | cf. Strydom et al. 2022, MEE | 1 | 0.057 | 0.812 | 0.904 | 0.876 | 0.293 | 0.444 | 0.213 |
-| Truncated SVD + taxonomic imputation | Strydom et al. 2022, MEE | 1 | 0.095 | 0.850 | 0.924 | 0.895 | 0.291 | **0.449** | 0.256 |
+| Truncated SVD + taxonomic imputation | Strydom et al. 2022, MEE | 1 | 0.095 | 0.850 | 0.924 | 0.895 | 0.291 | 0.449 | 0.256 |
 | Co-occurrence PCA-15 + N (roadmap proof-of-concept; ANTHEIA v1) | Strydom et al. 2021, Phil Trans R Soc B; Li, Cher & Jacobs 2026 | 1 | 0.048 | 0.741 | 0.868 | 0.839 | 0.117 | 0.256 | 0.087 |
 | Co-occurrence PCA-15 + N + Delta (ANTHEIA v1 scalar) | Li, Cher & Jacobs 2026 | 1 | 0.052 | 0.751 | 0.875 | 0.849 | 0.118 | 0.260 | 0.089 |
 | Gradient boosting on pair features | Pichler et al. 2020, MEE | 1 | 0.079 | 0.857 | 0.936 | 0.930 | 0.290 | 0.442 | **0.276** |
@@ -25,5 +25,10 @@
 | Boosted ranker: taxonomy + spatial + per-cell | this work | 1 | 0.102 | 0.806 | 0.904 | 0.881 | 0.320 | 0.426 | 0.122 |
 | Genus-routed experts | this work | 1 | 0.103 | 0.810 | 0.906 | 0.883 | **0.336** | 0.447 | 0.256 |
 | Embedding model (identity + field blocks) | this work | 3 | 0.159 | 0.899 | 0.957 | 0.954 | 0.282 | 0.416 | 0.119 |
+| Fusion re-ranker on the embedding model (identity tokens) | this work | 3 | 0.191 | 0.905 | 0.959 | 0.955 | 0.323 | 0.466 | 0.159 |
+| Fusion re-ranker + joint field tokens | this work | 3 | 0.191 | 0.905 | 0.959 | 0.955 | 0.321 | 0.472 | 0.155 |
+| Fusion re-ranker on the routed tree retriever | this work | 3 | 0.114 | 0.814 | 0.907 | 0.887 | 0.289 | 0.443 | 0.234 |
+| Fusion re-ranker on the routed tree retriever (affine base) | this work | 3 | 0.114 | 0.801 | 0.901 | 0.881 | 0.297 | 0.453 | 0.245 |
+| Fusion re-ranker + co-occurrence negatives | this work | 2 (incomplete) | 0.193 | **0.906** | 0.960 | 0.956 | 0.326 | **0.473** | 0.172 |
 
 *AUPR at network prevalence is primary; AUPR 1:3 and 1:1 re-weight negatives from the full ranking (the population version of sampled-negative evaluation). Deterministic baselines are single runs; learned models are averaged over seeds {42, 0, 1}. Bold = column best.*

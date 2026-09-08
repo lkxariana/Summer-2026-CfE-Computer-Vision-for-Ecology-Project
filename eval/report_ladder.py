@@ -64,7 +64,7 @@ def main():
     df = df[df.split == args.split]
     if args.models:
         df = df[df.model.isin(args.models)]
-    pooled = seed_pooled(df)
+    pooled = seed_pooled(df, group=("model", "split"))
     cols = ["model", "n_seeds", "complete", "aupr", "aupr_at_0.25", "aupr_at_0.5", "auroc", "nrecall_at_10", "nrecall_at_50", "map",
             "nrecall_at_10__genus_unseen", "aupr__genus_unseen"]
     cols = [c for c in cols if c in pooled.columns]

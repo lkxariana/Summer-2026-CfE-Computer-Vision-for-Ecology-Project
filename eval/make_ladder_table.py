@@ -45,6 +45,10 @@ GROUPS = [
         ("M2.1_fusion_identity", "Fusion re-ranker on the embedding model (identity tokens)", "this work"),
         ("M2.2_fusion_joint", "Fusion re-ranker + joint field tokens", "this work"),
         ("M2.8_fusion_routed", "Fusion re-ranker on the routed tree retriever", "this work"),
+        ("M2.8b_fusion_routed_affine", "Fusion re-ranker on the routed tree retriever (affine base)", "this work"),
+        ("M2.9_fusion_coocneg", "Fusion re-ranker + co-occurrence negatives", "this work"),
+        ("M2.10_fusion_genus", "Fusion re-ranker + genus-profile tokens", "this work"),
+        ("M2.11_fusion_genus_coocneg", "Fusion re-ranker + genus tokens + co-occurrence negatives", "this work"),
         ("M3.1_rgcn", "R-GCN over species, taxa, cell x month", "this work"),
     ]),
 ]
@@ -58,7 +62,7 @@ def main():
     ap.add_argument("--out", default=ROOT / "results/tables_ladder.md")
     args = ap.parse_args()
     df = load_bundles(); df = df[df["split"] == args.split]
-    pooled = seed_pooled(df).set_index("model")
+    pooled = seed_pooled(df, group=("model", "split")).set_index("model")
     prev = df["prevalence"].iloc[0] if len(df) else float("nan")
     lines = [f"## Table 2 — cold-plant validation ({args.split}), {int(df['n_queries'].iloc[0])} plants x "
              f"{int(df['n_candidates'].iloc[0])} candidates, chance AUPR {prev:.5f}", "",

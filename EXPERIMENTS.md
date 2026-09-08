@@ -1498,3 +1498,29 @@ sites" reading is too strong -- they are weak at *using warm information*; (ii) 
 queued: genus-profile tokens in the re-ranker (M2.10; the lookup as a set), the R-GCN (message passing over the
 plant's own edges), and a DropoutNet-style warm residual; (iii) M2.8 (mis-scaled base) is worse than the trees on
 both tables (universe 0.114, local 0.214) and is superseded by M2.8b.
+
+### S2 verdict (09-08, 3 seeds) — **the re-ranker is the gain; the field tokens are inert; the tree-retriever hybrid is weak**
+
+`eval/report_ladder.py --ref M2.1_fusion_identity`, paired plant bootstrap (300), seed-averaged:
+
+| arm | AUPR | AUROC | nR@10 | nR@50 | Delta AUPR vs identity-only | p |
+|---|---:|---:|---:|---:|---:|---:|
+| retriever_v1 alone (embedding model) | 0.159 | 0.954 | 0.282 | 0.416 | -0.032 | <0.001 |
+| **M2.1 identity-only re-ranker** | **0.191** | 0.955 | 0.323 | 0.466 | -- | -- |
+| M2.2 + joint field tokens (k=128) | 0.191 | 0.955 | 0.321 | 0.472 | -0.0005 | 0.49 |
+| M2.7 space-marginal tokens | 0.194 | 0.955 | 0.324 | 0.472 | +0.003 | <0.001 |
+| M2.7 time-marginal tokens | 0.194 | 0.955 | 0.321 | 0.468 | +0.003 | -- |
+| M2.8 / M2.8b re-ranker on the routed trees (raw / affine base) | 0.114 / 0.114 | 0.887 / 0.881 | 0.289 / 0.297 | 0.443 / 0.453 | -- | -- |
+
+- **Re-ranking the retriever's own top-500 with a pooled objective is worth +0.032 AUPR and +0.041 nR@10** over the
+  retriever (p < 0.001), replicated on all three seeds (+0.032, +0.035, +0.030). It also lifts nR@50 by 0.05 and the
+  unseen-genus stratum by 0.04. This is now the best universe-metric result of the project and the paper's system:
+  stage 1 embedding-model retriever, stage 2 identity-token re-ranker.
+- **Field tokens are inert inside the re-ranker.** Joint tokens -0.0005 (p = 0.49); the space and time *marginal*
+  controls are +0.003 -- a difference smaller than any decision threshold, and in the wrong direction for the
+  "joint beats marginal" mechanism. In the fusion model the per-cell field contributes nothing measurable on the
+  universe metric; the marginalisation ladder remains an analysis result about the inputs, not the model's engine.
+- **The tree-retriever hybrid does not work.** Re-ranking the routed trees' top-500 (recall@500 0.603) gives 0.114 AUPR
+  -- above the trees alone (0.103) but far below the neural system -- and *lowers* the trees' nR@10 (0.336 -> 0.29).
+  The learned affine base did not change this, so it is not a score-scale artefact. Version B (hybrid) is out unless
+  its local-network run (pending) is exceptional.

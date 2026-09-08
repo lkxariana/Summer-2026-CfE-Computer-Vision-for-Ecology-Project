@@ -237,3 +237,68 @@ that cost 0.07 in the matrix-factorisation attempt.)
 
 **Timeline.** Step 0: 3 days. Model 1: 2 days. Model 2: 6 days. Model 3: 5 days. Cross-cutting and
 tables: 3 days. About three weeks, with the model 1 result available on day 5.
+
+## 8. Experiment structure — every run is a complete candidate
+
+The rule: **no run exists that could not be the paper's final model.** No smoke epochs, no partial
+universes, no imputed-noise inputs, no single seeds behind a decision. Ablations are not lesser runs;
+they are complete models whose config differs from a sibling by one flag. This is what makes the
+ladder a controlled comparison rather than a sequence of demos.
+
+### 8.1 One harness, one artifact contract
+Every run is `(model, config, split, seed)` and writes one bundle:
+
+```
+runs/<model>/<config_hash>/<split>/s<seed>/
+  config.json        fully resolved config, git commit, environment, wall time
+  scores.npy         [val plants x candidates] float16 -- always saved
+  candidates.npy     retriever top-K per plant (retriever models only; consumed by re-rankers)
+  metrics.json       AUPR@prev, AUPR@1:3, AUPR@1:1, AUROC, nR@10, nR@50, MAP; strata: genus
+                     seen/unseen, field_source, degree bins
+  per_plant.parquet  per-plant nrecall, AP, rank of first hit
+```
+Tables, bootstraps and figures are generated **only** from bundles (`eval/make_tables.py` extended;
+`eval/pool_prauc.py` reads bundles). A number that is not in a bundle is not reported. Baselines
+(popularity, N, congeneric, SVD+taxonomic, boosted ranker, routed, current embedding model) are
+re-run through the same harness so Table 1 has identical metric code for every row.
+
+### 8.2 Full protocol on every arm
+Three seeds {42, 0, 1}, the full 13,124-candidate set, validation plants, all metrics and strata,
+scores saved -- for **every** arm including sweeps. Seeds are averaged per metric (never scores);
+contrasts use the paired plant bootstrap within seed. Cost is affordable: model-1 arms are ~5 min,
+model-2 and model-3 arms ~30-40 min, so the whole ladder is ~30 GPU-hours on two 4090s.
+
+### 8.3 Pre-registered stages with gates
+Each stage names its arms, its primary contrast, and its decision rule before it runs. The winning
+arm is **frozen as a named model** (`configs/models/<name>.yaml`, git tag) and becomes the fixed input
+to the next stage. Sweeps run only after the stage's main contrast is decided, so they refine a
+winner rather than search for one.
+
+| stage | arms (all full-protocol) | primary contrast | gate to adopt | frozen output |
+|---|---|---|---|---|
+| S0 field v2 | 1 training run + held-out-species check | zero-shot AUROC >= 0.80 | pass -> full coverage; fail -> mixed sources + stratum | `field_v2` (+ token caches) |
+| S1 retriever | M1.0-M1.5 (6 arms x 3 seeds) | best pooled-loss arm vs M1.0 on AUPR@prev | Delta >= +0.01, paired p < 0.05 | `retriever_v1`; top-500 candidates; recall@500 logged |
+| S2 fusion core | M2.1, M2.2, M2.7 (3 arms x 3 seeds) | M2.2 vs retriever_v1; M2.2 vs M2.7 | both Delta >= +0.01, p < 0.05 -> fusion is the headline; M2.2 wins but M2.7 ties -> field tokens help but not for the stated reason, report as such | `fusion_v1` |
+| S2 fusion sweeps | M2.3-M2.6, M2.9 (only if S2 core adopts) | each vs fusion_v1 | adopt only on Delta >= +0.01 | `fusion_v1` updated or unchanged |
+| S3 graph | M3.1-M3.5 (5 arms x 3 seeds; M3.4 on the warm split) | M3.1 vs fusion_v1 (cold); M3.4 with vs without edges (warm) | reported either way; expected to trail on cold, lead or tie on warm | `rgcn_v1` |
+| S4 battery | frozen models + all baselines on S1-S4 splits, local networks, prospective, strata | none -- reporting | -- | Tables 1-6 |
+| S5 test | one command over the frozen models and baselines on the test split | none | -- | test columns |
+
+"What the paper says in either outcome" is written into each stage before it runs (see §7 risks),
+so a negative gate produces a sentence, not a re-plan.
+
+### 8.4 Invariants checked by the harness, not by eye
+- **No leakage**: no evaluated plant (or pollinator, on S3/S4 splits) appears in any training edge;
+  re-ranker candidate sets include a plant's positives at training time only; R-GCN anchors have
+  their own interaction edges removed when embedded.
+- **Determinism**: a repeated `(model, config, split, seed)` reproduces `metrics.json` bit-for-bit
+  (verified today for the embedding model).
+- **Metric sanity**: the popularity null recomputed inside every run matches its stored value.
+- **Coverage**: every candidate has a non-zero identity token and a presence vector; runs refuse to
+  start otherwise (the zero-vector-presence artefact from step 1 cannot recur).
+- **Seeds**: fewer than three seeds -> the bundle is marked `incomplete` and excluded from tables.
+
+### 8.5 Order of execution
+S0 (field v2, splits, local-network extraction, harness) -> S1 -> S2 core -> S2 sweeps and S3 in
+parallel on the two GPUs -> S4 -> S5. The retriever result (day 5) is the first decision point; the
+fusion core result (about day 12) is the second and decides the paper's headline model.

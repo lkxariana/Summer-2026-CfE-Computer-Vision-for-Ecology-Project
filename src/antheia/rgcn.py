@@ -47,6 +47,9 @@ class RGCNConfig:
     use_taxon_nodes: bool = True        # M3.3 control when False
     month_collapsed: bool = False       # M3.5 control: cell-only nodes (12 months summed)
     infer_with_edges: bool = True       # M3.4 on the warm split: use interaction edges at inference
+    warm_residual: bool = False         # R1: free per-species vector added to the node input of species WITH training edges;
+    res_drop: float = 0.5               #     zeroed for anchors and a random `res_drop` share of species each epoch (DropoutNet)
+    genus_edges: bool = False           # R2: direct genus <-> partner relations weighted by log1p(training count), leave-own-edges-out
     head_type: str = "concat_bilinear"
     bilinear_rank: int = 64
     use_degree_heads: bool = True
@@ -160,6 +163,11 @@ class RGCNRanker:
             rel["occurs_in"] = (np.array(r), np.array(c), np.array(w))
         self.rel_static = rel
         self.rel_names = list(rel) + ["interacts"]
+        if cfg.genus_edges:
+            assert cfg.use_taxon_nodes, "genus_edges needs taxon nodes"
+            self.gen_p_idx = np.array([t2i[("Pg", g)] for g in gen_p], np.int64)
+            self.gen_q_idx = np.array([t2i[("Qg", g)] for g in gen_q], np.int64)
+            self.rel_names += ["genus_p_partner", "genus_q_partner"]
         self.n_rel = 2 * len(self.rel_names)                                  # each relation and its reverse
         pi = store.idx_plants(edges["plant"]); qi = store.idx_polls(edges["pollinator"])
         self.inter = (pi.astype(np.int64), qi.astype(np.int64))
@@ -176,6 +184,17 @@ class RGCNRanker:
             rels["interacts"] = (off_q + qi[keep], pi[keep], np.ones(int(keep.sum())))   # target pollinator <- plant
         else:
             rels["interacts"] = (np.array([], int), np.array([], int), np.array([]))
+        if self.cfg.genus_edges:
+            empty = (np.array([], int), np.array([], int), np.array([]))
+            if with_edges:
+                n_p, n_q = self.off[1], self.off[2] - self.off[1]; off_t = self.off[2]
+                pk, qk = pi[keep], qi[keep]
+                key = self.gen_p_idx[pk] * n_q + qk; u, cnt = np.unique(key, return_counts=True)
+                rels["genus_p_partner"] = (off_q + u % n_q, off_t + u // n_q, np.log1p(cnt))      # pollinator <- plant genus
+                key = self.gen_q_idx[qk] * n_p + pk; u, cnt = np.unique(key, return_counts=True)
+                rels["genus_q_partner"] = (u % n_p, off_t + u // n_p, np.log1p(cnt))              # plant <- pollinator genus
+            else:
+                rels["genus_p_partner"] = rels["genus_q_partner"] = empty
         for name in self.rel_names:
             r, c, w = rels[name]
             adjs.append(norm_adj(r, c, w, N, dev))
@@ -186,6 +205,8 @@ class RGCNRanker:
         x = torch.zeros(self.N, self.cfg.d, device=self.dev)
         n_p, n_q = self.text_p.shape[0], self.text_q.shape[0]
         x[:n_p] = self.proj_text(self.text_p); x[n_p:n_p + n_q] = self.proj_text(self.text_q)
+        if self.cfg.warm_residual:
+            x[:n_p + n_q] = x[:n_p + n_q] + self.res_emb.weight * self._res_mask[:, None]
         if self.n_t:
             x[self.off[2]:self.off[2] + self.n_t] = self.tax_emb.weight
         if self.cell_feat is not None:
@@ -212,6 +233,12 @@ class RGCNRanker:
         self.layers = nn.ModuleList([RelLayer(cfg.d, self.n_rel, cfg.bases, cfg.dropout) for _ in range(cfg.layers)]).to(dev)
         self.head = PairHead(cfg.d, 2 * cfg.d, cfg.dropout, head_type=cfg.head_type, bilinear_rank=cfg.bilinear_rank).to(dev)
         mods = [self.proj_text, self.tax_emb, self.proj_cell, self.layers, self.head]
+        n_sp = len(store.plants) + len(store.polls)
+        if cfg.warm_residual:
+            self.res_emb = nn.Embedding(n_sp, cfg.d).to(dev); nn.init.zeros_(self.res_emb.weight); mods.append(self.res_emb)
+            allowed = np.zeros(n_sp, bool); allowed[np.unique(self.inter[0])] = True; allowed[self.off[1] + np.unique(self.inter[1])] = True
+            self.res_allowed = allowed                                        # species with training edges only; cold species stay at zero
+            self._res_mask = torch.from_numpy(allowed.astype(np.float32)).to(dev)
         if cfg.use_degree_heads:
             self.deg_p = nn.Sequential(nn.Linear(cfg.d, 64), nn.GELU(), nn.Linear(64, 1)).to(dev)
             self.deg_q = nn.Sequential(nn.Linear(cfg.d, 64), nn.GELU(), nn.Linear(64, 1)).to(dev)
@@ -236,6 +263,9 @@ class RGCNRanker:
             for m in mods: m.train()
             anchors = rng.choice(train_plants, int(cfg.anchor_drop * len(train_plants)), replace=False)
             adjs = self._adjs(anchors=anchors, with_edges=True)
+            if cfg.warm_residual:
+                m = self.res_allowed & (rng.random(n_sp) >= cfg.res_drop); m[anchors] = False
+                self._res_mask = torch.from_numpy(m.astype(np.float32)).to(dev)
             perm = rng.permutation(len(pi)); tot = 0.0; nb = 0; t0 = time.time()
             for s in range(0, len(pi), cfg.batch):
                 b = perm[s:s + cfg.batch]; bp, bq = pi[b], qi[b]; B = len(bp)
@@ -270,6 +300,8 @@ class RGCNRanker:
                 print(f"    epoch {ep + 1}/{cfg.epochs} loss {tot / max(nb, 1):.4f} ({time.time() - t0:.0f}s)", flush=True)
         for m in mods: m.eval()
         with torch.no_grad():
+            if cfg.warm_residual:
+                self._res_mask = torch.from_numpy((self.res_allowed if cfg.infer_with_edges else np.zeros(n_sp, bool)).astype(np.float32)).to(dev)
             self.h_all = self._encode(self._adjs(anchors=None, with_edges=cfg.infer_with_edges))
             n_p = len(store.plants)
             self.hq_all = self.h_all[off_q:off_q + n_q]

@@ -1328,3 +1328,8 @@ Plan: `docs/plan/connectivity-ladder-v1.md`. Harness: `eval/run_ladder.py` -> `r
 head, residual drop 0.3) is the presence source for every taxon in models 2 and 3; the `zeroshot` stratum
 tracks the weaker zero-shot pollinators (AUROC 0.76). Noted as a possible later experiment: kingdom-specific
 or mixed presence sources for zero-shot pollinators.
+
+**DECISION (Dan, 09-08): connectivity metrics first.** Priority moves to the connectivity evaluation --
+local-network completion with real non-interactions (per-network AUPR / AUROC), network-structure fidelity
+(degree correlation, NODF at matched connectance) and, once probabilities are used, calibration. The
+within-plant ranking task (nrecall@k) is secondary/appendix for this paper and no longer drives decisions.

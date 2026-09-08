@@ -156,7 +156,13 @@ warm) and the cold-pollinator split exposed a one-sided training scheme (see EXP
   features. Used here as R5 (`degree_encoding`): log(1 + in-degree per relation) through a linear layer, so a plant with its
   edges removed (anchor or cold) has the same zero interaction degree at train and test time. PNA (Corso et al., NeurIPS
   2020) makes the related point that mean aggregation discards neighbourhood size.
-- **Abramov et al. 2026, MEE** (bioRxiv 10.1101/2025.11.20.689463): spatially explicit thresholded-SVD imputation that
-  pairs a target local network with auxiliary networks from other locations; Canary Islands plant–pollinator networks. A
-  candidate baseline for the within-site completion task (it is the site-level analogue of Strydom's SVD imputation).
-  Details pending full-text access.
+- **Abramov et al. 2026, MEE** (bioRxiv 10.1101/2025.11.20.689463; code github.com/Ecological-Complexity-Lab/
+  svd_based_spatial_prediction; data Dryad 10.5061/dryad.76173). softImpute (iteratively soft-thresholded SVD) on a target
+  local network stacked with one auxiliary network from another location; seven Canary Islands plant–pollinator networks
+  (62–84 species, connectance 0.15). Protocol: hide 20% of a target's links plus an equal number of non-links, predict them
+  from the remaining structure. F0.5 = 0.67 ± 0.02 binary; weighted predictions not better than random; auxiliary
+  locations do not beat self-prediction (0.66 vs 0.67); distance decay marginal (P = 0.05). **Setting differs from ours:** it
+  is within-network warm completion (the target's own remaining links are the main signal) and cannot run when a site has no
+  observed links, which is our local-network protocol (every local pair removed from training). Cite as the site-level
+  analogue of Strydom's SVD imputation and as evidence that structure-only transfer across sites is weak; not a runnable
+  baseline under our protocol without giving it the site's own links.

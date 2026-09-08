@@ -42,6 +42,7 @@ class RGCNConfig:
     bases: int = 8
     dropout: float = 0.2
     anchor_drop: float = 0.3            # share of training plants whose own interaction edges are dropped each epoch
+    anchor_side: str = "plant"          # "plant" (M3.1: plants only) | "both" (R3: pollinator anchors too, so cold pollinators are rehearsed)
     cells_per_species: int = 64         # occurs_in edges kept per species
     use_cell_nodes: bool = True         # M3.2 control when False
     use_taxon_nodes: bool = True        # M3.3 control when False
@@ -50,6 +51,7 @@ class RGCNConfig:
     warm_residual: bool = False         # R1: free per-species vector added to the node input of species WITH training edges;
     res_drop: float = 0.5               #     zeroed for anchors and a random `res_drop` share of species each epoch (DropoutNet)
     genus_edges: bool = False           # R2: direct genus <-> partner relations weighted by log1p(training count), leave-own-edges-out
+    aggregation: str = "mean"           # "mean" (R-GCN) | "attention" (per-relation GAT-style attention, SimpleHGN-like control)
     head_type: str = "concat_bilinear"
     bilinear_rank: int = 64
     use_degree_heads: bool = True
@@ -71,19 +73,36 @@ class RGCNConfig:
 class RelLayer(nn.Module):
     """One R-GCN layer with basis decomposition: h' = act(LN(W_self h + sum_r A_r h W_r))."""
 
-    def __init__(self, d, n_rel, bases, dropout):
+    def __init__(self, d, n_rel, bases, dropout, aggregation="mean"):
         super().__init__()
         self.self_w = nn.Linear(d, d)
         self.basis = nn.Parameter(torch.randn(bases, d, d) * (1.0 / d ** 0.5))
         self.coef = nn.Parameter(torch.randn(n_rel, bases) * (1.0 / bases ** 0.5))
         self.norm = nn.LayerNorm(d); self.drop = nn.Dropout(dropout)
+        self.aggregation = aggregation
+        if aggregation == "attention":
+            # GAT-style decomposed attention per relation: e_ij = LeakyReLU(a_dst_r . W_r h_i + a_src_r . W_r h_j) + log w_ij,
+            # softmax over the incoming edges of i within the relation (Velickovic et al. 2018; SimpleHGN, Lv et al. 2021).
+            self.a_src = nn.Parameter(torch.randn(n_rel, d) * 0.1)
+            self.a_dst = nn.Parameter(torch.randn(n_rel, d) * 0.1)
 
     def forward(self, h, adjs):
         W = torch.einsum("rb,bij->rij", self.coef, self.basis)            # [n_rel, d, d]
         out = self.self_w(h)
         for r, A in enumerate(adjs):
-            if A is not None:
-                out = out + torch.sparse.mm(A, h @ W[r])
+            if A is None:
+                continue
+            hW = h @ W[r]
+            if self.aggregation == "mean":
+                out = out + torch.sparse.mm(A, hW)
+            else:
+                idx = A.indices(); rows, cols = idx[0], idx[1]
+                e = F.leaky_relu((hW @ self.a_dst[r])[rows] + (hW @ self.a_src[r])[cols], 0.2) + torch.log(A.values() + 1e-9)
+                emax = torch.full((h.shape[0],), -1e30, device=h.device).scatter_reduce(0, rows, e, "amax", include_self=True)
+                ex = torch.exp(e - emax[rows])
+                den = torch.zeros(h.shape[0], device=h.device).index_add_(0, rows, ex)
+                alpha = ex / den[rows]
+                out = out + torch.sparse.mm(torch.sparse_coo_tensor(idx, alpha, A.shape), hW)
         return self.drop(F.gelu(self.norm(out)))
 
 
@@ -172,15 +191,17 @@ class RGCNRanker:
         pi = store.idx_plants(edges["plant"]); qi = store.idx_polls(edges["pollinator"])
         self.inter = (pi.astype(np.int64), qi.astype(np.int64))
 
-    def _adjs(self, anchors=None, with_edges=True):
+    def _adjs(self, anchors=None, with_edges=True, anchors_q=None):
         """List of sparse adjacencies in relation order (forward then reverse), interaction edges optionally
-        restricted (anchor plants removed) or absent."""
+        restricted (anchor plants / anchor pollinators removed) or absent."""
         dev = self.dev; N = self.N; off_q = self.off[1]
         adjs = []
         rels = dict(self.rel_static)
         pi, qi = self.inter
         if with_edges:
             keep = np.ones(len(pi), bool) if anchors is None else ~np.isin(pi, anchors)
+            if anchors_q is not None:
+                keep &= ~np.isin(qi, anchors_q)
             rels["interacts"] = (off_q + qi[keep], pi[keep], np.ones(int(keep.sum())))   # target pollinator <- plant
         else:
             rels["interacts"] = (np.array([], int), np.array([], int), np.array([]))
@@ -230,7 +251,7 @@ class RGCNRanker:
         self.proj_text = nn.Linear(tp.shape[1], cfg.d).to(dev)
         self.tax_emb = nn.Embedding(max(self.n_t, 1), cfg.d).to(dev)
         self.proj_cell = nn.Linear(self.cell_feat.shape[1] if self.cell_feat is not None else 1, cfg.d).to(dev)
-        self.layers = nn.ModuleList([RelLayer(cfg.d, self.n_rel, cfg.bases, cfg.dropout) for _ in range(cfg.layers)]).to(dev)
+        self.layers = nn.ModuleList([RelLayer(cfg.d, self.n_rel, cfg.bases, cfg.dropout, cfg.aggregation) for _ in range(cfg.layers)]).to(dev)
         self.head = PairHead(cfg.d, 2 * cfg.d, cfg.dropout, head_type=cfg.head_type, bilinear_rank=cfg.bilinear_rank).to(dev)
         mods = [self.proj_text, self.tax_emb, self.proj_cell, self.layers, self.head]
         n_sp = len(store.plants) + len(store.polls)
@@ -251,7 +272,7 @@ class RGCNRanker:
         partners = {}
         for a, b in zip(pi.tolist(), qi.tolist()):
             partners.setdefault(a, set()).add(b)
-        train_plants = np.array(sorted(partners))
+        train_plants = np.array(sorted(partners)); train_polls = np.unique(qi)
         cnt = np.bincount(qi, minlength=n_q).astype(np.float64)
         logQ_pop = torch.tensor(np.log(np.maximum(cnt / cnt.sum(), 1e-12)), dtype=torch.float32, device=dev)
         logQ_uni = float(np.log(1.0 / n_q)); n_uni = cfg.n_cand - cfg.in_batch
@@ -262,9 +283,11 @@ class RGCNRanker:
         for ep in range(cfg.epochs):
             for m in mods: m.train()
             anchors = rng.choice(train_plants, int(cfg.anchor_drop * len(train_plants)), replace=False)
-            adjs = self._adjs(anchors=anchors, with_edges=True)
+            anchors_q = rng.choice(train_polls, int(cfg.anchor_drop * len(train_polls)), replace=False) if cfg.anchor_side == "both" else None
+            adjs = self._adjs(anchors=anchors, with_edges=True, anchors_q=anchors_q)
             if cfg.warm_residual:
                 m = self.res_allowed & (rng.random(n_sp) >= cfg.res_drop); m[anchors] = False
+                if anchors_q is not None: m[off_q + anchors_q] = False
                 self._res_mask = torch.from_numpy(m.astype(np.float32)).to(dev)
             perm = rng.permutation(len(pi)); tot = 0.0; nb = 0; t0 = time.time()
             for s in range(0, len(pi), cfg.batch):

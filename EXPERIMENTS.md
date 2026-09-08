@@ -1392,3 +1392,13 @@ model as retriever; a booster-based retriever (or re-ranking the booster's candi
 route. Pending: seeds 0/1 for the neural rows, the NECTAR-style rows, and the fusion / R-GCN rows before deciding.
 Caveats: two historical networks (1923, 1929); 20 BC networks outside the grid; connectance 0.135 makes this a much
 denser problem than the universe (0.0013).
+
+**Diagnostic (seed 42, paired per network):** the boosted ranker beats the embedding model in **81 of 91 networks**
+(median +0.048 AUPR), uniformly across datasets (Web of Life 0.235 vs 0.192; Guzman/LaManna 0.219 vs 0.156), network
+sizes (small/medium/large terciles all show the gap) and in/out of the grid. It is not driven by the historical giants:
+on Robertson 1929 (9,712 links, connectance 0.034) **every** method sits at chance (0.034-0.039), and Clements 1923
+is only weakly predictable -- a century-old single-locality network is a caveat for the whole evaluation, not a
+discriminator between models. Lift over connectance: booster 1.72x, popularity 1.52x, embedding model 1.24x. The
+embedding model beats popularity in only 31 of 91 networks. Wide & Deep (affinity on a linear path) is worse still
+(0.155), so simply exposing the affinity lookup to the neural model does not close the gap; the within-site deficit of
+the neural pair models is systematic and unexplained for now.

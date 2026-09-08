@@ -1445,3 +1445,19 @@ by contrast, collapses on cold plants (0.102 at 0.077 connectance). The embeddin
 with its rerun; its fusion re-ranker (identity tokens) sits at 0.164 overall, i.e. the universe gain (+0.03 AUPR)
 does not transfer to within-site prediction. Table 3 now carries: mean AUPR [CI], mean AUROC, precision@L, plant-
 degree rho, NODF, warm/cold AUPR; pooled metrics and lift moved to the appendix.
+
+### S2b pre-registration (09-08) — **can a neural system also win within sites?**
+
+Dan's goal: one system, neural, leading both the universe metric and local-network completion. The within-site
+deficit of every neural pair model (0.15-0.17 vs trees 0.22) has two candidate causes, and each gets an arm on
+both tables (`scripts/queue_s2b.sh`, fusion re-ranker on the reference retriever, identity tokens):
+
+| arm | what changes | hypothesis |
+|---|---|---|
+| M2.9 co-occurrence negatives | 16 extra negatives per plant drawn from pollinators with N > 0 | the models never trained on the within-site regime (uniform negatives are mostly non-co-occurring) |
+| M2.10 genus-profile tokens | 32 tokens: pollinators recorded with the plant's genus (leave-one-out), with log count | the trees' strongest feature is an interaction-derived genus lookup that text cannot supply |
+| M2.11 both | | |
+
+Decision rule: a neural arm that reaches the trees' 0.22 (CI-overlapping) on local networks while holding >= 0.19
+universe AUPR becomes the headline system (paper version A); otherwise M2.8 (re-ranker on the routed trees) is the
+fallback (version B). M3.1 R-GCN is the third neural candidate (message passing over training edges via genus nodes).

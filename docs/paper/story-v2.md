@@ -105,10 +105,34 @@ A model that beats the nulls by a wide margin; a temporal effect that survives m
 that effort can be removed from occurrence-derived embeddings by negative sampling; that niche
 transfer is the best cold-start fallback (it is fourth).
 
+## 6b. Current standing (2026-09-08, end of the ladder)
+
+**One system:** an R-GCN retriever (species, genus/family and cell x month nodes; two relation-typed layers;
+leave-own-edges-out; the retriever objective) whose top-500 are re-scored by an identity-token re-ranker trained on the
+retriever's own hard negatives with a pooled objective.
+
+| | universe AUPR | AUPR 1:3 / 1:1 | AUROC | nR@10 | nR@50 | unseen-genus | local mean AUPR |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| trees (our earlier hand-engineered system) | 0.103 | 0.81 / 0.91 | 0.883 | 0.336 | 0.447 | 0.256 | 0.222 [0.205, 0.239] |
+| best external baseline (SVD + taxonomic) | 0.095 | 0.85 / 0.92 | 0.895 | 0.291 | 0.449 | 0.256 | 0.179 |
+| **system** | **0.188** | **0.93 / 0.97** | **0.970** | **0.383** | **0.550** | **0.260** | 0.204 [0.19, 0.22] |
+
+Ablations: R-GCN alone 0.150 / 0.368 / local 0.204; embedding retriever alone 0.159 / 0.282 / 0.166; re-ranker on the
+embedding retriever 0.191 / 0.323 / 0.164; field tokens in the re-ranker inert (joint = space = time = identity-only).
+Mechanisms, each with its control: (i) re-ranking on the retriever's own confusers under a pooled objective, +0.03-0.04
+AUPR on either retriever; (ii) message passing through genus and cell nodes supplies the warm-plant information the pair
+models lack -- within-site AUPR 0.165 -> 0.205, the only neural route that moved it (co-occurrence negatives and three
+genus-token constructions did not). The marginalisation ladder stands as a result about the inputs; it is not the
+model's engine.
+
+Residual gap: within sites the system ties the trees (each inside the other's CI) but trails on the head
+(precision@L 0.233 vs 0.252) and on cold plants (0.24 vs 0.27).
+
 ## 7. Open items before writing
 
-- Step 3 pooled (done, null; `results/joint_field_swap_pooled.csv`).
-- Full-universe marginalisation ladder on the production surfaces (`eval/run_marginalisation_surfaces.py`).
+- 3-layer R-GCN probe (M3.2) for the within-site residuals; M2.12 local seed 1.
+- Dan's call: headline as 'leads every universe column, ties the trees within sites', or push the within-site gap first.
+- Split battery (S1-S4) and prospective holdout for the frozen system; test split once.
 - Test split, held for Dan's call on one model vs two.
 - Whether to include the trained-sub-universe numbers (379 plants, 5,354 candidates) as the
   marginalisation table, or re-run with text-imputed vectors so the full universe can be used. The

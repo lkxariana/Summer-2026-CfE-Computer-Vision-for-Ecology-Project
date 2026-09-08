@@ -1637,3 +1637,20 @@ AUROC 0.970, nR@10 0.383 (seed 42: 0.191 / 0.970 / 0.384) -- replicates.
 Hypothesis: a third hop reaches plant -> genus -> sibling plant -> pollinator paths the two-layer model only sees through
 the pooled genus node, and may move the within-site residuals (precision@L 0.232 vs trees 0.252; cold plants ~0.24 vs
 0.27). Adopt only if local mean AUPR rises by >= 0.01 without a universe AUPR loss > 0.01. M2.12 local seed 42: 0.203.
+
+### Paired contrasts for the system (09-08, 3 seeds, 300 plant resamples, cold-plant validation)
+
+vs **R-GCN retriever + identity re-ranker** (universe AUPR 0.188, AUROC 0.970, nR@10 0.383, nR@50 0.550, unseen-genus 0.260):
+
+| comparison | Delta AUPR | p | Delta nR@10 | p | Delta unseen-genus nR@10 | p |
+|---|---:|---:|---:|---:|---:|---:|
+| R-GCN alone | -0.038 [-0.044, -0.033] | <0.001 | -0.015 | <0.001 | -0.018 | 0.13 |
+| re-ranker on the embedding model | +0.003 [-0.010, +0.018] | 0.69 | -0.059 | <0.001 | -0.101 | <0.001 |
+| embedding model alone | -0.029 | <0.001 | -0.101 | <0.001 | -0.140 | <0.001 |
+| routed trees | -0.089 | <0.001 | -0.049 | <0.001 | +0.003 | 0.93 |
+| boosted ranker | -0.090 | <0.001 | -0.064 | <0.001 | -0.131 | <0.001 |
+
+The re-ranking stage is worth +0.038 AUPR on the R-GCN (p<0.001), the same size as on the embedding model. The two
+re-ranked systems tie on AUPR (p=0.69) and the R-GCN-based one wins ranking by 0.059 nR@10 and the unseen-genus
+stratum by 0.10 (p<0.001). Against the trees: +0.089 AUPR, +0.049 nR@10, tie on unseen genera. Local networks (2 seeds
+so far): 0.205 / 0.203 vs trees 0.222 [0.205, 0.239].

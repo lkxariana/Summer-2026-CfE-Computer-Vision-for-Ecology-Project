@@ -55,18 +55,31 @@ def joint_runs(field_dirs):
     return runs
 
 
+ABLATE = [
+    ("full",              dict(blocks=("text", "surface", "pca", "scale"))),
+    ("-surface",          dict(blocks=("text", "pca", "scale"))),
+    ("-pca",              dict(blocks=("text", "surface", "scale"))),
+    ("-text",             dict(blocks=("surface", "pca", "scale"))),
+    ("text + scale",      dict(blocks=("text", "scale"))),
+    ("surface + scale",   dict(blocks=("surface", "scale"))),
+]
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--epochs", type=int, default=25)
     ap.add_argument("--only", nargs="*", default=None, help="subset of arm names")
-    ap.add_argument("--preset", default="swap", choices=["swap", "joint"])
+    ap.add_argument("--preset", default="swap", choices=["swap", "joint", "ablate"])
+    ap.add_argument("--save-scores", action="store_true", help="keep every arm's [plants x candidates] score matrix")
     ap.add_argument("--field-dirs", nargs="*", default=None, help="joint_field_<scheme> directories (preset joint)")
     ap.add_argument("--device", default="cuda")
     args = ap.parse_args()
     global RUNS
     if args.preset == "joint":
         RUNS = joint_runs(args.field_dirs)
+    elif args.preset == "ablate":
+        RUNS = ABLATE
 
     store = UniverseStore(curves="modelled")
     split = json.load(open(ROOT / "data/splits/plants_75_10_15.json"))
@@ -84,7 +97,7 @@ def main():
     print(f"[data] val {len(test):,} tier-A edges over {len(tp)} plants; genus seen {seen.sum()} / "
           f"unseen {(~seen).sum()}; seed {args.seed}", flush=True)
 
-    ref, rows, per_plant = None, [], {}
+    ref, rows, per_plant, scores = None, [], {}, {}
     for label, kw in RUNS:
         if args.only and label not in args.only:
             continue
@@ -98,6 +111,8 @@ def main():
         pr = average_precision_score(Y.ravel(), S.ravel().astype(np.float64))
         nr = pp["nrecall@10"].to_numpy()
         per_plant[label] = nr
+        if args.save_scores:
+            scores[label] = S.astype(np.float16)
         line = (f"  {label:<18} nR@10 {nr.mean():.4f}  seen {nr[seen].mean():.4f}  unseen {nr[~seen].mean():.4f}  "
                 f"nR@50 {pp['nrecall@50'].mean():.4f}  MAP {pp['ap'].mean():.4f}  PR {pr:.4f}")
         if ref is not None:
@@ -112,9 +127,11 @@ def main():
         del m; torch.cuda.empty_cache()
 
     out = ROOT / "results"
-    stem = "field_swap" if args.preset == "swap" else "joint_field_swap"
+    stem = {"swap": "field_swap", "joint": "joint_field_swap", "ablate": "block_ablation"}[args.preset]
     pd.DataFrame(rows).to_csv(out / f"{stem}_val_tierA_s{args.seed}.csv", index=False)
     np.savez(out / f"{stem}_perplant_s{args.seed}.npz", plants=np.array(tp), seen=seen, **per_plant)
+    if scores:
+        np.savez(out / f"{stem}_scores_s{args.seed}.npz", plants=np.array(tp), **scores)
     print(f"[wrote] results/{stem}_val_tierA_s{args.seed}.csv")
 
 

@@ -1402,3 +1402,22 @@ discriminator between models. Lift over connectance: booster 1.72x, popularity 1
 embedding model beats popularity in only 31 of 91 networks. Wide & Deep (affinity on a linear path) is worse still
 (0.155), so simply exposing the affinity lookup to the neural model does not close the gap; the within-site deficit of
 the neural pair models is systematic and unexplained for now.
+
+### S2 first arm (09-08, seed 42, provisional) — **the identity-only re-ranker is the largest single gain so far**
+
+`eval/run_fusion.py`, retriever = reference embedding model (recall@500 on val plants 0.684), fusion = CLS + two identity
+tokens (no field tokens), 3 layers, residual re-ranking of the top-500, pooled BCE over positives + retriever hard
+negatives + random negatives, 8 epochs.
+
+| | AUPR | AUPR 1:3 / 1:1 | AUROC | nR@10 | nR@50 | unseen-genus nR@10 |
+|---|---:|---:|---:|---:|---:|---:|
+| retriever (reference embedding model), seed 42 | 0.165 | 0.901 / 0.958 | 0.955 | 0.292 | 0.432 | 0.134 |
+| **M2.1 identity-only fusion re-ranker**, seed 42 | **0.197** | 0.907 / 0.960 | 0.956 | **0.329** | **0.481** | **0.176** |
+
+The arm designed as the control ("attention over identity should be a wash") is +0.032 AUPR and +0.037 nR@10 over the
+retriever. Since it carries no field tokens, the gain is the **re-ranking mechanism**: training on the retriever's own
+top-500 confusers (hard negatives) with a residual head, under a pooled objective. This is the standard retrieve-then-
+re-rank benefit, and it is what every other arm must now beat. Leakage check: retriever and fusion fit on train plants
+only; val plants and their pairs never enter training; the residual head starts at the retriever's scores. Caveats:
+one seed (0 and 1 queued); retriever recall@500 0.684 caps what re-ranking can recover (plan: K=1000 if < 0.85 -> to
+be tested after the core arms).

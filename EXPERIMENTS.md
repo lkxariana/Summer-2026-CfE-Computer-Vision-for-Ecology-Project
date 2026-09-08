@@ -1524,3 +1524,9 @@ both tables (universe 0.114, local 0.214) and is superseded by M2.8b.
   -- above the trees alone (0.103) but far below the neural system -- and *lowers* the trees' nR@10 (0.336 -> 0.29).
   The learned affine base did not change this, so it is not a score-scale artefact. Version B (hybrid) is out unless
   its local-network run (pending) is exceptional.
+
+**S2b / hybrid, local networks (09-08):** M2.8b (re-ranker on routed trees, affine base) 0.219 vs trees 0.222 -- no gain
+on either table; the hybrid is closed. M2.9 (co-occurrence-conditioned negatives) 0.165 -- identical to the identity-only
+re-ranker; the within-site deficit is not a negative-sampling artefact. Consistent with the warm-plant diagnosis: the
+neural system lacks a channel for a plant's own surviving edges. M2.10 (genus-profile tokens) is the arm that tests
+that directly; M3.1 R-GCN (corrected loss) is the second.

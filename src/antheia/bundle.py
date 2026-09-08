@@ -109,7 +109,7 @@ def write_bundle(model: str, cfg: dict, split: str, seed: int, S, Y, query_names
 
 def load_bundles(model=None):
     rows = []
-    for f in RUNS.glob("*/*/*/s*/metrics.json"):
+    for f in RUNS.glob("**/s*/metrics.json"):
         c = json.load(open(f.with_name("config.json"))); m = json.load(open(f))
         if model and c["model"] != model:
             continue

@@ -1461,3 +1461,20 @@ both tables (`scripts/queue_s2b.sh`, fusion re-ranker on the reference retriever
 Decision rule: a neural arm that reaches the trees' 0.22 (CI-overlapping) on local networks while holding >= 0.19
 universe AUPR becomes the headline system (paper version A); otherwise M2.8 (re-ranker on the routed trees) is the
 fallback (version B). M3.1 R-GCN is the third neural candidate (message passing over training edges via genus nodes).
+
+### S1 phase B verdict (09-08) — **retriever_v1 frozen = reference embedding model**
+
+3 seeds, paired plant bootstrap vs the reference (softmax 1.0, BCE 0.5, elementwise head):
+
+| arm | AUPR | Delta AUPR | p | unseen-genus nR@10 Delta |
+|---|---:|---:|---:|---:|
+| reference | 0.159 | -- | -- | -- |
+| + degree heads | 0.152 | -0.007 | 0.03 | +0.037 (p=0.03) |
+| + degree heads + nnPU prior | 0.154 | -0.005 | 0.10 | +0.007 |
+| + degree heads, concat+bilinear head | 0.138 | -0.021 | <0.001 | +0.018 |
+| concat+bilinear head only | 0.147 | -0.012 | <0.001 | +0.004 |
+
+Nothing clears the gate; the concat+bilinear head is significantly worse than the shared-space elementwise head
+(the SBERT-style inductive bias earns its place), and the content-based degree heads buy nothing for pooled AUPR.
+**retriever_v1 := M1.0_reference** (`configs`: blocks text+surface+pca+scale, softmax 1.0, BCE 0.5, elementwise
+head, 25 epochs). The stage-2 re-ranker (S2) sits on this retriever.

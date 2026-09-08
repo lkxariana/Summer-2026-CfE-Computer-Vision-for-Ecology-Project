@@ -1323,3 +1323,8 @@ Plan: `docs/plan/connectivity-ladder-v1.md`. Harness: `eval/run_ladder.py` -> `r
   within-plant term. **Queue re-ordered (plan §8.3):** phase A = loss sweep (softmax/bce weights), phase B =
   degree heads / PU / bilinear on the phase-A winner, since M1.3-M1.5 as first queued would have inherited the
   collapse.
+
+**DECISION (Dan, 09-08): option (c).** The zero-shot gate is lowered to 0.75 and field v2 (text-conditioned
+head, residual drop 0.3) is the presence source for every taxon in models 2 and 3; the `zeroshot` stratum
+tracks the weaker zero-shot pollinators (AUROC 0.76). Noted as a possible later experiment: kingdom-specific
+or mixed presence sources for zero-shot pollinators.

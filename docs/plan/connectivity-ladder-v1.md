@@ -60,7 +60,9 @@ LE-SINR's idea plus DropoutNet's, not the post-hoc ridge that failed. Scheme: `t
 
 *Validation, and the gate.* Hold out 5% of rows (pos-NLL, within-kingdom top-10, as now) **and 5% of
 species entirely**: their presence must be predicted from text alone. Gate: held-out-species AUROC of
-observed rows vs background >= 0.80. If the gate fails, zero-shot taxa fall back to the production
+observed rows vs background >= 0.80. **Outcome (09-08): plants 0.87, pollinators 0.76-0.77 across three head
+variants; Dan lowered the gate to 0.75 and field v2 is the presence source for all taxa (option c), with the
+`zeroshot` stratum reported. Kingdom-specific / mixed sources noted as a later experiment.** If the gate fails, zero-shot taxa fall back to the production
 surfaces (PPE / SDM) and the paper says so; models 2 and 3 then run on mixed sources with a
 `field_source` stratum.
 

@@ -95,6 +95,7 @@ def write_bundle(model: str, cfg: dict, split: str, seed: int, S, Y, query_names
     m.update(extra or {})
     m["wall_s"] = wall_s
     np.save(out / "scores.npy", S.astype(np.float16))
+    np.save(out / "Y.npy", Y.astype(np.int8))
     if candidates_topk is not None:
         np.save(out / "candidates.npy", candidates_topk.astype(np.int32))
     pq.to_parquet(out / "per_query.parquet", index=False)

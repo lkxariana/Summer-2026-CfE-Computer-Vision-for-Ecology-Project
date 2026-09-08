@@ -1658,3 +1658,8 @@ so far): 0.205 / 0.203 vs trees 0.222 [0.205, 0.239].
 **System on local networks, 3 seeds:** 0.203 / 0.205 / 0.203 (mean 0.204), pooled AUROC 0.642-0.643, precision@L 0.230-0.233,
 NODF 50-53 (obs 36). Identical to the R-GCN alone (0.204): the re-ranker neither helps nor hurts within sites. Trees:
 0.222 [0.205, 0.239]. GPU 1 idle by design (no new arms beyond the pre-registered M3.2 probe without Dan).
+
+**M3.2 probe result (09-08, seed 42): 3-layer R-GCN does not help.** Universe AUPR 0.132 (2-layer: 0.150), nR@10 0.371
+(0.369); local mean AUPR 0.205 (0.204), warm 0.207 / cold 0.259, precision@L 0.234. Fails the adoption rule (local gain
++0.001 < 0.01 with a universe loss of 0.018). The two-layer R-GCN stays as the retriever. No further arms are queued
+without Dan; both GPUs idle.

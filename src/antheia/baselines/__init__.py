@@ -13,12 +13,15 @@ from antheia.neural import NeuralRanker
 from antheia.embednet import EmbedRanker
 from antheia.rgcn import RGCNRanker
 from antheia.baselines.antheia_lr import AntheiaSpatial, AntheiaScalar
+from antheia.baselines.nectar_like import NectarLike, NectarLikeUngated
 from antheia.pairnet import PairRanker
 
 REGISTRY = {
     "popularity": Popularity,
     "antheia_spatial": AntheiaSpatial,
     "antheia_scalar": AntheiaScalar,
+    "nectar_like": NectarLike,
+    "nectar_ungated": NectarLikeUngated,
     "cooccurrence": CoOccurrence,
     "abundance": AbundanceNeutral,
     "congeneric": CongenericTransfer,

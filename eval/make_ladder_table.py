@@ -28,6 +28,8 @@ GROUPS = [
         ("baseline_antheia_spatial", "Co-occurrence PCA-15 + N (roadmap proof-of-concept; ANTHEIA v1)", "Strydom et al. 2021, Phil Trans R Soc B; Li, Cher & Jacobs 2026"),
         ("baseline_antheia_scalar", "Co-occurrence PCA-15 + N + Delta (ANTHEIA v1 scalar)", "Li, Cher & Jacobs 2026"),
         ("baseline_pair_gbm", "Gradient boosting on pair features", "Pichler et al. 2020, MEE"),
+        ("baseline_nectar_ungated", "Spatial x phenological overlap product", "Baiotto et al. 2026 (bioRxiv), Eq. 1"),
+        ("baseline_nectar_like", "NECTAR-style plausibility (genus constraint x overlap product)", "Baiotto et al. 2026 (bioRxiv)"),
     ]),
     ("Published architectures, re-implemented", [
         ("baseline_two_tower", "Two-tower retrieval (sampled softmax, logQ)", "Yi et al. 2019, RecSys"),

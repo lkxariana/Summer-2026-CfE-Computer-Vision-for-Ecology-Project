@@ -11,7 +11,7 @@ run () { local NAME=$1 MODEL=$2 CFG=$3 SEED=$4
   else CUDA_VISIBLE_DEVICES=$DEV $P eval/run_localnets.py --model $MODEL --name $NAME --config "$CFG" --seed $SEED 2>&1 | grep -v Warning | grep -E "networks|Traceback|Error"; fi
 }
 if [ "$DEV" = "cpu" ]; then
-  for M in popularity cooccurrence abundance phenology_abundance congeneric svd_taxonomic antheia_spatial antheia_scalar pair_gbm ours_gbm routed; do run baseline_$M $M '{}' 42; done
+  for M in popularity cooccurrence abundance phenology_abundance congeneric svd_taxonomic antheia_spatial antheia_scalar nectar_ungated nectar_like pair_gbm ours_gbm routed; do run baseline_$M $M '{}' 42; done
 else
   for SEED in "$@"; do
     run M1.0_reference embednet '{}' $SEED

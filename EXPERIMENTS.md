@@ -1558,3 +1558,8 @@ leave-one-out at the *plant* level, so a warm plant's own surviving edges were e
 information the trees use. Pre-registered fix **M2.10b**: profile includes the plant's own edges; only the scored
 candidate is masked (pair-level leave-one-out), which is what the trees' affinity table effectively does. Local-network
 run first (the readout), then the universe seeds.
+
+**M2.11 (genus tokens + co-occurrence negatives), universe:** 0.196 / 0.144 / 0.123 across seeds 42 / 0 / 1 -- unstable,
+while each component alone sits at ~0.19 on every seed. Likely conflict: co-occurring negatives include pollinators that
+appear in the plant's genus profile, so the same token is presented as "visits this genus" and labelled negative for the
+plant. Not pursued further; the pair-masked genus tokens (M2.10b) are the clean version.

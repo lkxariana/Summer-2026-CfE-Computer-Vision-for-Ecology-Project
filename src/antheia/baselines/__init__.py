@@ -12,10 +12,13 @@ from antheia.baselines.taxo_spatial_temporal import TaxoSpatialTemporal
 from antheia.neural import NeuralRanker
 from antheia.embednet import EmbedRanker
 from antheia.rgcn import RGCNRanker
+from antheia.baselines.antheia_lr import AntheiaSpatial, AntheiaScalar
 from antheia.pairnet import PairRanker
 
 REGISTRY = {
     "popularity": Popularity,
+    "antheia_spatial": AntheiaSpatial,
+    "antheia_scalar": AntheiaScalar,
     "cooccurrence": CoOccurrence,
     "abundance": AbundanceNeutral,
     "congeneric": CongenericTransfer,

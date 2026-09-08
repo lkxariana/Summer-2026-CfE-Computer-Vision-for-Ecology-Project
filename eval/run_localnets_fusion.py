@@ -22,6 +22,7 @@ from sklearn.metrics import average_precision_score, roc_auc_score
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src")); sys.path.insert(0, str(ROOT))
 from antheia.bundle import RUNS, config_hash, git_commit
+from antheia.baselines import REGISTRY
 from antheia.embednet import EmbedRanker
 from antheia.fusion import FusionReranker
 from antheia.store import UniverseStore
@@ -33,6 +34,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--name", required=True)
     ap.add_argument("--retriever-config", default="{}")
+    ap.add_argument("--retriever-model", default="embednet")
     ap.add_argument("--config", required=True)
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--topk", type=int, default=500)
@@ -53,7 +55,13 @@ def main():
     print(f"[localnet-fusion] {len(local_pairs):,} local pairs removed; training on {len(train):,} edges", flush=True)
 
     t0 = time.time()
-    ret = EmbedRanker(**dict(BASE_EMBED, **rcfg, seed=args.seed, device=args.device)).fit(train, store)
+    if args.retriever_model == "embednet":
+        ret = EmbedRanker(**dict(BASE_EMBED, **rcfg, seed=args.seed, device=args.device)).fit(train, store)
+    else:
+        try:
+            ret = REGISTRY[args.retriever_model](**rcfg).fit(train, store)
+        except TypeError:
+            ret = REGISTRY[args.retriever_model]().fit(train, store)
     train_plants = sorted(set(train.plant)); tpi = store.idx_plants(train_plants)
     K = args.topk
     s_tr = np.empty((len(tpi), K), np.float32); c_tr = np.empty((len(tpi), K), np.int64)
@@ -103,7 +111,7 @@ def main():
                pooled_connectance=float(y_all.mean()), mean_deg_spearman_plants=float(df.deg_spearman_plants.mean()),
                mean_deg_spearman_polls=float(df.deg_spearman_polls.mean()), mean_nodf_obs=float(df.nodf_obs.mean()),
                mean_nodf_pred=float(df.nodf_pred.mean()), mean_link_precision_at_L=float(df.link_precision_at_L.mean()), wall_s=time.time() - t0)
-    cfg_all = {"model": "fusion", "retriever": rcfg, **fcfg, "topk": K}
+    cfg_all = {"model": "fusion", "retriever_model": args.retriever_model, "retriever": rcfg, **fcfg, "topk": K}
     h = config_hash(cfg_all); out = RUNS / args.name / h / "localnet" / f"s{args.seed}"; out.mkdir(parents=True, exist_ok=True)
     df.to_csv(out / "per_network.csv", index=False); json.dump(met, open(out / "metrics.json", "w"), indent=1)
     json.dump({"model": args.name, "config": cfg_all, "config_hash": h, "split": "localnet", "seed": args.seed, "git": git_commit(),

@@ -21,6 +21,7 @@ import torch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src")); sys.path.insert(0, str(ROOT))
 from antheia.bundle import write_bundle
+from antheia.baselines import REGISTRY
 from antheia.embednet import EmbedRanker
 from antheia.fusion import FusionReranker
 from antheia.store import UniverseStore
@@ -30,7 +31,8 @@ from eval.run_ladder import BASE_EMBED, load_split
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--name", required=True)
-    ap.add_argument("--retriever-config", required=True, help="JSON kwargs of the embedding-model retriever")
+    ap.add_argument("--retriever-config", default="{}", help="JSON kwargs of the retriever")
+    ap.add_argument("--retriever-model", default="embednet", help="REGISTRY key of the retriever (embednet, routed, ours_gbm, ...)")
     ap.add_argument("--config", required=True, help="JSON FusionConfig kwargs (field_dir required)")
     ap.add_argument("--split", default="cold_plant", choices=["cold_plant", "cold_poll", "cold_both", "warm"])
     ap.add_argument("--part", default="val", choices=["val", "test"])
@@ -76,7 +78,13 @@ def main():
 
     # ---- retriever: fit, score train plants and eval plants over the candidate set --------------
     t0 = time.time()
-    ret = EmbedRanker(**dict(BASE_EMBED, **rcfg, seed=args.seed, device=args.device)).fit(train, store)
+    if args.retriever_model == "embednet":
+        ret = EmbedRanker(**dict(BASE_EMBED, **rcfg, seed=args.seed, device=args.device)).fit(train, store)
+    else:
+        try:
+            ret = REGISTRY[args.retriever_model](**rcfg).fit(train, store)
+        except TypeError:
+            ret = REGISTRY[args.retriever_model]().fit(train, store)
     train_plants = sorted(set(train.plant)); tpi = store.idx_plants(train_plants)
     K = args.topk
     def topk_rows(idx):
@@ -108,7 +116,7 @@ def main():
     u = json.load(open(ROOT / "data/network/modelled_universe.json"))
     src = {p["label"]: p.get("feature_source", "direct") for p in u["plants"]}
     strata["zeroshot"] = np.array([src.get(p, "direct") != "direct" for p in ev_plants])
-    cfg_all = {"model": "fusion", "retriever": rcfg, **fcfg, "topk": K}
+    cfg_all = {"model": "fusion", "retriever_model": args.retriever_model, "retriever": rcfg, **fcfg, "topk": K}
     out, met = write_bundle(args.name, cfg_all, f"{args.split}/{args.part}", args.seed, S, Y, ev_plants, cand, strata,
                             extra={"retriever_recall_at_K": float(rec_k), "fusion_wall_s": time.time() - t1}, wall_s=wall)
     print(f"  AUPR {met['aupr']:.4f} (1:3 {met['aupr_at_0.25']:.3f}, 1:1 {met['aupr_at_0.5']:.3f})  AUROC {met['auroc']:.3f}  "

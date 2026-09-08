@@ -80,6 +80,7 @@ def main():
         m = Model().fit(train, store)
     fit_s = time.time() - t0
 
+    warm_plants = set(train.plant)          # a plant is warm if any edge survives the removal
     rows = []; pooled_y, pooled_s = [], []
     grid = pd.read_parquet(ROOT / "data/features/grid.parquet")
     from scipy.spatial import cKDTree
@@ -105,8 +106,14 @@ def main():
         dp = spearmanr(Y.sum(1), Yhat.sum(1)).correlation; dq = spearmanr(Y.sum(0), Yhat.sum(0)).correlation
         lat, lon = g.lat.median(), g.lon.median()
         d, _ = tree.query([lat, lon]) if np.isfinite(lat) and np.isfinite(lon) else (np.inf, None)
+        wm = np.array([p in warm_plants for p in P])
+        def sub_aupr(mask):
+            Ys, Ss = Y[mask], S[mask]
+            return float(average_precision_score(Ys.ravel(), Ss.ravel())) if mask.any() and 0 < Ys.sum() < Ys.size else np.nan
         rows.append(dict(network=net, dataset=g.dataset.iloc[0], n_plants=len(P), n_polls=len(Q), n_links=L, connectance=conn,
                          aupr=aupr, aupr_lift=aupr / conn, auroc=auroc, deg_spearman_plants=dp, deg_spearman_polls=dq,
+                         n_warm_plants=int(wm.sum()), aupr_warm=sub_aupr(wm), aupr_cold=sub_aupr(~wm),
+                         conn_warm=float(Y[wm].mean()) if wm.any() else np.nan, conn_cold=float(Y[~wm].mean()) if (~wm).any() else np.nan,
                          nodf_obs=nodf(Y), nodf_pred=nodf(Yhat), link_precision_at_L=float((Yhat & Y).sum() / L),
                          in_grid=bool(d <= 0.5), year_min=g.year.min(), year_max=g.year.max()))
         pooled_y.append(y); pooled_s.append(s)
@@ -121,7 +128,10 @@ def main():
                pooled_auroc=float(roc_auc_score(y_all, s_all)), pooled_connectance=float(y_all.mean()),
                mean_deg_spearman_plants=float(df.deg_spearman_plants.mean()), mean_deg_spearman_polls=float(df.deg_spearman_polls.mean()),
                mean_nodf_obs=float(df.nodf_obs.mean()), mean_nodf_pred=float(df.nodf_pred.mean()),
-               mean_link_precision_at_L=float(df.link_precision_at_L.mean()), fit_s=fit_s, wall_s=time.time() - t0)
+               mean_link_precision_at_L=float(df.link_precision_at_L.mean()), fit_s=fit_s, wall_s=time.time() - t0,
+               mean_aupr_warm=float(df.aupr_warm.mean()), mean_aupr_cold=float(df.aupr_cold.mean()),
+               mean_conn_warm=float(df.conn_warm.mean()), mean_conn_cold=float(df.conn_cold.mean()),
+               n_networks_with_cold=int(df.aupr_cold.notna().sum()))
     for ds, gd in df.groupby("dataset", dropna=False):
         met[f"mean_aupr__{ds if isinstance(ds, str) else 'other'}"] = float(gd.aupr.mean())
     h = config_hash({"model": args.model, **cfg})
@@ -133,7 +143,8 @@ def main():
     print(f"  {len(df)} networks ({met['n_in_grid']} in grid) | mean AUPR {met['mean_aupr']:.3f} [{met['mean_aupr_lo']:.3f},{met['mean_aupr_hi']:.3f}] "
           f"(mean connectance {met['mean_connectance']:.3f}, lift {met['mean_aupr_lift']:.2f}x) | pooled AUPR {met['pooled_aupr']:.3f} "
           f"AUROC {met['pooled_auroc']:.3f} | degree rho plants {met['mean_deg_spearman_plants']:.3f} polls {met['mean_deg_spearman_polls']:.3f} "
-          f"| NODF obs {met['mean_nodf_obs']:.1f} pred {met['mean_nodf_pred']:.1f} | precision@L {met['mean_link_precision_at_L']:.3f}  ({met['wall_s']:.0f}s)\n[bundle] {out}", flush=True)
+          f"| NODF obs {met['mean_nodf_obs']:.1f} pred {met['mean_nodf_pred']:.1f} | precision@L {met['mean_link_precision_at_L']:.3f} "
+          f"| warm-plant AUPR {met['mean_aupr_warm']:.3f} (conn {met['mean_conn_warm']:.3f}) cold-plant AUPR {met['mean_aupr_cold']:.3f} (conn {met['mean_conn_cold']:.3f}, {met['n_networks_with_cold']} nets)  ({met['wall_s']:.0f}s)\n[bundle] {out}", flush=True)
 
 
 if __name__ == "__main__":

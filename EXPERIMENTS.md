@@ -1333,3 +1333,13 @@ or mixed presence sources for zero-shot pollinators.
 local-network completion with real non-interactions (per-network AUPR / AUROC), network-structure fidelity
 (degree correlation, NODF at matched connectance) and, once probabilities are used, calibration. The
 within-plant ranking task (nrecall@k) is secondary/appendix for this paper and no longer drives decisions.
+
+### Concurrent work: NECTAR (Baiotto et al., bioRxiv 2026-04-01) — read, and turned into a baseline (09-08)
+
+Summary in `docs/08-methods-literature.md`. Their inference rule is `p = (spatial overlap) x (phenological overlap)` gated by
+a genus-level taxonomic constraint -- the marginal-product construction our ladder measures against -- evaluated by recall
+of withheld pairs (53.8% vs 25.2% for the genus-constrained null), no negatives, no AUPR. Re-implemented on our inputs as
+`nectar_like` (gated) and `nectar_ungated` (overlap product alone); both go through the cold-plant harness and the
+local-network evaluation as comparative rows. **Possible test data (for Dan):** their Zenodo bundle is embargoed to
+2026-10-01; after that, their species-level pairs from non-GloBI sources would be an external positive-only California test
+set. The predicted metaweb is model output, not ground truth, and should not be used as labels.

@@ -63,6 +63,8 @@ class TextHead(nn.Module):
         W = self.mlp(self.text)
         if text_only:
             return W
+        if self.res_drop >= 1.0:
+            return W                                                          # text-only head: no residual at all
         keep = self.has_res
         if self.training and self.res_drop > 0:
             keep = keep * (torch.rand(len(W), 1, device=W.device) > self.res_drop).float() / (1 - self.res_drop)

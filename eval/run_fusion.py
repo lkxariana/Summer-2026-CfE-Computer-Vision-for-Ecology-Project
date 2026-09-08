@@ -19,7 +19,7 @@ import pandas as pd
 import torch
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "src"))
+sys.path.insert(0, str(ROOT / "src")); sys.path.insert(0, str(ROOT))
 from antheia.bundle import write_bundle
 from antheia.embednet import EmbedRanker
 from antheia.fusion import FusionReranker

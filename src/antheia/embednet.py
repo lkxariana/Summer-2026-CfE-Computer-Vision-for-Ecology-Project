@@ -148,6 +148,11 @@ class EmbedConfig:
     dropout: float = 0.2
     grad_clip: float = 1.0
     bce_weight: float = 0.5
+    softmax_weight: float = 1.0      # within-plant softmax term; 0 = pooled BCE only (plan M1.1)
+    pu_prior: float = 0.0            # >0: nnPU risk (Kiryo et al. 2017) with this class prior in place of plain BCE
+    use_degree_heads: bool = False   # MLP(h_p) + MLP(h_q) -> logit; content-based, so cold-start capable
+    head_type: str = "elementwise"   # "elementwise" = [h_p,h_q,h_p*h_q,|h_p-h_q|]; "concat_bilinear" = [h_p,h_q] + h_p^T U V^T h_q
+    bilinear_rank: int = 64
     logq: bool = True
     use_bias_head: bool = True
     use_genus_context: bool = True   # E4: attend over the plant genus's recorded partners
@@ -219,12 +224,21 @@ class GenusContext(nn.Module):
 class PairHead(nn.Module):
     """[h_p, h_q, h_p*h_q, |h_p-h_q|] -> logit."""
 
-    def __init__(self, d_model, hidden, dropout, n_out=1, p_mult=1, n_extra=0, cross_layers=0):
+    def __init__(self, d_model, hidden, dropout, n_out=1, p_mult=1, n_extra=0, cross_layers=0,
+                 head_type="elementwise", bilinear_rank=64):
         super().__init__()
+        self.head_type = head_type
         self.cross = CrossNet(2 * d_model, cross_layers) if cross_layers else None
         cross_dim = 2 * d_model if cross_layers else 0
+        if head_type == "concat_bilinear":
+            # no shared-space assumption: plain concatenation plus a learned cross-space metric
+            self.U = nn.Linear(d_model, bilinear_rank, bias=False)
+            self.V = nn.Linear(d_model, bilinear_rank, bias=False)
+            in_dim = 2 * d_model + (2 * (p_mult - 1)) * d_model + n_extra + cross_dim + 1
+        else:
+            in_dim = (2 + 2 * p_mult) * d_model + n_extra + cross_dim
         self.mlp = nn.Sequential(
-            nn.Linear((2 + 2 * p_mult) * d_model + n_extra + cross_dim, hidden),
+            nn.Linear(in_dim, hidden),
             nn.GELU(), nn.Dropout(dropout),
             nn.Linear(hidden, hidden // 2), nn.GELU(), nn.Dropout(dropout),
             nn.Linear(hidden // 2, n_out))
@@ -240,7 +254,11 @@ class PairHead(nn.Module):
         B, C, d = hp.shape[0], hq.shape[0], hp.shape[1]
         a = hp.unsqueeze(1).expand(B, C, d)
         b = hq.unsqueeze(0).expand(B, C, d)
-        parts = [a, b, a * b, (a - b).abs()]
+        if self.head_type == "concat_bilinear":
+            bil = (self.U(hp) @ self.V(hq).T).unsqueeze(-1)          # [B, C, 1]  h_p^T U^T V h_q
+            parts = [a, b, bil]
+        else:
+            parts = [a, b, a * b, (a - b).abs()]
         if ctx is not None:
             c = ctx.unsqueeze(1).expand(B, C, d)
             parts += [c * b, (c - b).abs()]                       # candidate against the genus profile
@@ -377,8 +395,17 @@ class EmbedRanker:
         self.head = PairHead(cfg.d_model, cfg.hidden, cfg.dropout, n_out=n_out,
                              p_mult=2 if cfg.use_genus_context else 1,
                              n_extra=1 if cfg.use_affinity else 0,
-                             cross_layers=cfg.cross_layers).to(dev)
+                             cross_layers=cfg.cross_layers,
+                             head_type=cfg.head_type, bilinear_rank=cfg.bilinear_rank).to(dev)
         mods = [self.enc_p, self.enc_q, self.head]
+        if cfg.use_degree_heads:
+            # plan M1.3: content-based log-degree terms; the within-plant softmax cancels the plant one,
+            # so these only matter under the pooled objective, which is the point
+            self.deg_head_p = nn.Sequential(nn.Linear(cfg.d_model, 64), nn.GELU(), nn.Linear(64, 1)).to(dev)
+            self.deg_head_q = nn.Sequential(nn.Linear(cfg.d_model, 64), nn.GELU(), nn.Linear(64, 1)).to(dev)
+            for m in (self.deg_head_p[-1], self.deg_head_q[-1]):
+                nn.init.zeros_(m.weight); nn.init.zeros_(m.bias)
+            mods += [self.deg_head_p, self.deg_head_q]
         if cfg.use_genus_context:
             self.ctx = GenusContext(cfg.d_model, cfg.ctx_heads, cfg.dropout).to(dev)
             mods.append(self.ctx)
@@ -549,6 +576,8 @@ class EmbedRanker:
                                      + 1e-3 * self.Cf_t[tc_i][:, self.aff_FI[bp]].T).unsqueeze(-1)
                 out = self.head(hp, hq, ctx, ex)                           # [B,C] or [B,C,2]
                 logits = out[..., 0] if cfg.use_tier_head else out
+                if cfg.use_degree_heads:
+                    logits = logits + self.deg_head_p(hp) + self.deg_head_q(hq).T   # [B,1] + [1,C]
                 if cfg.use_wide_affinity or cfg.use_degree_offset or cfg.backoff_crosses:
                     logits = logits + self.wide(self._wide_feats(tp_i, tc_i))
                 if cfg.use_bias_head:
@@ -578,11 +607,21 @@ class EmbedRanker:
                     corr = torch.cat([logQ_pop[torch.from_numpy(np.ascontiguousarray(bq[sub])).long().to(dev)],
                                       torch.full((n_uni,), logQ_uni, device=dev)])
                     z = z - corr[None, :]
-                loss = F.cross_entropy(z.masked_fill(hitT, MASK_FILL)[vm], tgt[vm])
+                loss = cfg.softmax_weight * F.cross_entropy(z.masked_fill(hitT, MASK_FILL)[vm], tgt[vm])
                 lab = torch.zeros_like(logits)
                 lab[torch.arange(B, device=dev)[vm], tgt[vm]] = 1.0
-                loss = loss + cfg.bce_weight * F.binary_cross_entropy_with_logits(
-                    logits, lab, weight=(~hitT).float(), pos_weight=pos_weight)
+                if cfg.pu_prior > 0:
+                    # non-negative PU risk: unlabelled cells are a mixture, not negatives
+                    w = (~hitT).float()
+                    pos_m = lab > 0
+                    l_pos = F.softplus(-logits)[pos_m].mean()                       # positives scored positive
+                    l_pos_neg = F.softplus(logits)[pos_m].mean()                    # positives scored negative
+                    l_unl_neg = (F.softplus(logits) * w * (1 - lab)).sum() / (w * (1 - lab)).sum()
+                    prior = cfg.pu_prior
+                    loss = loss + cfg.bce_weight * (prior * l_pos + torch.clamp(l_unl_neg - prior * l_pos_neg, min=0.0))
+                else:
+                    loss = loss + cfg.bce_weight * F.binary_cross_entropy_with_logits(
+                        logits, lab, weight=(~hitT).float(), pos_weight=pos_weight)
 
                 if cfg.use_tier_head:
                     # auxiliary: is this pair flower-visitation evidence, supervised on positives only
@@ -687,6 +726,8 @@ class EmbedRanker:
                 z = self.head(hp, hq, ctx, ex)
                 if self.cfg.use_tier_head:
                     z = z[..., 0]
+                if self.cfg.use_degree_heads:
+                    z = z + self.deg_head_p(hp) + self.deg_head_q(hq).T
                 if self.cfg.use_wide_affinity or self.cfg.use_degree_offset or self.cfg.backoff_crosses:
                     z = z + self.wide(self._wide_feats(
                         torch.tensor([p], device=self.dev, dtype=torch.long), qs_all))

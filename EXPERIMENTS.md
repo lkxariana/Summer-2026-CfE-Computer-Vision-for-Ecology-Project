@@ -1594,3 +1594,16 @@ Remaining gap: precision@L 0.231 vs 0.252 and cold-plant 0.238 vs 0.268 within s
 subtraction) all leave the re-ranker at 0.165 within sites: the token-set re-ranker does not convert a genus profile
 into within-site gains, whereas the R-GCN's message passing does (0.204). The genus-token route is closed; the neural
 warm-information channel is the graph. Remaining M2.10c universe seeds stopped as uninformative.
+
+### M2.12 — re-ranker on the R-GCN (09-08, seed 42, provisional) — **best on every universe column**
+
+R-GCN retriever (recall@500 on val plants 0.745, vs 0.684 for the embedding model) + identity-token re-ranker:
+
+| | AUPR | AUPR 1:3 / 1:1 | AUROC | nR@10 | nR@50 | unseen-genus nR@10 |
+|---|---:|---:|---:|---:|---:|---:|
+| R-GCN alone (seed 42) | 0.154 | 0.908 / 0.962 | 0.963 | 0.369 | 0.528 | 0.235 |
+| re-ranker on embedding model (seed 42) | 0.197 | 0.907 / 0.960 | 0.956 | 0.329 | 0.481 | 0.176 |
+| **re-ranker on R-GCN (seed 42)** | **0.191** | **0.926 / 0.970** | **0.970** | **0.384** | **0.552** | **0.253** |
+
+The re-ranking gain (+0.037 AUPR here) transfers to the R-GCN retriever, and the R-GCN's ranking advantage is kept.
+Pending: seeds 0/1 and the local-network run (the R-GCN alone is at 0.204 there).

@@ -1362,3 +1362,33 @@ softmax is necessary even for the pooled metric (removing it collapses AUPR by 0
 flattens logits and lowers AUPR; the reference sits at the optimum of this family. The plan's hypothesis "0.159 is
 objective-limited" is rejected for this loss family. Phase B (degree heads, nnPU prior, concat+bilinear head) runs
 on the reference base.
+
+### Table 3 first pass — local-network completion (09-08) — **the ranking reverses on real non-interactions**
+
+`eval/run_localnets.py` / `eval/make_localnet_table.py` -> `results/tables_localnet.md`. 91 surveyed networks (71 inside
+the grid), every local-network pair removed from training, per-network AUPR (chance = connectance 0.135), predicted
+network at matched connectance for structure. Learned rows are seed 42 only so far.
+
+| method | mean AUPR [CI] | pooled AUROC | deg rho plants / polls | NODF pred (obs 36) | precision@L |
+|---|---:|---:|---:|---:|---:|
+| popularity | 0.192 [0.179, 0.207] | 0.621 | -0.02 / 0.27 | 92 | 0.209 |
+| congeneric transfer | 0.222 [0.205, 0.242] | 0.610 | 0.10 / 0.32 | 70 | 0.239 |
+| SVD + taxonomic | 0.179 | 0.607 | 0.13 / 0.28 | 76 | 0.199 |
+| pair GBM (Pichler) | 0.203 | 0.605 | 0.07 / 0.34 | 83 | 0.218 |
+| **boosted ranker / routed (ours)** | **0.222 [0.205, 0.239]** | 0.614 | **0.20 / 0.35** | 62 | **0.252** |
+| Wide & Deep | 0.155 | 0.583 | 0.04 / 0.25 | 44 | 0.145 |
+| embedding model (ours) | 0.163 [0.150, 0.177] | **0.632** | 0.00 / 0.26 | **43** | 0.161 |
+
+**Reading.** Within a surveyed site, where every candidate pair co-occurs by construction, the trees and congeneric
+transfer lead on per-network AUPR and on the head of the network (precision@L); the embedding model -- the AUPR leader on
+the full universe -- falls *below popularity* on per-network AUPR while holding the best AUROC and the most realistic
+nestedness. That is the filter-not-ranker signature again, now for the whole neural model: its ordering is good across
+the block and weak at the top. Global prevalence/range signal, which powers pooled AUPR over 145M pairs, is worth much
+less inside a site; sharp taxonomic affinity is worth more.
+
+**LARGE DECISION FOR DAN (not taken):** if local-network completion is the connectivity headline, the boosted/routed model
+is currently the best of ours on it, not the embedding model. The plan's model 2 (fusion re-ranker) uses the embedding
+model as retriever; a booster-based retriever (or re-ranking the booster's candidates) may be the better connectivity
+route. Pending: seeds 0/1 for the neural rows, the NECTAR-style rows, and the fusion / R-GCN rows before deciding.
+Caveats: two historical networks (1923, 1929); 20 BC networks outside the grid; connectance 0.135 makes this a much
+denser problem than the universe (0.0013).

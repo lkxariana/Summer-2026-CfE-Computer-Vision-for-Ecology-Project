@@ -1663,3 +1663,26 @@ NODF 50-53 (obs 36). Identical to the R-GCN alone (0.204): the re-ranker neither
 (0.369); local mean AUPR 0.205 (0.204), warm 0.207 / cold 0.259, precision@L 0.234. Fails the adoption rule (local gain
 +0.001 < 0.01 with a universe loss of 0.018). The two-layer R-GCN stays as the retriever. No further arms are queued
 without Dan; both GPUs idle.
+
+## Refinement stage and split battery (09-08, evening) -- Dan: "use the system as the basis and refine; add warm start and the other regimes"
+
+Pre-registered rule for every refinement: adopt only if local mean AUPR rises by >= 0.01 with no universe AUPR loss > 0.01
+and every universe lead retained. Arms (R-GCN retriever, frozen objective): R1 warm residual (`warm_residual`, DropoutNet-style
+per-species vector, zero for cold species by construction), R2 direct genus <-> partner relations (`genus_edges`, log1p training
+counts, leave-own-edges-out), R1+R2, R3 symmetric leave-own-edges-out (`anchor_side="both"`), and an attention-aggregation
+control (`aggregation="attention"`, per-relation GAT-style, SimpleHGN-like) requested by Dan to answer "why not a transformer".
+Split battery (cold_poll, cold_both, warm; `scripts/queue_battery.sh`) for the system, its retriever and all comparison models.
+
+**R2 genus edges, seed 42:** universe AUPR 0.151 (M3.1 s42 0.150), nR@10 0.366 (0.368), unseen-genus 0.225; local mean AUPR
+0.190 [0.175, 0.205] (M3.1 0.204), warm 0.192 (0.206), cold 0.252 (0.241), precision@L 0.213 (0.233), NODF 47. The direct
+genus lookup lifts cold plants within sites a little and costs warm plants more: fails the rule on seed 42.
+
+**Battery, cold_poll seed 42 (8,123 plants x 1,312 held-out pollinators, 5,829 positives, prevalence 0.00055):** the frozen
+system collapses. R-GCN alone AUPR 0.005 (AUROC 0.71), system 0.017 (0.76), while the co-occurrence models lead: ANTHEIA v1
+scalar 0.037 (AUROC 0.84), ANTHEIA v1 spatial 0.033, pair GBM 0.031 (0.85), Wide & Deep 0.029, phenology x abundance 0.027,
+abundance 0.026, N 0.021; identity-based baselines are at chance (congeneric = popularity = 0.002, SVD 0.005, boosted trees
+0.003, pair MLP 0.002). Diagnosis: leave-own-edges-out was applied to plants only, so the model never rehearsed a pollinator
+without edges; its pollinator side is pure identity. Field-based baselines win where identity is empty -- consistent with the
+field-independence measurement (84% of pollinator field variance unexplained by taxonomy/text). R3 (symmetric anchors) is the
+principled fix and is queued as `M3.7_rgcn_sym` (cold_plant + local + cold_poll, 3 seeds; smoke after 1 epoch on cold_poll:
+AUPR 0.0375, AUROC 0.87 -- a smoke, not a result). Adopting R3 into the frozen system is Dan's call (it changes the retriever).

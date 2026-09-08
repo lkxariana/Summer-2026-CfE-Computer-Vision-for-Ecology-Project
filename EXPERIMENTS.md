@@ -1250,3 +1250,28 @@ values, not for the within-pair contrast).
   is the one place the learned, commensurable field beat the production surfaces.
 - **The time marginal is the weakest again** (0.255 vs space 0.344 at nR@50): phenology summed over
   space carries less than range overlap and far less than the per-cell product.
+
+### Block ablation of the embedding model for PR-AUC (3 seeds, 09-08) — **the spatio-temporal blocks carry a fifth of the PR-AUC and little of the ranking**
+
+`eval/run_field_swap.py --preset ablate --save-scores`, `eval/pool_prauc.py` (per-seed metrics averaged;
+paired plant bootstrap within seed, 1,000 resamples) -> `results/block_ablation_prauc_pooled.csv`,
+`results/block_ablation_val_tierA_s*.csv`. Validation, tier A, 663 plants, all 13,124 candidates.
+Chance PR-AUC = prevalence = 0.00132.
+
+| arm | PR-AUC | AUROC | PR-AUC re-expressed at 1:3 / 1:1 | Delta PR-AUC vs full | nR@10 | Delta nR@10 vs full |
+|---|---:|---:|---:|---:|---:|---:|
+| **full** (text+surface+pca+scale) | **0.159** | 0.954 | 0.899 / 0.957 | -- | 0.282 | -- |
+| -surface | 0.145 | 0.952 | 0.890 / 0.954 | **-0.014 p<0.001** | 0.272 | -0.010 p=0.14 |
+| -pca | 0.152 | 0.951 | 0.893 / 0.954 | -0.007 p=0.036 | 0.276 | -0.006 p=0.27 |
+| text + scale only | 0.129 | 0.942 | 0.872 / 0.945 | **-0.030 p<0.001** | 0.255 | -0.027 p<0.001 |
+| -text | 0.092 | 0.918 | 0.826 / 0.922 | -0.068 p<0.001 | 0.220 | -0.062 p<0.001 |
+| surface + scale only | 0.084 | 0.909 | 0.810 / 0.914 | -0.075 p<0.001 | 0.202 | -0.080 p<0.001 |
+
+- The two spatial blocks together are worth 0.030 of 0.159 PR-AUC (19%), each significant on its own;
+  for nR@10 they are individually non-significant and jointly worth 0.027. Identity carries 0.068 of the
+  PR-AUC and all of the ranking gap. The two-task split is measurable inside one model.
+- The prevalence re-expression (negatives re-weighted so positives are 25% / 50% of the data, computed
+  from the full ranking rather than a sample) gives the numbers the ecological literature reports:
+  0.90 / 0.96. Report all three with the prevalence stated.
+- Note for pooling: averaging score matrices across seeds is an ensemble and inflated PR-AUC to 0.182;
+  the table uses per-seed metrics averaged.

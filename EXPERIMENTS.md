@@ -1814,3 +1814,7 @@ R2 neutral/negative. Pending: R4 marginal + scalar controls, R3+R4, R3+R1, atten
 retriever (0.033). The graph system wins the whole-list metrics (AUROC, nR@50) on warm and loses the head (AUPR) to matrix
 factorisation by 2x; frozen retriever warm s0 0.032. R3+R1 (memory path) is the arm aimed at this and starts now.
 Cold_both seed 42 under the old protocol: 0.062 (best baseline 0.045) -- lower bound, re-run pending.
+
+**Frozen retriever, cold_poll seed 1 under protocol v2 (verified by bundle commit): AUPR 0.0054, AUROC 0.726.** The retriever's
+cold-pollinator collapse survives the clean protocol, so it is the anchor asymmetry, not the negative leak; the leak mainly
+damaged the re-ranker (system on R3: 0.010 leaky vs 0.049 after one clean epoch). Frozen system warm seed 0 (clean): 0.044.

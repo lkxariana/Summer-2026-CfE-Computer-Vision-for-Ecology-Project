@@ -1939,3 +1939,5 @@ retriever 3 seeds 0.215). R6c bilinear co-presence head, cold-plant s42: 0.182 (
 **R6c learned co-presence bilinear head, local networks seed 42:** 0.206 [0.191, 0.221] (R3 0.215; frozen 0.204), warm 0.208, cold
 0.244, precision@L 0.229. Cold-plant 0.182 (+0.013 over R3) but within-site -0.009: fails the rule, the same trade-off as R4
 with a slightly better exchange rate. cold_poll running for the record. R3 retriever cold_both s0: 0.071.
+R6c cold_poll s42: 0.127 (= R3+R4). R3 retriever cold_both 3 seeds 0.078 / 0.071 / 0.069 (mean 0.073), warm s0 0.034. R7
+co-occurrence negatives started (last agreed arm).

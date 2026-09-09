@@ -1970,3 +1970,8 @@ congeneric 0.219, trees 0.219, pair GBM 0.194. The whole within-site gap sits in
 congeneric 0.265, popularity 0.233 -- the system's lead is intact on the rarest plants. Unseen-genus AUPR: v1 0.069 > final
 0.051 (nR@10 0.260 vs 0.245, p = 0.25): symmetric rehearsal costs a little where the plant's genus is unseen. Zero-shot
 (text-imputed feature) plants: final 0.361, v1 0.369, others <= 0.32.
+
+**Genus-profile tokens in the re-ranker on the R3 retriever, local networks seed 42:** 0.213 [0.197, 0.230] (System v2 0.214),
+precision@L 0.238 (0.235), NODF 53. The trees' genus lookup handed to the re-ranker as tokens changes nothing within sites on
+the current system either. The within-site gap to congeneric transfer is not an information-access problem; closed.
+A3 month-collapsed, cold-plant 0.167 (cell x month 0.169).

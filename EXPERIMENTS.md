@@ -1716,3 +1716,24 @@ nR@10 0.224 (0.119), nR@50 0.439 (0.265). The collapse is repaired (5x) but the 
 models on this split (ANTHEIA v1 scalar 0.0367 / AUROC 0.837, pair GBM 0.0312 / 0.852). The re-ranker added +0.012 on the
 frozen retriever here, so the system on R3 is expected near 0.035; the explicit pair co-presence statistic (R4) is the arm
 aimed at the remainder and should also be run on cold_poll.
+
+**Battery, cold_both seed 42 (1,085 held-out plants x 1,312 held-out pollinators, 947 positives, prevalence 0.00067):**
+
+| model | AUPR | AUROC | nR@10 |
+|---|---:|---:|---:|
+| ANTHEIA v1 scalar (PCA-15 + N + Delta) | **0.045** | 0.809 | **0.316** |
+| ANTHEIA v1 spatial (PCA-15 + N) | 0.042 | 0.798 | 0.313 |
+| frozen system (R-GCN + re-ranker) | 0.031 | 0.762 | 0.203 |
+| phenology x abundance | 0.029 | 0.805 | 0.243 |
+| abundance neutral | 0.028 | 0.798 | 0.190 |
+| pair GBM | 0.028 | **0.847** | 0.200 |
+| Wide & Deep | 0.026 | 0.817 | 0.165 |
+| co-occurrence N | 0.020 | 0.691 | 0.218 |
+| NECTAR-style (gated = ungated) | 0.016 | 0.822 | 0.039 |
+| embedding retriever | 0.011 | 0.726 | 0.068 |
+| two-tower / DCN-V2 / frozen R-GCN alone | 0.009 / 0.008 / 0.006 | 0.54 / 0.67 / 0.72 | |
+| pair MLP / SVD+tax / trees / routed / congeneric / popularity | 0.003-0.004 | 0.50-0.57 | |
+
+Where both sides are unseen, every identity-driven model is at chance and the co-occurrence PCA models lead; the frozen
+system is third on AUPR only because the re-ranker rescues its retriever (0.006 -> 0.031). Same diagnosis as cold_poll; R3
+on this split is queued in refine2.

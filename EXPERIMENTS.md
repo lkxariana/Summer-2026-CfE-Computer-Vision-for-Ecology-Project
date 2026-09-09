@@ -1947,3 +1947,7 @@ R3 retriever warm 3 seeds: 0.033 / 0.034 / 0.034. GPU 1 freed -> System v2 local
 0.169): fails the rule on the universe criterion before its local number. All seed-42 pollinator-side bundles are clean; tables
 regenerated (`results/tables_publish.md`, appendix `results/tables_ladder_*.md`, `results/tables_localnet.md`) and
 `docs/paper/story-v2.md` §6b rewritten with the clean three-seed numbers.
+
+**R7 co-occurrence negatives, local networks seed 42:** 0.204 [0.190, 0.221] (R3 0.215), warm 0.206, cold 0.256, precision@L 0.226.
+Fails on both criteria (cold-plant -0.017, within-site -0.011). Training the retriever on within-site-style negatives does not
+buy within-site accuracy; the objective is not the lever either. Refinement stage closed: R3 is the only adoption.

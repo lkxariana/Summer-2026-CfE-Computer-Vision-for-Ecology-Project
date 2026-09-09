@@ -1737,3 +1737,8 @@ aimed at the remainder and should also be run on cold_poll.
 Where both sides are unseen, every identity-driven model is at chance and the co-occurrence PCA models lead; the frozen
 system is third on AUPR only because the re-ranker rescues its retriever (0.006 -> 0.031). Same diagnosis as cold_poll; R3
 on this split is queued in refine2.
+
+**R3 symmetric anchors, cold-plant 3 seeds:** AUPR 0.169 / 0.167 / 0.175 (mean 0.170; frozen retriever 0.150), nR@10 0.371-0.378,
+unseen-genus 0.221-0.253; cold_poll seeds 42/0: 0.0255 / 0.0263. Universe criterion met on three seeds, local criterion met on
+seed 42 (+0.011). Go-file created: the system on the R3 retriever (M4.0_system_sym) starts on GPU 1 -- cold_plant 3 seeds,
+local networks, battery seed 42. Local seeds 0/1 for the R3 retriever still to run.

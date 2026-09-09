@@ -25,7 +25,7 @@
 | Boosted ranker: taxonomy + spatial + per-cell features | this work, v2 | 1 | 0.102 | 0.806 | 0.904 | 0.881 | 0.320 | 0.426 | 0.122 |
 | Genus-routed experts (booster / SVD by genus) | this work, v2 | 1 | 0.103 | 0.810 | 0.906 | 0.883 | 0.336 | 0.447 | 0.256 |
 | *Ours: graph retriever + re-ranker* | | |  |  |  |  |  |  |  |
-| **System v2: R-GCN (symmetric leave-own-edges-out, R3) + identity re-ranker** | this work | 3 | **0.209** | **0.931** | **0.972** | **0.972** | **0.383** | 0.549 | 0.245 |
+| **System v2: R-GCN (symmetric leave-own-edges-out, R3) + identity re-ranker** | this work | 3 | **0.209** | **0.931** | **0.972** | **0.972** | 0.383 | 0.549 | 0.245 |
 |   ablation: R3 retriever alone | this work | 3 | 0.170 | 0.916 | 0.966 | 0.966 | 0.375 | 0.541 | 0.236 |
 | System v1: R-GCN (plant-side leave-own-edges-out) + identity re-ranker | this work | 3 | 0.188 | 0.926 | 0.970 | 0.970 | 0.383 | 0.550 | 0.260 |
 |   ablation: frozen R-GCN retriever alone | this work | 3 | 0.150 | 0.908 | 0.962 | 0.962 | 0.368 | 0.532 | 0.244 |

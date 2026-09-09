@@ -1942,3 +1942,8 @@ with a slightly better exchange rate. cold_poll running for the record. R3 retri
 R6c cold_poll s42: 0.127 (= R3+R4). R3 retriever cold_both 3 seeds 0.078 / 0.071 / 0.069 (mean 0.073), warm s0 0.034. R7
 co-occurrence negatives started (last agreed arm).
 R3 retriever warm 3 seeds: 0.033 / 0.034 / 0.034. GPU 1 freed -> System v2 local-network seeds 0/1 (`scripts/queue_sys_local.sh`).
+
+**System v2 local networks, three seeds: 0.214 / 0.215 / 0.212 (mean 0.214).** R7 co-occurrence negatives cold-plant 0.152 (R3
+0.169): fails the rule on the universe criterion before its local number. All seed-42 pollinator-side bundles are clean; tables
+regenerated (`results/tables_publish.md`, appendix `results/tables_ladder_*.md`, `results/tables_localnet.md`) and
+`docs/paper/story-v2.md` §6b rewritten with the clean three-seed numbers.

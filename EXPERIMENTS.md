@@ -1824,3 +1824,13 @@ aggregation 0.150), AUROC 0.962, nR@10 0.368 (0.368), nR@50 0.542, unseen-genus 
 for mean aggregation. Within one-seed noise of the R-GCN: the aggregation rule is not where the gains are (HGB finding, Lv et
 al. 2021, reproduced here). Local networks running; no further seeds unless the local number surprises.
 R3+R1 cold-plant seed 42: 0.174 (R3 0.169, R1 0.170) -- gains only partly additive. R5 seed 0: 0.168.
+
+**R6 (09-09 04:20): per-species presence embedding as node input.** Dan asked why presence enters the R-GCN only through the
+top-64 cell x month edges per species (a scale choice: full connection = ~1e9 edges) and whether a species-level embedding
+could be passed instead. Implemented `presence_input`: "field" (the SDM species vector u_s, 256-D) or "surface" (SVD projection
+of the full presence surface, ANTHEIA v1's signal at rank 256), standardised, linearly projected and added to the species node
+input next to the text vector. Smoke (1 epoch, R3 retriever, cold_poll seed 42, "surface"): AUPR 0.082, AUROC 0.903, nR@10
+0.348, nR@50 0.631 -- the 20-epoch R3 retriever scores 0.026 and the best baseline 0.037. A smoke, not a result; both variants
+queued on the R3 retriever (cold_plant, local networks, cold_poll; `scripts/queue_r6.sh`). Diagnosis: the pollinator side was
+starved of a whole-surface description of where a species lives; the cell nodes serve as the meeting place, not as the
+species' range summary. R5 seed 1: 0.165 (three seeds 0.165 / 0.168 / 0.165).

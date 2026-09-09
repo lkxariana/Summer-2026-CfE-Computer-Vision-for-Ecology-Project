@@ -1710,3 +1710,9 @@ field's phenology at that cell adds essentially nothing over the graph model. Ne
 **R1+R2 (warm residual + genus edges), seed 42:** universe AUPR 0.164, nR@10 0.373, nR@50 0.552, unseen-genus 0.240; local mean
 AUPR 0.185 [0.171, 0.199] (0.204), warm 0.188, cold 0.250, precision@L 0.209. Fails the rule, as each part did alone. The
 refinement queue on GPU 1 now runs seeds 0/1 of R2, R1 and R1+R2 for the record, then the attention control.
+
+**R3 symmetric anchors, cold_poll seed 42:** AUPR 0.0255 (frozen R-GCN 0.0047, frozen system 0.0172), AUROC 0.835 (0.708),
+nR@10 0.224 (0.119), nR@50 0.439 (0.265). The collapse is repaired (5x) but the retriever alone still trails the co-occurrence
+models on this split (ANTHEIA v1 scalar 0.0367 / AUROC 0.837, pair GBM 0.0312 / 0.852). The re-ranker added +0.012 on the
+frozen retriever here, so the system on R3 is expected near 0.035; the explicit pair co-presence statistic (R4) is the arm
+aimed at the remainder and should also be run on cold_poll.

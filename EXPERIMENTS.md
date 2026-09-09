@@ -1795,3 +1795,6 @@ training top-K is now computed over the pool. Cold-plant and local-network runs 
 All cold_poll / cold_both / warm bundles of non-deterministic models written before the fix are deleted and re-run by
 `scripts/protocol_v2_rerun.sh` once the current queues finish. Until then the pollinator-side numbers above are provisional;
 in particular the frozen retriever's cold_poll "collapse" must be re-measured before it is attributed to anchor asymmetry.
+
+Smoke of the protocol-v2 fix (one epoch each, R3 retriever + re-ranker, cold_poll seed 42; a smoke, not a result): AUPR 0.049,
+AUROC 0.892, recall@500 0.905 -- above the best baseline on this split (0.037) after a single epoch. The full re-runs decide.

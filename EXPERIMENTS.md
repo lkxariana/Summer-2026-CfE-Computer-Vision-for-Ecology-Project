@@ -1941,3 +1941,4 @@ retriever 3 seeds 0.215). R6c bilinear co-presence head, cold-plant s42: 0.182 (
 with a slightly better exchange rate. cold_poll running for the record. R3 retriever cold_both s0: 0.071.
 R6c cold_poll s42: 0.127 (= R3+R4). R3 retriever cold_both 3 seeds 0.078 / 0.071 / 0.069 (mean 0.073), warm s0 0.034. R7
 co-occurrence negatives started (last agreed arm).
+R3 retriever warm 3 seeds: 0.033 / 0.034 / 0.034. GPU 1 freed -> System v2 local-network seeds 0/1 (`scripts/queue_sys_local.sh`).

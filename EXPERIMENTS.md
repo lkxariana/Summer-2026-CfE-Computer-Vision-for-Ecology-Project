@@ -2002,3 +2002,8 @@ A2 no taxon nodes, cold_poll s42: **0.129** (with taxa 0.101). Removing the genu
 (cold-plant +0.008, local +0.005, cold_poll +0.028). Structural ablation set complete: cells inert, months inert, taxa harmful.
 System on the A2 retriever (M5.0_system_notaxon) queued on GPU 0: cold_plant s42, local (fusion), cold_poll/cold_both/warm
 s42, then cold_plant seeds 0/1 (`scripts/queue_sys_a2.sh`). Adoption over System v2 is Dan's call once the seeds are in.
+
+**No-taxon retriever seeds:** cold-plant s0 0.169 (s42 0.177; R3 0.167-0.175 -> cold-plant neutral); cold_poll s0 0.135 (s42 0.129;
+R3 0.100-0.105); local s0 0.217 (s42 0.220; R3 0.214-0.216). **System on the no-taxon retriever (M5.0), seed 42:** cold-plant
+0.215 (System v2 0.208), nR@10 0.374 (0.386), unseen-genus 0.256 (0.247); local 0.216 [0.201, 0.232] (0.214), precision@L 0.242
+(0.235, best of any model). cold_poll / cold_both / warm s42 running.

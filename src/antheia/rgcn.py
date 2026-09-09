@@ -57,6 +57,10 @@ class RGCNConfig:
     degree_encoding: bool = False       # R5: Graphormer-style centrality encoding -- log(1 + in-degree per relation) added to node inputs
     presence_input: str = "none"        # R6: per-species presence embedding added to the species node input: "field" (SDM species vector,
                                         #     256-D, whose dot with h(c,w) is the presence surface) | "surface" (SVD projection of the full surface)
+    presence_fusion: str = "add"        # R6b: "add" (projected presence added to projected text) | "concat" ([text || presence] -> MLP -> d)
+    pres_bilinear_rank: int = 0         # R6c: > 0 adds a learned low-rank co-presence metric u_p^T W u_q to the head (generalises R4)
+    cooc_neg_frac: float = 0.0          # R7: share of the uniform negatives replaced by in-batch co-occurrence negatives (pollinators that share
+                                        #     a cell with a batch plant), so training rewards the within-site discrimination as well
     head_type: str = "concat_bilinear"
     bilinear_rank: int = 64
     use_degree_heads: bool = True
@@ -236,12 +240,15 @@ class RGCNRanker:
     def _node_inputs(self):
         x = torch.zeros(self.N, self.cfg.d, device=self.dev)
         n_p, n_q = self.text_p.shape[0], self.text_q.shape[0]
-        x[:n_p] = self.proj_text(self.text_p); x[n_p:n_p + n_q] = self.proj_text(self.text_q)
+        if self.cfg.presence_input != "none" and self.cfg.presence_fusion == "concat":
+            x[:n_p] = self.proj_in(torch.cat([self.text_p, self.pres_p], 1)); x[n_p:n_p + n_q] = self.proj_in(torch.cat([self.text_q, self.pres_q], 1))
+        else:
+            x[:n_p] = self.proj_text(self.text_p); x[n_p:n_p + n_q] = self.proj_text(self.text_q)
         if self.cfg.warm_residual:
             x[:n_p + n_q] = x[:n_p + n_q] + self.res_emb.weight * self._res_mask[:, None]
         if self.cfg.degree_encoding:
             x = x + self.proj_deg(self._deg)
-        if self.cfg.presence_input != "none":
+        if self.cfg.presence_input != "none" and self.cfg.presence_fusion == "add":
             x[:n_p] = x[:n_p] + self.proj_pres(self.pres_p); x[n_p:n_p + n_q] = x[n_p:n_p + n_q] + self.proj_pres(self.pres_q)
         if self.n_t:
             x[self.off[2]:self.off[2] + self.n_t] = self.tax_emb.weight
@@ -268,7 +275,7 @@ class RGCNRanker:
         self.proj_cell = nn.Linear(self.cell_feat.shape[1] if self.cell_feat is not None else 1, cfg.d).to(dev)
         self.layers = nn.ModuleList([RelLayer(cfg.d, self.n_rel, cfg.bases, cfg.dropout, cfg.aggregation) for _ in range(cfg.layers)]).to(dev)
         self.head = PairHead(cfg.d, 2 * cfg.d, cfg.dropout, head_type=cfg.head_type, bilinear_rank=cfg.bilinear_rank,
-                             n_extra=1 if cfg.pair_stat != "none" else 0).to(dev)
+                             n_extra=(1 if cfg.pair_stat != "none" else 0) + (1 if cfg.pres_bilinear_rank > 0 else 0)).to(dev)
         mods = [self.proj_text, self.tax_emb, self.proj_cell, self.layers, self.head]
         if cfg.degree_encoding:
             self.proj_deg = nn.Linear(self.n_rel, cfg.d).to(dev); nn.init.normal_(self.proj_deg.weight, std=0.01); mods.append(self.proj_deg)
@@ -284,7 +291,24 @@ class RGCNRanker:
             mu = np.concatenate([A, Bm]).mean(0, keepdims=True); sd = np.concatenate([A, Bm]).std(0, keepdims=True) + 1e-6
             self.pres_p = torch.from_numpy(((A - mu) / sd).astype(np.float32)).to(dev)
             self.pres_q = torch.from_numpy(((Bm - mu) / sd).astype(np.float32)).to(dev)
-            self.proj_pres = nn.Linear(A.shape[1], cfg.d).to(dev); mods.append(self.proj_pres)
+            if cfg.presence_fusion == "concat":
+                self.proj_in = nn.Sequential(nn.Linear(tp.shape[1] + A.shape[1], cfg.d), nn.GELU(), nn.Linear(cfg.d, cfg.d)).to(dev); mods.append(self.proj_in)
+            else:
+                self.proj_pres = nn.Linear(A.shape[1], cfg.d).to(dev); mods.append(self.proj_pres)
+        if cfg.pres_bilinear_rank > 0:
+            if cfg.presence_input == "none":
+                A, Bm = np.asarray(store.plant_proj, np.float32), np.asarray(store.poll_proj, np.float32)
+                mu = np.concatenate([A, Bm]).mean(0, keepdims=True); sd = np.concatenate([A, Bm]).std(0, keepdims=True) + 1e-6
+                self.pres_p = torch.from_numpy(((A - mu) / sd).astype(np.float32)).to(dev)
+                self.pres_q = torch.from_numpy(((Bm - mu) / sd).astype(np.float32)).to(dev)
+            self.bil_p = nn.Linear(self.pres_p.shape[1], cfg.pres_bilinear_rank, bias=False).to(dev)
+            self.bil_q = nn.Linear(self.pres_q.shape[1], cfg.pres_bilinear_rank, bias=False).to(dev)
+            mods += [self.bil_p, self.bil_q]
+        if cfg.cooc_neg_frac > 0:
+            Fm = torch.from_numpy(np.asarray(store.F, np.float32)).to(dev); Pm = torch.from_numpy(np.asarray(store.P, np.float32)).to(dev)
+            with torch.no_grad():
+                self.cooc = ((Fm @ Pm.T) > 0).cpu().numpy()                    # [n_p, n_q] bool: share at least one cell
+            del Fm, Pm
         n_sp = len(store.plants) + len(store.polls)
         if cfg.warm_residual:
             self.res_emb = nn.Embedding(n_sp, cfg.d).to(dev); nn.init.zeros_(self.res_emb.weight); mods.append(self.res_emb)
@@ -324,12 +348,20 @@ class RGCNRanker:
             for s in range(0, len(pi), cfg.batch):
                 b = perm[s:s + cfg.batch]; bp, bq = pi[b], qi[b]; B = len(bp)
                 sub = rng.choice(B, min(cfg.in_batch, B), replace=False)
-                cand = np.concatenate([bq[sub], negpool.sample(rng, n_uni, n_q)]); Cn = len(cand)
+                n_co = int(cfg.cooc_neg_frac * n_uni)
+                if n_co:
+                    pool_mask = np.zeros(n_q, bool); pool_mask[negpool.pool(n_q)] = True
+                    co = []
+                    for pl in rng.choice(bp, n_co):
+                        opts = np.flatnonzero(self.cooc[pl] & pool_mask)
+                        co.append(rng.choice(opts) if len(opts) else negpool.sample(rng, 1, n_q)[0])
+                    cand = np.concatenate([bq[sub], np.array(co, int), negpool.sample(rng, n_uni - n_co, n_q)])
+                else:
+                    cand = np.concatenate([bq[sub], negpool.sample(rng, n_uni, n_q)])
+                Cn = len(cand)
                 h = self._encode(adjs)                                            # full graph, [N, d]
                 hp = h[torch.from_numpy(bp).long().to(dev)]; hq = h[off_q + torch.from_numpy(cand).long().to(dev)]
-                extra = None
-                if cfg.pair_stat != "none":
-                    extra = self._pair_stat(torch.from_numpy(bp).long().to(dev), torch.from_numpy(cand).long().to(dev))
+                extra = self._extra(torch.from_numpy(bp).long().to(dev), torch.from_numpy(cand).long().to(dev))
                 logits = self.head(hp, hq, extra=extra)
                 if cfg.use_degree_heads:
                     logits = logits + self.deg_p(hp) + self.deg_q(hq).T
@@ -389,6 +421,14 @@ class RGCNRanker:
                                      torch.from_numpy(rng.choice(Bm.shape[0], 2048, replace=False)).to(dev), raw=True)
             self.ps_mu, self.ps_sd = float(sample.mean()), float(sample.std().clamp_min(1e-6))
 
+    def _extra(self, pidx, qidx):
+        parts = []
+        if self.cfg.pair_stat != "none":
+            parts.append(self._pair_stat(pidx, qidx))
+        if self.cfg.pres_bilinear_rank > 0:
+            parts.append((self.bil_p(self.pres_p[pidx]) @ self.bil_q(self.pres_q[qidx]).T).unsqueeze(-1))
+        return torch.cat(parts, -1) if parts else None
+
     def _pair_stat(self, pidx, qidx, raw=False):
         v = torch.log1p(torch.clamp(self.ps_p[pidx] @ self.ps_q[qidx].T * self.ps_scale, min=0))   # [B, C]
         return v if raw else ((v - self.ps_mu) / self.ps_sd).unsqueeze(-1)
@@ -396,9 +436,7 @@ class RGCNRanker:
     @torch.no_grad()
     def score_plant(self, p):
         hp = self.h_all[p:p + 1]
-        extra = None
-        if self.cfg.pair_stat != "none":
-            extra = self._pair_stat(torch.tensor([p], device=self.dev), torch.arange(self.hq_all.shape[0], device=self.dev))
+        extra = self._extra(torch.tensor([p], device=self.dev), torch.arange(self.hq_all.shape[0], device=self.dev))
         z = self.head(hp, self.hq_all, extra=extra).squeeze(0)
         if self.cfg.use_degree_heads:
             z = z + self.deg_p(hp).squeeze() + self.dq_all

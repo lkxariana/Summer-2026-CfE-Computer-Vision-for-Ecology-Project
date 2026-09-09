@@ -1834,3 +1834,10 @@ input next to the text vector. Smoke (1 epoch, R3 retriever, cold_poll seed 42, 
 queued on the R3 retriever (cold_plant, local networks, cold_poll; `scripts/queue_r6.sh`). Diagnosis: the pollinator side was
 starved of a whole-surface description of where a species lives; the cell nodes serve as the meeting place, not as the
 species' range summary. R5 seed 1: 0.165 (three seeds 0.165 / 0.168 / 0.165).
+
+**Follow-ups implemented (09-09 04:40), queued behind R6 on the R3 retriever (`scripts/queue_r67.sh`):** R6b `presence_fusion=
+"concat"` ([text || presence] -> MLP; the standard multi-source node-feature recipe, lets the model ignore presence where it
+should); R6c `pres_bilinear_rank=32` (learned low-rank co-presence metric u_p^T W u_q in the head; generalises R4's fixed dot
+product); R7 `cooc_neg_frac=0.5` (half of the uniform negatives replaced by in-batch co-occurrence negatives -- pollinators that
+share a cell with a batch plant -- so the retriever objective also rewards the within-site discrimination). Each arm:
+cold_plant s42, local networks, cold_poll s42; adoption by the pre-registered rule.

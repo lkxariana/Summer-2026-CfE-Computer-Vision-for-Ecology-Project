@@ -1851,3 +1851,11 @@ row, not the final model.
 warm head-of-list gap either (+0.004). R1 is closed on every table: universe +0.02, within-site -0.02 to -0.03, warm ~0.
 The warm gap to SVD is not about memorising a plant's own edges via a residual; SVD's advantage is the low-rank completion of the
 plant's *row* -- its known partners' co-partners -- which our leave-own-edges-out training deliberately does not exploit.
+
+**R3+R1, cold_poll seed 42 under protocol v2: AUPR 0.104, AUROC 0.911, nR@10 0.343, nR@50 0.622** -- 3x the best baseline (0.037)
+and 4x the leaky-protocol R3 retriever (0.026). Attribution is open until the clean R3 re-run lands (`protocol_v2_rerun.sh`):
+the clean one-epoch smokes (R3 0.049 with re-ranker; R6 0.082) suggest most of this is the clean protocol acting on a
+symmetrically-anchored retriever, not the memory vector (which is zero for cold pollinators by construction). Plant-only
+anchors stay collapsed under the clean protocol (0.005), so the two ingredients for the pollinator side are: rehearse
+edge-less pollinators in training, and never show held-out pollinators as negatives.
+Frozen system warm, three clean seeds: 0.043 / 0.044 / 0.043.

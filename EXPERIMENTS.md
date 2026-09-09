@@ -1742,3 +1742,11 @@ on this split is queued in refine2.
 unseen-genus 0.221-0.253; cold_poll seeds 42/0: 0.0255 / 0.0263. Universe criterion met on three seeds, local criterion met on
 seed 42 (+0.011). Go-file created: the system on the R3 retriever (M4.0_system_sym) starts on GPU 1 -- cold_plant 3 seeds,
 local networks, battery seed 42. Local seeds 0/1 for the R3 retriever still to run.
+
+**Warm-split evaluation bug (09-08 21:00), fixed before any warm number is used.** The first warm run (frozen R-GCN, seed 42)
+returned AUPR 0.015 with AUROC 0.967: the evaluated plants' *training* partners stayed in the candidate set as label-0
+negatives, so a model that remembers its training edges is punished for it. Fix = filtered ranking (Bordes et al. 2013): an
+evaluated plant's known pairs (training edges and the other part's held-out pairs) are removed from every pooled metric and
+pushed below all candidates in the per-query rankings (`evaluate_scores(..., exclude=)`, `exclude.npy` saved with the bundle,
+`n_excluded` in metrics). Applies to the warm split only; cold splits have no such pairs by construction. Warm bundles
+written before the fix are deleted and re-run by `scripts/queue_warm_fix.sh` after the battery finishes.

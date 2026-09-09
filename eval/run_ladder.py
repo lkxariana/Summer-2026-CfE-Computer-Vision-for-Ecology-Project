@@ -99,6 +99,21 @@ def main():
     Y = np.zeros((len(ev_plants), len(ci)), np.int8)
     for i, p in enumerate(ev_plants):
         Y[i, [col[q] for q in part_of[p]]] = 1
+    exclude = None
+    if args.split == "warm":
+        # filtered ranking: an evaluated plant's known pairs (training edges and the other part's held pairs) are not negatives
+        known = {}
+        for p, q in zip(train.plant, train.pollinator):
+            known.setdefault(p, set()).add(q)
+        for p, q in sp["drop_pairs"]:
+            if (p, q) not in pos:
+                known.setdefault(p, set()).add(q)
+        exclude = np.zeros(Y.shape, bool)
+        for i, p in enumerate(ev_plants):
+            js = [col[store.q2i[q]] for q in known.get(p, ()) if q in store.q2i and store.q2i[q] in col]
+            exclude[i, js] = True
+        assert not (exclude & (Y == 1)).any(), "held-out positives marked as excluded"
+        print(f"[warm] {int(exclude.sum()):,} known pairs excluded from the candidate rankings", flush=True)
     print(f"[{args.split}/{args.part}] train edges {len(train):,}; eval {len(ev_plants)} plants x {len(ci)} candidates, "
           f"{int(Y.sum()):,} tier-A positives (prevalence {Y.mean():.5f})", flush=True)
 
@@ -121,7 +136,7 @@ def main():
     wall = time.time() - t0
     topk = np.argsort(-S, axis=1)[:, :args.topk]
     out, met = write_bundle(name, {"model": args.model, **cfg}, f"{args.split}/{args.part}", args.seed, S, Y, ev_plants, cand,
-                            strata, candidates_topk=ci[topk], wall_s=wall)
+                            strata, candidates_topk=ci[topk], wall_s=wall, exclude=exclude)
     print(f"  AUPR {met['aupr']:.4f} (1:3 {met['aupr_at_0.25']:.3f}, 1:1 {met['aupr_at_0.5']:.3f})  AUROC {met['auroc']:.3f}  "
           f"nR@10 {met['nrecall_at_10']:.4f}  nR@50 {met['nrecall_at_50']:.4f}  unseen-genus nR@10 "
           f"{met.get('nrecall_at_10__genus_unseen', float('nan')):.4f}  ({wall:.0f}s)\n[bundle] {out}", flush=True)

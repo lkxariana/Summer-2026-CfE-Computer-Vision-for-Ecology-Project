@@ -52,11 +52,21 @@ def per_query(scores, relevant, ks=(10, 50)):
     return out
 
 
-def evaluate_scores(S, Y, query_names, strata: dict, prevalences=(0.25, 0.5)):
-    """S, Y: [n_queries, n_candidates]. strata: name -> bool array over queries. Returns (metrics, per_query_df)."""
-    y, s = Y.ravel().astype(np.int8), S.ravel().astype(np.float64)
+def evaluate_scores(S, Y, query_names, strata: dict, prevalences=(0.25, 0.5), exclude=None):
+    """S, Y: [n_queries, n_candidates]. strata: name -> bool array over queries. Returns (metrics, per_query_df).
+
+    `exclude` (bool [n_queries, n_candidates], optional): known pairs that must not count as negatives -- the
+    filtered-ranking convention (Bordes et al. 2013) for warm splits, where an evaluated plant's training partners
+    remain in the candidate set. Excluded entries are removed from every pooled metric and pushed below all
+    candidates in the per-query rankings."""
+    if exclude is not None:
+        S = np.where(exclude, S.min() - 1.0, S)
+        valid = ~exclude.ravel()
+    else:
+        valid = slice(None)
+    y, s = Y.ravel().astype(np.int8)[valid], S.ravel().astype(np.float64)[valid]
     m = {"n_queries": int(S.shape[0]), "n_candidates": int(S.shape[1]), "n_positives": int(y.sum()),
-         "prevalence": float(y.mean()),
+         "prevalence": float(y.mean()), "n_excluded": int(exclude.sum()) if exclude is not None else 0,
          "aupr": float(average_precision_score(y, s)), "auroc": float(roc_auc_score(y, s))}
     for p in prevalences:
         m[f"aupr_at_{p:g}"] = ap_at_prevalence(y, s, p)
@@ -82,18 +92,22 @@ def evaluate_scores(S, Y, query_names, strata: dict, prevalences=(0.25, 0.5)):
         # pooled AUPR within stratum
         idx = np.flatnonzero(strata[k])
         if len(idx) and Y[idx].sum() > 0:
-            m[f"aupr__{k}"] = float(average_precision_score(Y[idx].ravel(), S[idx].ravel().astype(np.float64)))
+            v = ~exclude[idx].ravel() if exclude is not None else slice(None)
+            m[f"aupr__{k}"] = float(average_precision_score(Y[idx].ravel()[v], S[idx].ravel().astype(np.float64)[v]))
     return m, pq
 
 
 def write_bundle(model: str, cfg: dict, split: str, seed: int, S, Y, query_names, candidate_names, strata: dict,
-                 extra: dict | None = None, candidates_topk=None, wall_s=None):
+                 extra: dict | None = None, candidates_topk=None, wall_s=None, exclude=None):
     h = config_hash(cfg)
     out = RUNS / model / h / split / f"s{seed}"
     out.mkdir(parents=True, exist_ok=True)
-    m, pq = evaluate_scores(S, Y, query_names, strata)
+    m, pq = evaluate_scores(S, Y, query_names, strata, exclude=exclude)
     m.update(extra or {})
     m["wall_s"] = wall_s
+    if exclude is not None:
+        S = np.where(exclude, S.min() - 1.0, S)                              # saved scores carry the filter
+        np.save(out / "exclude.npy", np.packbits(exclude, axis=1))
     np.save(out / "scores.npy", S.astype(np.float16))
     np.save(out / "Y.npy", Y.astype(np.int8))
     if candidates_topk is not None:

@@ -2007,3 +2007,10 @@ s42, then cold_plant seeds 0/1 (`scripts/queue_sys_a2.sh`). Adoption over System
 R3 0.100-0.105); local s0 0.217 (s42 0.220; R3 0.214-0.216). **System on the no-taxon retriever (M5.0), seed 42:** cold-plant
 0.215 (System v2 0.208), nR@10 0.374 (0.386), unseen-genus 0.256 (0.247); local 0.216 [0.201, 0.232] (0.214), precision@L 0.242
 (0.235, best of any model). cold_poll / cold_both / warm s42 running.
+
+**System on the no-taxon retriever (M5.0), seed 42 across regimes:** cold-plant 0.215 (System v2 0.208), cold_poll 0.129 (0.128),
+cold_both 0.101 / nR@10 0.342 (0.096 / 0.288; ANTHEIA v1 0.324 -- now led), warm 0.052 / nR@50 0.568 (0.048 / 0.553), local 0.216
+/ precision@L 0.242 (0.214 / 0.235). Equal or better on every column except cold-plant nR@10 (0.374 vs 0.386). No-taxon retriever
+3 seeds: cold-plant 0.174 (R3 0.170), cold_poll 0.129 (0.101), local s42/s0 0.220 / 0.217 (0.215). Cold-plant seeds 0/1 of
+M5.0 running; adoption as the final system (simpler graph: species nodes + text + interaction edges, symmetric rehearsal) is
+Dan's call.

@@ -1910,3 +1910,9 @@ on nR@10/nR@50 with the co-occurrence PCA model.
 Clean cold_both baselines (seed 42): ANTHEIA v1 scalar 0.045, spatial 0.041, pair GBM 0.037 (AUROC 0.853), Wide & Deep 0.026;
 frozen system 0.030, frozen retriever 0.010. System v2 leads cold_both AUPR by 2.1x and AUROC (0.888 vs 0.853).
 R6b concat, cold-plant 0.165 (R3 0.169); local running.
+
+**Within-site paired bootstraps over the 91 networks (System v2 seed 42 vs others, 5,000 resamples):** vs congeneric transfer
+-0.008 [-0.019, +0.002] p=0.13 (tie); vs trees -0.008 [-0.015, -0.001] p=0.016 (small, significant loss -- appendix, trees are our
+earlier system); vs system v1 +0.010 [+0.006, +0.015] p<0.001; vs R3 retriever alone -0.001 p=0.33 (re-ranker neutral within
+sites); vs pair GBM +0.011 p=0.018; vs SVD+tax +0.035 p<0.001; vs popularity +0.022 p<0.001. Cold-plant paired bootstraps
+(System v2 as reference) running on CPU -> logs/paired_v2.log.

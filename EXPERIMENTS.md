@@ -2014,3 +2014,5 @@ cold_both 0.101 / nR@10 0.342 (0.096 / 0.288; ANTHEIA v1 0.324 -- now led), warm
 3 seeds: cold-plant 0.174 (R3 0.170), cold_poll 0.129 (0.101), local s42/s0 0.220 / 0.217 (0.215). Cold-plant seeds 0/1 of
 M5.0 running; adoption as the final system (simpler graph: species nodes + text + interaction edges, symmetric rehearsal) is
 Dan's call.
+No-taxon retriever local 3 seeds: 0.220 / 0.217 / 0.218 (mean 0.218; R3 0.215; congeneric 0.222), precision@L 0.240-0.241.
+M5.0 local seeds 0/1 queued on GPU 1 (`scripts/queue_sys_a2_local.sh`).

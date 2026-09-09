@@ -1783,3 +1783,15 @@ R3 now satisfies the pre-registered rule on three seeds for both tables.
 three forms tie within one-seed noise: the gain is from having an explicit presence-derived pair scalar at the head, not from
 its joint form (the cell x month nodes already integrate jointly). The scalar (mass x mass) control is queued to separate a
 structure effect from a prevalence effect (`scripts/queue_r4scalar.sh`).
+
+**Second protocol bug on the pollinator-side splits (09-09 00:50), found through the system on R3.** On cold_poll the re-ranked
+system scored 0.010 while its retriever alone scored 0.026: `run_fusion.py` built the re-ranker's training hard negatives from
+the retriever's top-K over the *evaluation candidate set* (the held-out pollinators) and drew random negatives over all
+pollinators, so the re-ranker was trained to call the evaluated pollinators negative. The retriever and every neural baseline
+also drew uniform negatives over all pollinators, so held-out pollinators appeared in training as negatives only. Fix =
+`antheia.negpool`: one pollinator negative-sampling pool set from the split's training pollinators, used by every sampler
+(R-GCN, embedding model, pair MLP, two-tower, fusion random negatives, ANTHEIA-LR, pair GBM, taxo/GBM baselines); the fusion's
+training top-K is now computed over the pool. Cold-plant and local-network runs are unchanged (pool = all pollinators).
+All cold_poll / cold_both / warm bundles of non-deterministic models written before the fix are deleted and re-run by
+`scripts/protocol_v2_rerun.sh` once the current queues finish. Until then the pollinator-side numbers above are provisional;
+in particular the frozen retriever's cold_poll "collapse" must be re-measured before it is attributed to anchor asymmetry.

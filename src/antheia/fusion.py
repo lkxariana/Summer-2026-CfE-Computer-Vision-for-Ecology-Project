@@ -33,6 +33,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from antheia import negpool
 
 ROOT = Path(__file__).resolve().parents[2]
 TEXT_DIR = Path("/scratch/cher/antheia-data/text_embeddings")
@@ -271,7 +272,7 @@ class FusionReranker:
                 pos = rng.choice(ps, min(cfg.pos_per_plant, len(ps)), replace=False)
                 cands = np.array([c for c in cand_pos[p] if c not in partners[p]], int)
                 hard = rng.choice(cands, min(cfg.hard_per_plant, len(cands)), replace=False) if len(cands) else np.array([], int)
-                rnd = rng.integers(0, n_q, cfg.rand_per_plant); rnd = rnd[~np.isin(rnd, ps)]
+                rnd = negpool.sample(rng, cfg.rand_per_plant, n_q); rnd = rnd[~np.isin(rnd, ps)]
                 if cooc is not None and len(cooc[p]):
                     cc = cooc[p][~np.isin(cooc[p], ps)]
                     co = rng.choice(cc, min(cfg.cooc_per_plant, len(cc)), replace=False) if len(cc) else np.array([], int)

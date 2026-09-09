@@ -2,6 +2,7 @@ import numpy as np
 from sklearn.ensemble import HistGradientBoostingClassifier
 
 from antheia.baselines.base import Baseline
+from antheia import negpool
 
 
 class PairGBM(Baseline):
@@ -42,7 +43,7 @@ class PairGBM(Baseline):
         pi, qi = store.idx_plants(edges["plant"]), store.idx_polls(edges["pollinator"])
         known = set(zip(pi.tolist(), qi.tolist()))
         neg_p = np.repeat(pi, self.n_neg)
-        neg_q = rng.integers(0, len(store.polls), len(neg_p))
+        neg_q = negpool.sample(rng, len(neg_p), len(store.polls))
         keep = [i for i, (a, b) in enumerate(zip(neg_p, neg_q)) if (a, b) not in known]
         neg_p, neg_q = neg_p[keep], neg_q[keep]
         X = np.vstack([self._features(pi, qi), self._features(neg_p, neg_q)])

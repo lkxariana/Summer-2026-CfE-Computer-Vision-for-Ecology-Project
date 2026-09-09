@@ -25,6 +25,7 @@ from antheia.baselines import REGISTRY
 from antheia.embednet import EmbedRanker
 from antheia.fusion import FusionReranker
 from antheia.store import UniverseStore
+from antheia import negpool
 from eval.run_ladder import BASE_EMBED, load_split
 
 
@@ -43,6 +44,7 @@ def main():
     rcfg = json.loads(args.retriever_config); fcfg = json.loads(args.config)
     store = UniverseStore(curves="modelled")
     sp = load_split(args.split, args.part)
+    negpool.set_pool(store.idx_polls(sp["train_polls"]) if sp["train_polls"] is not None else None)
 
     e = pd.read_parquet(ROOT / "data/network/edges.parquet")
     e = e[e.plant.isin(store.p2i) & e.pollinator.isin(store.q2i)]
@@ -102,12 +104,13 @@ def main():
             ret = REGISTRY[args.retriever_model]().fit(train, store)
     train_plants = sorted(set(train.plant)); tpi = store.idx_plants(train_plants)
     K = args.topk
-    def topk_rows(idx):
-        S = np.vstack([ret.score_plant(int(p))[ci] for p in idx]).astype(np.float32)
+    def topk_rows(idx, cols):
+        S = np.vstack([ret.score_plant(int(p))[cols] for p in idx]).astype(np.float32)
         order = np.argsort(-S, axis=1)[:, :K]
-        return S, np.take_along_axis(S, order, 1), ci[order]                     # scores, topK scores, topK poll idx
-    S_tr, s_tr, c_tr = topk_rows(tpi)
-    S_ev, s_ev, c_ev = topk_rows(store.idx_plants(ev_plants))
+        return S, np.take_along_axis(S, order, 1), cols[order]                   # scores, topK scores, topK poll idx
+    pool = negpool.pool(len(store.polls))
+    S_tr, s_tr, c_tr = topk_rows(tpi, pool)                  # hard negatives for training come from the training pollinators only
+    S_ev, s_ev, c_ev = topk_rows(store.idx_plants(ev_plants), ci)
     del S_tr
     # retriever recall@K on the evaluated plants (the re-ranker's ceiling)
     hits = sum(len(set(c_ev[i].tolist()) & set(ci[np.flatnonzero(Y[i])].tolist())) for i in range(len(ev_plants)))

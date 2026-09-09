@@ -24,6 +24,7 @@ sys.path.insert(0, str(ROOT / "src"))
 from antheia.baselines import REGISTRY
 from antheia.bundle import write_bundle
 from antheia.store import UniverseStore
+from antheia import negpool
 
 BASE_EMBED = dict(epochs=25, use_genus_context=False, use_tier_head=False)
 
@@ -64,6 +65,7 @@ def main():
     name = args.name or args.model
     store = UniverseStore(curves="modelled")
     sp = load_split(args.split, args.part)
+    negpool.set_pool(store.idx_polls(sp["train_polls"]) if sp["train_polls"] is not None else None)
 
     e = pd.read_parquet(ROOT / "data/network/edges.parquet")
     e = e[e.plant.isin(store.p2i) & e.pollinator.isin(store.q2i)]

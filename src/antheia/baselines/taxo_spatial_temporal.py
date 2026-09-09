@@ -6,6 +6,7 @@ from sklearn.ensemble import HistGradientBoostingClassifier
 
 from antheia.baselines.base import Baseline
 from antheia.taxonomy import genus
+from antheia import negpool
 
 EPS = 1e-12
 
@@ -209,11 +210,11 @@ class TaxoSpatialTemporal(Baseline):
         if self.residualise:
             # coefficients from training pairs only, then frozen; a held-out plant never informs them
             a = rng.integers(0, len(store.plants), 100_000)
-            b = rng.integers(0, len(store.polls), 100_000)
+            b = negpool.sample(rng, 100_000, len(store.polls))
             self.res_W = np.linalg.lstsq(self._prevalence(a, b), self._spatial(a, b), rcond=None)[0]
         known = set(zip(pi.tolist(), qi.tolist()))
         neg_p = np.repeat(pi, self.n_neg)
-        neg_q = rng.integers(0, len(store.polls), len(neg_p))
+        neg_q = negpool.sample(rng, len(neg_p), len(store.polls))
         keep = [i for i, (a, b) in enumerate(zip(neg_p, neg_q)) if (a, b) not in known]
         neg_p, neg_q = neg_p[keep], neg_q[keep]
         X = np.vstack([self._features(pi, qi), self._features(neg_p, neg_q)])

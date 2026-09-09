@@ -13,6 +13,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 
 from antheia.baselines.base import Baseline
+from antheia import negpool
 
 
 class AntheiaSpatial(Baseline):
@@ -40,7 +41,7 @@ class AntheiaSpatial(Baseline):
         self.Vp = TruncatedSVD(self.dims, random_state=self.seed).fit_transform(store.P.astype(np.float32))
         pos = set(zip(pi.tolist(), qi.tolist()))
         n_neg = self.n_neg * len(pi)
-        np_, nq_ = rng.choice(train_plants, n_neg), rng.integers(0, len(store.polls), n_neg)
+        np_, nq_ = rng.choice(train_plants, n_neg), negpool.sample(rng, n_neg, len(store.polls))
         keep = np.fromiter(((a, b) not in pos for a, b in zip(np_.tolist(), nq_.tolist())), bool, n_neg)
         X = np.vstack([self._pair_feats(pi, qi), self._pair_feats(np_[keep], nq_[keep])])
         y = np.r_[np.ones(len(pi)), np.zeros(int(keep.sum()))]

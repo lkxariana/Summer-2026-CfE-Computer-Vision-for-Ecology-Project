@@ -35,6 +35,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from antheia import negpool
 
 WIDE_DIM = 5
 
@@ -203,7 +204,7 @@ class NeuralRanker:
             for s in range(0, n, self.batch):
                 b = perm[s:s + self.batch]
                 bp, bq = pi[b], qi[b]
-                uni = rng.integers(0, len(store.polls), self.n_uniform)
+                uni = negpool.sample(rng, self.n_uniform, len(store.polls))
                 cand = np.concatenate([bq, uni])                      # [B + U]
                 pv = self._pvec(bp)
                 qv = self._qvec(cand)

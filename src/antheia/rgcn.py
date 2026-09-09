@@ -29,6 +29,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from antheia.embednet import PairHead, MASK_FILL, seed_everything
+from antheia import negpool
 
 ROOT = Path(__file__).resolve().parents[2]
 TEXT_DIR = Path("/scratch/cher/antheia-data/text_embeddings")
@@ -290,7 +291,7 @@ class RGCNRanker:
         train_plants = np.array(sorted(partners)); train_polls = np.unique(qi)
         cnt = np.bincount(qi, minlength=n_q).astype(np.float64)
         logQ_pop = torch.tensor(np.log(np.maximum(cnt / cnt.sum(), 1e-12)), dtype=torch.float32, device=dev)
-        logQ_uni = float(np.log(1.0 / n_q)); n_uni = cfg.n_cand - cfg.in_batch
+        logQ_uni = float(np.log(1.0 / len(negpool.pool(n_q)))); n_uni = cfg.n_cand - cfg.in_batch
         pos_weight = torch.tensor(float(cfg.n_cand - 1), device=dev)
         print(f"    rgcn: {self.N:,} nodes ({len(store.plants)} plants, {n_q} polls, {self.n_t} taxa, "
               f"{self.N - self.off[3]} cell-month), {len(pi):,} interaction edges, {self.n_rel} relations", flush=True)
@@ -308,7 +309,7 @@ class RGCNRanker:
             for s in range(0, len(pi), cfg.batch):
                 b = perm[s:s + cfg.batch]; bp, bq = pi[b], qi[b]; B = len(bp)
                 sub = rng.choice(B, min(cfg.in_batch, B), replace=False)
-                cand = np.concatenate([bq[sub], rng.integers(0, n_q, n_uni)]); Cn = len(cand)
+                cand = np.concatenate([bq[sub], negpool.sample(rng, n_uni, n_q)]); Cn = len(cand)
                 h = self._encode(adjs)                                            # full graph, [N, d]
                 hp = h[torch.from_numpy(bp).long().to(dev)]; hq = h[off_q + torch.from_numpy(cand).long().to(dev)]
                 extra = None

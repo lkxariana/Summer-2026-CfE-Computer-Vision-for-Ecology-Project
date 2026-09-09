@@ -75,6 +75,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from antheia import negpool
 
 # Feature block layout, in construction order. LOG marks blocks given log1p before standardisation.
 BLOCKS = [("pop", 1, False), ("cooc", 1, True), ("taxo", 1, True),
@@ -331,7 +332,7 @@ class PairRanker:
                 bp, bq = pi[b], qi[b]
                 B = len(bp)
                 sub = rng.choice(B, min(cfg.in_batch, B), replace=False)
-                cand = np.concatenate([bq[sub], rng.integers(0, len(store.polls), n_uni)])
+                cand = np.concatenate([bq[sub], negpool.sample(rng, n_uni, len(store.polls))])
                 C = len(cand)
                 tp = torch.from_numpy(np.ascontiguousarray(bp)).long().to(dev)
                 tc = torch.from_numpy(np.ascontiguousarray(cand)).long().to(dev)

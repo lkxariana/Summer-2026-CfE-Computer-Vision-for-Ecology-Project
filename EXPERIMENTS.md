@@ -1975,3 +1975,9 @@ congeneric 0.265, popularity 0.233 -- the system's lead is intact on the rarest 
 precision@L 0.238 (0.235), NODF 53. The trees' genus lookup handed to the re-ranker as tokens changes nothing within sites on
 the current system either. The within-site gap to congeneric transfer is not an information-access problem; closed.
 A3 month-collapsed, cold-plant 0.167 (cell x month 0.169).
+
+**A3 month-collapsed cells (cell-only nodes), seed 42:** cold-plant 0.167 (cell x month 0.169), local 0.210 (0.215), cold_poll
+0.099 (0.101). The season axis on the cell nodes has no measurable effect in any regime: inside the R-GCN the joint cell x month
+integration does not beat cell-only integration, unlike the re-ranking test in the marginalisation ladder. The design claim
+must be stated as "place as graph nodes"; season enters only through the field-derived presence weights. A1 (no cell nodes)
+decides whether the cells themselves matter.

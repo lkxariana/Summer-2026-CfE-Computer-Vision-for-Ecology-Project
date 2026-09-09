@@ -1992,3 +1992,9 @@ partners (the plant-side congeneric baseline is at chance there because it trans
 this reframes the design claim: the graph's work is done by taxonomy nodes and the rehearsal scheme; presence helps continental
 ranking only when handed to the head explicitly (R4/R6 family), and then as a prior that costs within-site accuracy. A2 (no
 taxon nodes) running.
+
+**A2 no taxon nodes, seed 42:** cold-plant 0.177 (full graph 0.169), local 0.220 [0.204, 0.236] (0.215; congeneric 0.222, trees
+0.222), precision@L 0.241 (best of any model), warm plants 0.222, cold plants 0.232. Removing the genus/family nodes improves
+both tables: the BioCLIP-2 text vector already carries the taxonomy, and the pooled taxon nodes smooth it. Seeds 0/1 queued on
+GPU 1 (`scripts/queue_a2_seeds.sh`); cold_poll s42 running. If it holds, the retriever simplifies to species nodes (text) +
+interaction edges + symmetric rehearsal -- and the "graph" story becomes the rehearsal scheme, not the node zoo.

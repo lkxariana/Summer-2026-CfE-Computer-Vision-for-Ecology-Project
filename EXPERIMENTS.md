@@ -1770,3 +1770,6 @@ marginal controls and the local networks follow in refine3; cold_poll and the R3
 **System on R3, cold-plant 3 seeds:** AUPR 0.208 / 0.209 / 0.209 (mean 0.209; frozen system 0.188), AUROC 0.972-0.973, nR@10
 0.380-0.386, nR@50 0.545-0.551, unseen-genus 0.240-0.249. Universe criterion met by +0.021 on every seed. Local networks
 (fusion) running, then battery seed 42.
+
+**R5 degree encoding (Graphormer-style centrality), cold-plant seed 42:** AUPR 0.165 (frozen 0.150), nR@10 0.378, nR@50 0.545,
+unseen-genus 0.231. Positive on the universe; local networks follow. R3 local seed 0: 0.216 (seed 42: 0.215).

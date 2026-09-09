@@ -1798,3 +1798,7 @@ in particular the frozen retriever's cold_poll "collapse" must be re-measured be
 
 Smoke of the protocol-v2 fix (one epoch each, R3 retriever + re-ranker, cold_poll seed 42; a smoke, not a result): AUPR 0.049,
 AUROC 0.892, recall@500 0.905 -- above the best baseline on this split (0.037) after a single epoch. The full re-runs decide.
+
+**R4 joint pair statistic, local networks seed 42:** mean AUPR 0.195 [0.181, 0.210] (frozen 0.204), warm 0.197 (0.206), cold 0.250
+(0.241), precision@L 0.219. Fails the rule: universe +0.024 with a within-site loss of 0.009. Same pattern as R1 -- the
+statistic sharpens continental ranking (it is a co-presence prior) and blunts within-site ranking, where presence is fixed.

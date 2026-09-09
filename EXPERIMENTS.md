@@ -1984,3 +1984,11 @@ decides whether the cells themselves matter.
 Genus-token re-ranker on R3, cold-plant s42: AUPR 0.109 (System v2 0.209; retriever alone 0.169), nR@10 0.373 -- the genus-profile
 tokens halve universe AUPR while leaving within-site unchanged (the re-ranker over-trusts the profile on continental candidates).
 Closed on both tables. GPU 1 idle.
+
+**A1 no cell x month nodes, seed 42:** cold-plant 0.165 (0.169), local 0.212 (0.215), cold_poll 0.097 (0.101); trains in half the
+time. The cell nodes are close to inert in every regime, including the presence-limited one. What carries the cold-pollinator
+result is the taxon nodes plus text under symmetric rehearsal: an unseen pollinator's genus node aggregates its congeners' plant
+partners (the plant-side congeneric baseline is at chance there because it transfers along plant genus only). Together with A3
+this reframes the design claim: the graph's work is done by taxonomy nodes and the rehearsal scheme; presence helps continental
+ranking only when handed to the head explicitly (R4/R6 family), and then as a prior that costs within-site accuracy. A2 (no
+taxon nodes) running.

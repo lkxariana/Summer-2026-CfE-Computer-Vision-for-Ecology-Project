@@ -1892,3 +1892,7 @@ pair GBM 0.044 (leaky 0.031), ANTHEIA v1 scalar 0.036, spatial 0.033, Wide & Dee
 clean R3 (0.100-0.105); R3+R4 (0.127) adds ~+0.025 on the retriever; the re-ranker adds +0.028 (0.100 -> 0.128). Two bundles
 that started before the fix but were committed after it (git hash is taken at write time) were found by start time and
 deleted for re-run: system-on-R3 cold_both s42 (the 0.061 "lower bound") and frozen retriever cold_both s0.
+
+**R3 retriever, cold_poll three clean seeds: 0.0995 / 0.1048 / 0.0984 (mean 0.101).** R6-surface on cold_poll: 0.126 (like R3+R4,
+0.127 -- the same SVD-surface information by two routes), but it costs cold-plant (0.155) and within-site (0.201); R6 closed
+as a system candidate, kept as evidence that the pollinator side is presence-limited. R6b/R6c/R7 start on GPU 0.

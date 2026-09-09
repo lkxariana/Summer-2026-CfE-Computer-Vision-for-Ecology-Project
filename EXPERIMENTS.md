@@ -1869,3 +1869,8 @@ deciding table, given R4 alone cost 0.009 within sites.
 continental co-presence prior: it helps wherever presence is the only signal (unseen pollinators) and costs within sites.
 Decision stays with the rule: R3 is the retriever; R4 is reported as a documented trade-off (appendix row), unless the clean R3
 cold_poll re-run shows a gap that changes the paper's regime claim -- Dan's call then.
+
+**R4 scalar control (mass x mass, no space or time structure), cold-plant seed 42: AUPR 0.166** (frozen 0.150; joint 0.174, space
+0.172, time 0.171). Ladder inside the graph model: scalar 0.166 < time 0.171 ~ space 0.172 < joint 0.174 -- the ordering of the
+marginalisation ladder reappears, but compressed: two-thirds of R4's gain is prevalence (the scalar), one-third is structure.
+Consistent with the within-site losses: a prevalence prior is exactly what sites neutralise.

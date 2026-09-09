@@ -1859,3 +1859,7 @@ symmetrically-anchored retriever, not the memory vector (which is zero for cold 
 anchors stay collapsed under the clean protocol (0.005), so the two ingredients for the pollinator side are: rehearse
 edge-less pollinators in training, and never show held-out pollinators as negatives.
 Frozen system warm, three clean seeds: 0.043 / 0.044 / 0.043.
+
+**R3+R4 (symmetric anchors + joint pair statistic), cold_poll seed 42, protocol v2: AUPR 0.127, AUROC 0.923, nR@10 0.396, nR@50
+0.659** (best baseline 0.037 / 0.837 / 0.306 / 0.573; R3+R1 clean 0.104). Cold-plant 0.181. Local networks running -- the
+deciding table, given R4 alone cost 0.009 within sites.

@@ -1998,3 +1998,7 @@ taxon nodes) running.
 both tables: the BioCLIP-2 text vector already carries the taxonomy, and the pooled taxon nodes smooth it. Seeds 0/1 queued on
 GPU 1 (`scripts/queue_a2_seeds.sh`); cold_poll s42 running. If it holds, the retriever simplifies to species nodes (text) +
 interaction edges + symmetric rehearsal -- and the "graph" story becomes the rehearsal scheme, not the node zoo.
+A2 no taxon nodes, cold_poll s42: **0.129** (with taxa 0.101). Removing the genus/family nodes improves every table on seed 42
+(cold-plant +0.008, local +0.005, cold_poll +0.028). Structural ablation set complete: cells inert, months inert, taxa harmful.
+System on the A2 retriever (M5.0_system_notaxon) queued on GPU 0: cold_plant s42, local (fusion), cold_poll/cold_both/warm
+s42, then cold_plant seeds 0/1 (`scripts/queue_sys_a2.sh`). Adoption over System v2 is Dan's call once the seeds are in.

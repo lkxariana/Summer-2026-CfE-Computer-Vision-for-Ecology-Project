@@ -1846,3 +1846,8 @@ cold_plant s42, local networks, cold_poll s42; adoption by the pre-registered ru
 0.194, cold 0.231, precision@L 0.215. The memory vector erases R3's within-site gain and more; fails the rule regardless of its
 warm-split number (pending). The memory path stays out of the system; if the paper wants a warm-regime variant it is a separate
 row, not the final model.
+
+**R3+R1, warm seed 42:** AUPR 0.037 (R3 alone 0.033; SVD 0.105), AUROC 0.975, nR@50 0.545. The memory vector does not close the
+warm head-of-list gap either (+0.004). R1 is closed on every table: universe +0.02, within-site -0.02 to -0.03, warm ~0.
+The warm gap to SVD is not about memorising a plant's own edges via a residual; SVD's advantage is the low-rank completion of the
+plant's *row* -- its known partners' co-partners -- which our leave-own-edges-out training deliberately does not exploit.

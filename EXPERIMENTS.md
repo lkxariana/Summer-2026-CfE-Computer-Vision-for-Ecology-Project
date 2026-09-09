@@ -1761,3 +1761,8 @@ R3 cold_poll seed 1: 0.0262 (three seeds 0.0255 / 0.0263 / 0.0262). R2 seed 1: 0
 AUROC 0.975, nR@10 0.270, nR@50 0.524 -- against SVD + taxonomic imputation 0.105 / 0.928 / 0.250 / 0.484 and popularity
 0.019 / 0.936. On warm the graph model orders the full list best (AUROC) but matrix factorisation owns the head (AUPR 3x).
 This is the regime where leave-own-edges-out costs something by design; the re-ranked system's warm number is pending.
+
+**R4 explicit pair co-presence statistic (joint) in the head, cold-plant seed 42:** AUPR 0.174 (frozen 0.150; R3 0.169), AUROC
+0.966, nR@10 0.382 (0.368), nR@50 0.552, unseen-genus 0.257 (0.23). Largest single-arm universe gain so far, and it comes from
+the marginalisation-ladder statistic handed to the pair head, on top of the graph's own cell x month integration. Space/time
+marginal controls and the local networks follow in refine3; cold_poll and the R3+R4 combination in refine4.

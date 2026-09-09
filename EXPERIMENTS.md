@@ -1874,3 +1874,14 @@ cold_poll re-run shows a gap that changes the paper's regime claim -- Dan's call
 0.172, time 0.171). Ladder inside the graph model: scalar 0.166 < time 0.171 ~ space 0.172 < joint 0.174 -- the ordering of the
 marginalisation ladder reappears, but compressed: two-thirds of R4's gain is prevalence (the scalar), one-third is structure.
 Consistent with the within-site losses: a prevalence prior is exactly what sites neutralise.
+
+### Session restart 09-09 10:00 -- results landed overnight
+
+- **Attention-aggregation control, local networks:** 0.196 [0.182, 0.211] (mean aggregation 0.204). With cold-plant 0.155 vs
+  0.150, the control is a wash at 12x the cost: the aggregation rule is not where the gains are. Closed; one seed suffices.
+- **R6 presence embedding (field vector), on R3:** cold-plant 0.168 (R3 0.169), local 0.209 (0.215), **cold_poll 0.086 (clean)**.
+  **R6 (SVD surface):** cold-plant 0.155, local 0.201, cold_poll running. Neither passes the rule (local down 0.006 / 0.014); the
+  field-vector variant is close to neutral within sites while lifting the pollinator side -- the "surface" input over-fits the
+  cold-plant universe (0.155). Concat fusion (R6b) is the next read.
+- **System on R3, cold_poll seed 42, protocol v2: AUPR 0.128, AUROC 0.917, nR@10 0.366, nR@50 0.637** (best baseline 0.037 /
+  0.852 / 0.306 / 0.573). The system leads every column on the cold-pollinator split by 3x once the protocol is clean.

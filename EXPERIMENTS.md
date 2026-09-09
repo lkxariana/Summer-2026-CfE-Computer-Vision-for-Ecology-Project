@@ -1952,3 +1952,7 @@ regenerated (`results/tables_publish.md`, appendix `results/tables_ladder_*.md`,
 Fails on both criteria (cold-plant -0.017, within-site -0.011). Training the retriever on within-site-style negatives does not
 buy within-site accuracy; the objective is not the lever either. Refinement stage closed: R3 is the only adoption.
 R7 cold_poll s42: 0.101 (= R3). R6b/R6c/R7 queue complete; GPU 0 now only carries the protocol-v2 tail.
+
+**All queues complete (14:55).** Protocol-v2 pass finished (frozen retriever / system seeds 0 re-run clean: cold_poll 0.007 / 0.008,
+cold_both 0.009). Tables regenerated from clean bundles only. Both GPUs idle by design; no arms pending. Open for Dan: (1) confirm
+System v2 (R3 + re-ranker) as the paper's system; (2) headline framing; (3) unlock the test split.

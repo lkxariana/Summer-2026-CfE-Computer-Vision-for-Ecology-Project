@@ -27,7 +27,7 @@
 | **System v2: R-GCN (symmetric leave-own-edges-out, R3) + identity re-ranker** | this work | 3 | **0.094** | **0.766** | **0.891** | **0.886** | 0.288 | 0.535 | 0.226 |
 |   ablation: R3 retriever alone | this work | 3 | 0.073 | 0.730 | 0.873 | 0.872 | 0.291 | 0.506 | 0.151 |
 | System v1: R-GCN (plant-side leave-own-edges-out) + identity re-ranker | this work | 3 | 0.029 | 0.664 | 0.839 | 0.841 | 0.212 | 0.456 | 0.184 |
-|   ablation: frozen R-GCN retriever alone | this work | 2 (incomplete) | 0.011 | 0.490 | 0.733 | 0.763 | 0.166 | 0.344 | 0.147 |
+|   ablation: frozen R-GCN retriever alone | this work | 3 | 0.010 | 0.487 | 0.732 | 0.766 | 0.158 | 0.339 | 0.104 |
 |   ablation: embedding-model retriever alone | this work | 1 (incomplete) | 0.011 | 0.484 | 0.722 | 0.726 | 0.068 | 0.189 | 0.036 |
 
 *AUPR at network prevalence is primary; AUPR 1:3 and 1:1 re-weight negatives from the full ranking (the population version of sampled-negative evaluation). Deterministic baselines are single runs; learned models are averaged over seeds {42, 0, 1}. Bold = column best.*

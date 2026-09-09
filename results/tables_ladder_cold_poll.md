@@ -26,8 +26,8 @@
 | *Ours: graph retriever + re-ranker* | | |  |  |  |  |  |  |  |
 | **System v2: R-GCN (symmetric leave-own-edges-out, R3) + identity re-ranker** | this work | 3 | 0.117 | 0.827 | 0.921 | 0.915 | 0.361 | 0.620 | 0.185 |
 |   ablation: R3 retriever alone | this work | 3 | 0.101 | 0.809 | 0.913 | 0.906 | 0.352 | 0.608 | 0.111 |
-| System v1: R-GCN (plant-side leave-own-edges-out) + identity re-ranker | this work | 2 (incomplete) | 0.009 | 0.527 | 0.761 | 0.803 | 0.211 | 0.423 | 0.056 |
-|   ablation: frozen R-GCN retriever alone | this work | 2 (incomplete) | 0.006 | 0.440 | 0.693 | 0.748 | 0.167 | 0.353 | 0.056 |
+| System v1: R-GCN (plant-side leave-own-edges-out) + identity re-ranker | this work | 3 | 0.008 | 0.524 | 0.760 | 0.803 | 0.193 | 0.417 | 0.074 |
+|   ablation: frozen R-GCN retriever alone | this work | 3 | 0.006 | 0.452 | 0.704 | 0.761 | 0.166 | 0.350 | 0.037 |
 |   ablation: embedding-model retriever alone | this work | 1 (incomplete) | 0.010 | 0.501 | 0.731 | 0.727 | 0.083 | 0.217 | 0.222 |
 
 *AUPR at network prevalence is primary; AUPR 1:3 and 1:1 re-weight negatives from the full ranking (the population version of sampled-negative evaluation). Deterministic baselines are single runs; learned models are averaged over seeds {42, 0, 1}. Bold = column best.*

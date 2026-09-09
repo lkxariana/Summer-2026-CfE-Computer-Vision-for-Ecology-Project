@@ -1755,3 +1755,9 @@ written before the fix are deleted and re-run by `scripts/queue_warm_fix.sh` aft
 0.169), AUPR 1:3 / 1:1 0.931 / 0.972, AUROC 0.973, nR@10 0.386, nR@50 0.551, unseen-genus nR@10 0.247. The re-ranker adds
 +0.039 on the R3 retriever, the same increment it adds on the frozen one. Seeds 0/1, local networks and the battery follow.
 R3 cold_poll seed 1: 0.0262 (three seeds 0.0255 / 0.0263 / 0.0262). R2 seed 1: 0.151 (three seeds 0.150-0.151) -- closed.
+
+**R3 retriever, cold_both and warm (seed 42, filtered ranking on warm):** cold_both AUPR 0.0185 / AUROC 0.819 (frozen retriever
+0.006). Warm (1,923 plants with held pairs x 9,843 candidates, 66,288 known pairs excluded, prevalence 0.00029): AUPR 0.033,
+AUROC 0.975, nR@10 0.270, nR@50 0.524 -- against SVD + taxonomic imputation 0.105 / 0.928 / 0.250 / 0.484 and popularity
+0.019 / 0.936. On warm the graph model orders the full list best (AUROC) but matrix factorisation owns the head (AUPR 3x).
+This is the regime where leave-own-edges-out costs something by design; the re-ranked system's warm number is pending.

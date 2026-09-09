@@ -1818,3 +1818,9 @@ Cold_both seed 42 under the old protocol: 0.062 (best baseline 0.045) -- lower b
 **Frozen retriever, cold_poll seed 1 under protocol v2 (verified by bundle commit): AUPR 0.0054, AUROC 0.726.** The retriever's
 cold-pollinator collapse survives the clean protocol, so it is the anchor asymmetry, not the negative leak; the leak mainly
 damaged the re-ranker (system on R3: 0.010 leaky vs 0.049 after one clean epoch). Frozen system warm seed 0 (clean): 0.044.
+
+**Attention-aggregation control (per-relation GAT-style attention, SimpleHGN-like), cold-plant seed 42:** AUPR 0.155 (mean
+aggregation 0.150), AUROC 0.962, nR@10 0.368 (0.368), nR@50 0.542, unseen-genus 0.260; 5.1 h and 22 GB against 25 min and 1.7 GB
+for mean aggregation. Within one-seed noise of the R-GCN: the aggregation rule is not where the gains are (HGB finding, Lv et
+al. 2021, reproduced here). Local networks running; no further seeds unless the local number surprises.
+R3+R1 cold-plant seed 42: 0.174 (R3 0.169, R1 0.170) -- gains only partly additive. R5 seed 0: 0.168.

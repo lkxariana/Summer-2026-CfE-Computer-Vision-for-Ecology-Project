@@ -55,6 +55,8 @@ class RGCNConfig:
     aggregation: str = "mean"           # "mean" (R-GCN) | "attention" (per-relation GAT-style attention, SimpleHGN-like control)
     pair_stat: str = "none"             # R4: explicit co-presence statistic of the pair into the head: joint | space | time | scalar
     degree_encoding: bool = False       # R5: Graphormer-style centrality encoding -- log(1 + in-degree per relation) added to node inputs
+    presence_input: str = "none"        # R6: per-species presence embedding added to the species node input: "field" (SDM species vector,
+                                        #     256-D, whose dot with h(c,w) is the presence surface) | "surface" (SVD projection of the full surface)
     head_type: str = "concat_bilinear"
     bilinear_rank: int = 64
     use_degree_heads: bool = True
@@ -239,6 +241,8 @@ class RGCNRanker:
             x[:n_p + n_q] = x[:n_p + n_q] + self.res_emb.weight * self._res_mask[:, None]
         if self.cfg.degree_encoding:
             x = x + self.proj_deg(self._deg)
+        if self.cfg.presence_input != "none":
+            x[:n_p] = x[:n_p] + self.proj_pres(self.pres_p); x[n_p:n_p + n_q] = x[n_p:n_p + n_q] + self.proj_pres(self.pres_q)
         if self.n_t:
             x[self.off[2]:self.off[2] + self.n_t] = self.tax_emb.weight
         if self.cell_feat is not None:
@@ -270,6 +274,17 @@ class RGCNRanker:
             self.proj_deg = nn.Linear(self.n_rel, cfg.d).to(dev); nn.init.normal_(self.proj_deg.weight, std=0.01); mods.append(self.proj_deg)
         if cfg.pair_stat != "none":
             self._load_pair_stat(store)
+        if cfg.presence_input != "none":
+            if cfg.presence_input == "field":
+                A, Bm = np.load(Path(cfg.field_dir) / "plant_field.npy"), np.load(Path(cfg.field_dir) / "poll_field.npy")
+            elif cfg.presence_input == "surface":
+                A, Bm = np.asarray(store.plant_proj, np.float32), np.asarray(store.poll_proj, np.float32)
+            else:
+                raise ValueError(cfg.presence_input)
+            mu = np.concatenate([A, Bm]).mean(0, keepdims=True); sd = np.concatenate([A, Bm]).std(0, keepdims=True) + 1e-6
+            self.pres_p = torch.from_numpy(((A - mu) / sd).astype(np.float32)).to(dev)
+            self.pres_q = torch.from_numpy(((Bm - mu) / sd).astype(np.float32)).to(dev)
+            self.proj_pres = nn.Linear(A.shape[1], cfg.d).to(dev); mods.append(self.proj_pres)
         n_sp = len(store.plants) + len(store.polls)
         if cfg.warm_residual:
             self.res_emb = nn.Embedding(n_sp, cfg.d).to(dev); nn.init.zeros_(self.res_emb.weight); mods.append(self.res_emb)

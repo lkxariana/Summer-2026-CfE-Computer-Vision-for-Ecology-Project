@@ -1773,3 +1773,8 @@ marginal controls and the local networks follow in refine3; cold_poll and the R3
 
 **R5 degree encoding (Graphormer-style centrality), cold-plant seed 42:** AUPR 0.165 (frozen 0.150), nR@10 0.378, nR@50 0.545,
 unseen-genus 0.231. Positive on the universe; local networks follow. R3 local seed 0: 0.216 (seed 42: 0.215).
+
+**R3 local networks, 3 seeds:** mean AUPR 0.215 / 0.216 / 0.214 (mean 0.215; frozen retriever 0.204; trees 0.222 [0.205, 0.239]),
+warm-plant 0.216-0.218 (0.206), cold-plant 0.225-0.227 (0.241), precision@L 0.232-0.235 (0.233), NODF 51-52. The +0.011
+within-site gain is stable across seeds and comes entirely from warm plants; cold plants within sites lose 0.015.
+R3 now satisfies the pre-registered rule on three seeds for both tables.

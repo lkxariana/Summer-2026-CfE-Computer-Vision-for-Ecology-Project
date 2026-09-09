@@ -20,10 +20,12 @@
 | DCN-V2 (2 cross layers) | Wang et al. 2021, WWW | 3 | 0.166 | 0.576 | 0.167 | 0.036 | **42.5** | — | — |
 | *Hand-engineered features (our earlier system)* | | |  |  |  |  |  |  |  |
 | Boosted ranker: taxonomy + spatial + per-cell features | this work, v2 | 1 | 0.222 [0.205,0.239] | 0.627 | 0.252 | **0.197** | 62.4 | 0.223 | **0.268** |
-| Genus-routed experts (booster / SVD by genus) | this work, v2 | 1 | 0.222 [0.205,0.239] | **0.627** | **0.252** | 0.197 | 62.5 | 0.223 | 0.268 |
+| Genus-routed experts (booster / SVD by genus) | this work, v2 | 1 | 0.222 [0.205,0.239] | 0.627 | **0.252** | 0.197 | 62.5 | 0.223 | 0.268 |
 | *Ours: graph retriever + re-ranker* | | |  |  |  |  |  |  |  |
-| **System: R-GCN retriever + identity re-ranker** | this work | 3 | 0.204 | 0.620 | 0.232 | 0.128 | 51.1 | — | — |
-|   ablation: R-GCN retriever alone | this work | 3 | 0.204 | 0.620 | 0.231 | 0.113 | 48.8 | 0.206 | 0.241 |
+| **System v2: R-GCN (symmetric leave-own-edges-out, R3) + identity re-ranker** | this work | 1 | 0.214 [0.198,0.231] | **0.629** | 0.235 | 0.105 | 53.5 | — | — |
+|   ablation: R3 retriever alone | this work | 3 | 0.215 | 0.629 | 0.234 | 0.052 | 51.6 | 0.217 | 0.226 |
+| System v1: R-GCN (plant-side leave-own-edges-out) + identity re-ranker | this work | 3 | 0.204 | 0.620 | 0.232 | 0.128 | 51.1 | — | — |
+|   ablation: frozen R-GCN retriever alone | this work | 3 | 0.204 | 0.620 | 0.231 | 0.113 | 48.8 | 0.206 | 0.241 |
 |   ablation: re-ranker on the embedding-model retriever | this work | 1 | 0.164 [0.151,0.177] | 0.572 | 0.159 | 0.009 | 45.6 | — | — |
 |   ablation: embedding-model retriever alone | this work | 3 | 0.166 | 0.570 | 0.168 | 0.029 | 42.5 | 0.165 | 0.257 |
 |   ablation: re-ranker + joint field tokens | this work | 1 | 0.165 [0.152,0.178] | 0.574 | 0.160 | 0.008 | 45.5 | — | — |

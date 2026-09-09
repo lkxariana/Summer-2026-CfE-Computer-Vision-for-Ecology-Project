@@ -43,8 +43,10 @@ GROUPS = [
         ("baseline_routed", "Genus-routed experts (booster / SVD by genus)", "this work, v2"),
     ]),
     ("Ours: graph retriever + re-ranker", [
-        ("M2.12_fusion_on_rgcn", "**System: R-GCN retriever + identity re-ranker**", "this work"),
-        ("M3.1_rgcn", "  ablation: R-GCN retriever alone", "this work"),
+        ("M4.0_system_sym", "**System v2: R-GCN (symmetric leave-own-edges-out, R3) + identity re-ranker**", "this work"),
+        ("M3.7_rgcn_sym", "  ablation: R3 retriever alone", "this work"),
+        ("M2.12_fusion_on_rgcn", "System v1: R-GCN (plant-side leave-own-edges-out) + identity re-ranker", "this work"),
+        ("M3.1_rgcn", "  ablation: frozen R-GCN retriever alone", "this work"),
         ("M2.1_fusion_identity", "  ablation: re-ranker on the embedding-model retriever", "this work"),
         ("M1.0_reference", "  ablation: embedding-model retriever alone", "this work"),
         ("M2.2_fusion_joint", "  ablation: re-ranker + joint field tokens", "this work"),
@@ -62,11 +64,25 @@ def main():
     df = load_bundles(); df = df[df["split"] == args.split]
     pooled = seed_pooled(df, group=("model", "split")).set_index("model")
     prev = df["prevalence"].iloc[0] if len(df) else float("nan")
-    lines = [f"## Table 2 — cold-plant validation ({args.split}), {int(df['n_queries'].iloc[0])} plants x "
+    TITLE = {"cold_plant": "cold-plant", "cold_poll": "cold-pollinator", "cold_both": "cold-both", "warm": "warm"}
+    lines = [f"## Table 2 — {TITLE.get(args.split.split('/')[0], args.split)} validation ({args.split}), {int(df['n_queries'].iloc[0])} plants x "
              f"{int(df['n_candidates'].iloc[0])} candidates, chance AUPR {prev:.5f}", "",
              "| Method | Reference | seeds | " + " | ".join(c for _, c in COLS) + " |",
              "|---|---|:---:|" + "---:|" * len(COLS)]
     best = {k: pooled[k].max() for k, _ in COLS if k in pooled}
+    # pollinator-side splits: bundles written before the negative-pool fix (protocol v2) are flagged
+    stale = set()
+    if not args.split.startswith("cold_plant"):
+        import subprocess
+        fix = subprocess.run(["git", "log", "--format=%H", "-1", "--grep=negative-sampling pool"], capture_output=True, text=True, cwd=ROOT).stdout.strip()
+        det = {"baseline_popularity", "baseline_cooccurrence", "baseline_abundance", "baseline_phenology_abundance", "baseline_congeneric",
+               "baseline_svd_taxonomic", "baseline_nectar_ungated", "baseline_nectar_like", "baseline_tabicl"}
+        for _, row in df.iterrows():
+            if row["model"] in det or not fix:
+                continue
+            ok = subprocess.run(["git", "merge-base", "--is-ancestor", fix, row["git"]], cwd=ROOT).returncode == 0
+            if not ok:
+                stale.add(row["model"])
     for group, rows in GROUPS:
         present = [(n, l, r) for n, l, r in rows if n in pooled.index]
         if not present:
@@ -80,6 +96,8 @@ def main():
                 s = f"{v:.3f}" if pd.notna(v) else "—"
                 cells.append(f"**{s}**" if pd.notna(v) and abs(v - best[k]) < 1e-9 else s)
             ns = int(r["n_seeds"]); flag = "" if (ns >= 3 or name.startswith("baseline_") and ns >= 1) else " (incomplete)"
+            if name in stale:
+                flag += " (pre-fix)"
             lines.append(f"| {label} | {ref} | {ns}{flag} | " + " | ".join(cells) + " |")
     lines += ["", "*AUPR at network prevalence is primary; AUPR 1:3 and 1:1 re-weight negatives from the full ranking "
               "(the population version of sampled-negative evaluation). Deterministic baselines are single runs; learned "

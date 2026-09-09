@@ -1921,3 +1921,6 @@ sites); vs pair GBM +0.011 p=0.018; vs SVD+tax +0.035 p<0.001; vs popularity +0.
 precision@L 0.227. Fails the rule (cold-plant 0.165, within-site -0.015). Concatenation does not let the model ignore the
 presence prior within sites; R6 in all forms is closed as a system candidate. cold_poll running for the record.
 System v2 warm s0 0.050.
+R6b concat, cold_poll s42: 0.143 (highest retriever-alone number on the split; R3 0.100, R3+R4 0.127, R6-surface 0.126) -- the
+presence-input family trades within-site accuracy (-0.006 to -0.015) for the pollinator side (+0.03 to +0.04). Documented as a
+regime-specific variant; not the system. R6c (bilinear co-presence head) started.

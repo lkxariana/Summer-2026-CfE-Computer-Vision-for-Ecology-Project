@@ -1931,3 +1931,7 @@ Wide & Deep -0.064 [-0.087, -0.044]; vs DCN-V2 -0.071; vs SVD+tax -0.113; vs pai
 ANTHEIA v1 scalar -0.158; vs popularity -0.156; all p<0.001. Unseen-genus nR@10: no significant difference against any
 model except DCN-V2 / Wide & Deep (System v2 better). `results/ladder_cold_plant_val_paired.csv`.
 System v2 cold_poll s1: 0.106 (three seeds 0.128 / 0.118 / 0.106, mean 0.117).
+
+**System v2, three clean seeds on every regime (12:15):** cold_plant 0.208 / 0.209 / 0.209; cold_poll 0.128 / 0.118 / 0.106 (mean
+0.117); cold_both 0.096 / 0.096 / 0.091 (mean 0.094); warm 0.048 / 0.050 / 0.053 (mean 0.050; SVD 0.105); local 0.214 (1 seed;
+retriever 3 seeds 0.215). R6c bilinear co-presence head, cold-plant s42: 0.182 (best retriever-alone); local running.

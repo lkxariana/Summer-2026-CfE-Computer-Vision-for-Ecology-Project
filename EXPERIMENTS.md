@@ -1841,3 +1841,8 @@ should); R6c `pres_bilinear_rank=32` (learned low-rank co-presence metric u_p^T 
 product); R7 `cooc_neg_frac=0.5` (half of the uniform negatives replaced by in-batch co-occurrence negatives -- pollinators that
 share a cell with a batch plant -- so the retriever objective also rewards the within-site discrimination). Each arm:
 cold_plant s42, local networks, cold_poll s42; adoption by the pre-registered rule.
+
+**R3+R1 (symmetric anchors + warm memory), local networks seed 42:** mean AUPR 0.192 [0.178, 0.207] (R3 0.215; frozen 0.204), warm
+0.194, cold 0.231, precision@L 0.215. The memory vector erases R3's within-site gain and more; fails the rule regardless of its
+warm-split number (pending). The memory path stays out of the system; if the paper wants a warm-regime variant it is a separate
+row, not the final model.

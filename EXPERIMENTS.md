@@ -1901,3 +1901,7 @@ as a system candidate, kept as evidence that the pollinator side is presence-lim
 scalar 0.045). Warm seed 42 re-run: 0.033 (unchanged, as expected -- the pool fix barely touches warm). GPU 1 now runs System v2
 on cold_both (s42, deleted earlier as pre-fix) and seeds 0/1 of System v2 and R3 on all pollinator-side splits
 (`scripts/queue_sys_seeds.sh`).
+
+**System v2, cold_both seed 42, protocol v2: AUPR 0.096, AUROC 0.888, nR@10 0.278, nR@50 0.565** (best baseline ANTHEIA v1 scalar
+0.045 / 0.809 / 0.316 / 0.555; R3 retriever alone 0.078; frozen system clean 0.028-0.029). Leads AUPR by 2x and AUROC; ties
+on nR@10/nR@50 with the co-occurrence PCA model.

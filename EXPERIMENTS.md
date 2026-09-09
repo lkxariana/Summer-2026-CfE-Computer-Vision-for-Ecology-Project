@@ -1750,3 +1750,8 @@ evaluated plant's known pairs (training edges and the other part's held-out pair
 pushed below all candidates in the per-query rankings (`evaluate_scores(..., exclude=)`, `exclude.npy` saved with the bundle,
 `n_excluded` in metrics). Applies to the warm split only; cold splits have no such pairs by construction. Warm bundles
 written before the fix are deleted and re-run by `scripts/queue_warm_fix.sh` after the battery finishes.
+
+**System on the R3 retriever (M4.0_system_sym), cold-plant seed 42:** universe AUPR 0.208 (frozen system 0.188; R3 retriever alone
+0.169), AUPR 1:3 / 1:1 0.931 / 0.972, AUROC 0.973, nR@10 0.386, nR@50 0.551, unseen-genus nR@10 0.247. The re-ranker adds
++0.039 on the R3 retriever, the same increment it adds on the frozen one. Seeds 0/1, local networks and the battery follow.
+R3 cold_poll seed 1: 0.0262 (three seeds 0.0255 / 0.0263 / 0.0262). R2 seed 1: 0.151 (three seeds 0.150-0.151) -- closed.

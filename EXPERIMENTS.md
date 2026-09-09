@@ -1924,3 +1924,10 @@ System v2 warm s0 0.050.
 R6b concat, cold_poll s42: 0.143 (highest retriever-alone number on the split; R3 0.100, R3+R4 0.127, R6-surface 0.126) -- the
 presence-input family trades within-site accuracy (-0.006 to -0.015) for the pollinator side (+0.03 to +0.04). Documented as a
 regime-specific variant; not the system. R6c (bilinear co-presence head) started.
+
+**Cold-plant paired bootstraps, System v2 as reference (500 plant resamples, averaged over shared seeds):** vs system v1 delta AUPR
+-0.021 [-0.029, -0.013] p<0.001 (nR@10 tie, p=0.95); vs R3 retriever alone -0.039 p<0.001; vs frozen retriever -0.059; vs
+Wide & Deep -0.064 [-0.087, -0.044]; vs DCN-V2 -0.071; vs SVD+tax -0.113; vs pair GBM -0.130; vs congeneric -0.151; vs
+ANTHEIA v1 scalar -0.158; vs popularity -0.156; all p<0.001. Unseen-genus nR@10: no significant difference against any
+model except DCN-V2 / Wide & Deep (System v2 better). `results/ladder_cold_plant_val_paired.csv`.
+System v2 cold_poll s1: 0.106 (three seeds 0.128 / 0.118 / 0.106, mean 0.117).

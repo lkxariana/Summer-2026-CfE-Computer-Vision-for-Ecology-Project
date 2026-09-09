@@ -1981,3 +1981,6 @@ A3 month-collapsed, cold-plant 0.167 (cell x month 0.169).
 integration does not beat cell-only integration, unlike the re-ranking test in the marginalisation ladder. The design claim
 must be stated as "place as graph nodes"; season enters only through the field-derived presence weights. A1 (no cell nodes)
 decides whether the cells themselves matter.
+Genus-token re-ranker on R3, cold-plant s42: AUPR 0.109 (System v2 0.209; retriever alone 0.169), nR@10 0.373 -- the genus-profile
+tokens halve universe AUPR while leaving within-site unchanged (the re-ranker over-trusts the profile on continental candidates).
+Closed on both tables. GPU 1 idle.

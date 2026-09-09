@@ -1951,3 +1951,4 @@ regenerated (`results/tables_publish.md`, appendix `results/tables_ladder_*.md`,
 **R7 co-occurrence negatives, local networks seed 42:** 0.204 [0.190, 0.221] (R3 0.215), warm 0.206, cold 0.256, precision@L 0.226.
 Fails on both criteria (cold-plant -0.017, within-site -0.011). Training the retriever on within-site-style negatives does not
 buy within-site accuracy; the objective is not the lever either. Refinement stage closed: R3 is the only adoption.
+R7 cold_poll s42: 0.101 (= R3). R6b/R6c/R7 queue complete; GPU 0 now only carries the protocol-v2 tail.

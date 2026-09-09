@@ -1706,3 +1706,7 @@ behind a go-file (`logs/r3_system.go`, `scripts/queue_r3_system.sh`) -- adopting
 **Site-time term at inference (R-site), on the R3 local bundle:** beta cross-fitted two-fold (0.25 selected in both folds);
 mean AUPR 0.215 -> 0.218 (+0.002 [-0.000, +0.005], p = 0.09), precision@L 0.232 -> 0.237, AUROC unchanged. Within a site the
 field's phenology at that cell adds essentially nothing over the graph model. Negative; closed (inference-only, no seeds needed).
+
+**R1+R2 (warm residual + genus edges), seed 42:** universe AUPR 0.164, nR@10 0.373, nR@50 0.552, unseen-genus 0.240; local mean
+AUPR 0.185 [0.171, 0.199] (0.204), warm 0.188, cold 0.250, precision@L 0.209. Fails the rule, as each part did alone. The
+refinement queue on GPU 1 now runs seeds 0/1 of R2, R1 and R1+R2 for the record, then the attention control.

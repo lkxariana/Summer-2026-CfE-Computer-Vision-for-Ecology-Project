@@ -1935,3 +1935,7 @@ System v2 cold_poll s1: 0.106 (three seeds 0.128 / 0.118 / 0.106, mean 0.117).
 **System v2, three clean seeds on every regime (12:15):** cold_plant 0.208 / 0.209 / 0.209; cold_poll 0.128 / 0.118 / 0.106 (mean
 0.117); cold_both 0.096 / 0.096 / 0.091 (mean 0.094); warm 0.048 / 0.050 / 0.053 (mean 0.050; SVD 0.105); local 0.214 (1 seed;
 retriever 3 seeds 0.215). R6c bilinear co-presence head, cold-plant s42: 0.182 (best retriever-alone); local running.
+
+**R6c learned co-presence bilinear head, local networks seed 42:** 0.206 [0.191, 0.221] (R3 0.215; frozen 0.204), warm 0.208, cold
+0.244, precision@L 0.229. Cold-plant 0.182 (+0.013 over R3) but within-site -0.009: fails the rule, the same trade-off as R4
+with a slightly better exchange rate. cold_poll running for the record. R3 retriever cold_both s0: 0.071.

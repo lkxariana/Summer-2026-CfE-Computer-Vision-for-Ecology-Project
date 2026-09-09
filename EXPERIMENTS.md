@@ -1905,3 +1905,8 @@ on cold_both (s42, deleted earlier as pre-fix) and seeds 0/1 of System v2 and R3
 **System v2, cold_both seed 42, protocol v2: AUPR 0.096, AUROC 0.888, nR@10 0.278, nR@50 0.565** (best baseline ANTHEIA v1 scalar
 0.045 / 0.809 / 0.316 / 0.555; R3 retriever alone 0.078; frozen system clean 0.028-0.029). Leads AUPR by 2x and AUROC; ties
 on nR@10/nR@50 with the co-occurrence PCA model.
+
+**11:15 -- System v2 seeds and clean cold_both baselines.** System v2 cold_poll s0 0.118 (s42 0.128); cold_both s0 0.0956 (s42 0.0956).
+Clean cold_both baselines (seed 42): ANTHEIA v1 scalar 0.045, spatial 0.041, pair GBM 0.037 (AUROC 0.853), Wide & Deep 0.026;
+frozen system 0.030, frozen retriever 0.010. System v2 leads cold_both AUPR by 2.1x and AUROC (0.888 vs 0.853).
+R6b concat, cold-plant 0.165 (R3 0.169); local running.

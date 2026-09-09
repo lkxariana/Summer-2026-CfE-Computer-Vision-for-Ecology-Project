@@ -1885,3 +1885,10 @@ Consistent with the within-site losses: a prevalence prior is exactly what sites
   cold-plant universe (0.155). Concat fusion (R6b) is the next read.
 - **System on R3, cold_poll seed 42, protocol v2: AUPR 0.128, AUROC 0.917, nR@10 0.366, nR@50 0.637** (best baseline 0.037 /
   0.852 / 0.306 / 0.573). The system leads every column on the cold-pollinator split by 3x once the protocol is clean.
+
+**Clean cold_poll numbers (protocol v2), seed 42 unless noted:** R3 retriever 0.0995 (s0 0.1048; leaky 0.026); system on R3 0.128;
+pair GBM 0.044 (leaky 0.031), ANTHEIA v1 scalar 0.036, spatial 0.033, Wide & Deep 0.029, embedding retriever 0.010, DCN-V2
+0.008, two-tower 0.006, pair MLP 0.003, trees 0.003. Attribution settled: R3+R1 (0.104) and R6-field (0.086) add nothing over
+clean R3 (0.100-0.105); R3+R4 (0.127) adds ~+0.025 on the retriever; the re-ranker adds +0.028 (0.100 -> 0.128). Two bundles
+that started before the fix but were committed after it (git hash is taken at write time) were found by start time and
+deleted for re-run: system-on-R3 cold_both s42 (the 0.061 "lower bound") and frozen retriever cold_both s0.

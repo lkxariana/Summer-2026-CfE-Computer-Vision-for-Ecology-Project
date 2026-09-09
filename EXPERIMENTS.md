@@ -1808,3 +1808,9 @@ statistic sharpens continental ranking (it is a co-presence prior) and blunts wi
 
 Refinement tally after seed 42 on both tables: R3 passes (both up); R1, R4, R5 lift the universe and lower within-site AUPR;
 R2 neutral/negative. Pending: R4 marginal + scalar controls, R3+R4, R3+R1, attention control, protocol-v2 re-runs.
+
+**System on R3, warm seed 42 (filtered ranking, protocol v2):** AUPR 0.048, AUROC 0.976 (best on the split), nR@10 0.300, nR@50
+0.553 (best). SVD + taxonomic imputation: 0.105 / 0.928 / 0.250 / 0.484. The re-ranker adds +0.015 on warm over the R3
+retriever (0.033). The graph system wins the whole-list metrics (AUROC, nR@50) on warm and loses the head (AUPR) to matrix
+factorisation by 2x; frozen retriever warm s0 0.032. R3+R1 (memory path) is the arm aimed at this and starts now.
+Cold_both seed 42 under the old protocol: 0.062 (best baseline 0.045) -- lower bound, re-run pending.

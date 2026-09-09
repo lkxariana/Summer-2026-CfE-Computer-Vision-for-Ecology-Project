@@ -1896,3 +1896,8 @@ deleted for re-run: system-on-R3 cold_both s42 (the 0.061 "lower bound") and fro
 **R3 retriever, cold_poll three clean seeds: 0.0995 / 0.1048 / 0.0984 (mean 0.101).** R6-surface on cold_poll: 0.126 (like R3+R4,
 0.127 -- the same SVD-surface information by two routes), but it costs cold-plant (0.155) and within-site (0.201); R6 closed
 as a system candidate, kept as evidence that the pollinator side is presence-limited. R6b/R6c/R7 start on GPU 0.
+
+**R3 retriever clean, cold_both seed 42: AUPR 0.078, AUROC 0.875, nR@10 0.309, nR@50 0.520** (leaky 0.019; best baseline ANTHEIA v1
+scalar 0.045). Warm seed 42 re-run: 0.033 (unchanged, as expected -- the pool fix barely touches warm). GPU 1 now runs System v2
+on cold_both (s42, deleted earlier as pre-fix) and seeds 0/1 of System v2 and R3 on all pollinator-side splits
+(`scripts/queue_sys_seeds.sh`).

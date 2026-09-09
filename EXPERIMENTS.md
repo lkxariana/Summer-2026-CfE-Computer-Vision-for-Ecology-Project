@@ -1916,3 +1916,8 @@ R6b concat, cold-plant 0.165 (R3 0.169); local running.
 earlier system); vs system v1 +0.010 [+0.006, +0.015] p<0.001; vs R3 retriever alone -0.001 p=0.33 (re-ranker neutral within
 sites); vs pair GBM +0.011 p=0.018; vs SVD+tax +0.035 p<0.001; vs popularity +0.022 p<0.001. Cold-plant paired bootstraps
 (System v2 as reference) running on CPU -> logs/paired_v2.log.
+
+**R6b concat fusion of the presence embedding, local networks seed 42:** 0.200 [0.185, 0.216] (R3 0.215), warm 0.202, cold 0.258,
+precision@L 0.227. Fails the rule (cold-plant 0.165, within-site -0.015). Concatenation does not let the model ignore the
+presence prior within sites; R6 in all forms is closed as a system candidate. cold_poll running for the record.
+System v2 warm s0 0.050.

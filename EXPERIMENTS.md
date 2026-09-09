@@ -1778,3 +1778,8 @@ unseen-genus 0.231. Positive on the universe; local networks follow. R3 local se
 warm-plant 0.216-0.218 (0.206), cold-plant 0.225-0.227 (0.241), precision@L 0.232-0.235 (0.233), NODF 51-52. The +0.011
 within-site gain is stable across seeds and comes entirely from warm plants; cold plants within sites lose 0.015.
 R3 now satisfies the pre-registered rule on three seeds for both tables.
+
+**R4 marginal controls, cold-plant seed 42:** joint 0.174, space 0.172, time 0.171 (frozen 0.150). Inside the graph model the
+three forms tie within one-seed noise: the gain is from having an explicit presence-derived pair scalar at the head, not from
+its joint form (the cell x month nodes already integrate jointly). The scalar (mass x mass) control is queued to separate a
+structure effect from a prevalence effect (`scripts/queue_r4scalar.sh`).

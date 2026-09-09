@@ -1956,3 +1956,17 @@ R7 cold_poll s42: 0.101 (= R3). R6b/R6c/R7 queue complete; GPU 0 now only carrie
 **All queues complete (14:55).** Protocol-v2 pass finished (frozen retriever / system seeds 0 re-run clean: cold_poll 0.007 / 0.008,
 cold_both 0.009). Tables regenerated from clean bundles only. Both GPUs idle by design; no arms pending. Open for Dan: (1) confirm
 System v2 (R3 + re-ranker) as the paper's system; (2) headline framing; (3) unlock the test split.
+
+### Follow-ups after Dan's review (09-09 15:20)
+
+Queued: structural ablations of the R3 retriever (`scripts/queue_ablate.sh`, GPU 0: month-collapsed cells, no cell x month
+nodes, no taxon nodes; each cold_plant s42 + local + cold_poll) and genus-profile tokens in the re-ranker on the R3 retriever
+(`scripts/queue_sys_genus.sh`, GPU 1: local first, then cold_plant s42).
+
+**Within-site by dataset (existing bundles):** web-of-life networks (19): final 0.236, congeneric 0.236, trees 0.235, pair GBM
+0.236 -- a four-way tie; the 72 GloBI-derived networks (dataset label missing in the parquet -- fix the label): final 0.208,
+congeneric 0.219, trees 0.219, pair GBM 0.194. The whole within-site gap sits in the GloBI-derived surveys.
+**Cold-plant strata:** low-degree plants (<= 2 recorded partners) nR@10: final 0.350, v1 0.356, W&D 0.243, SVD 0.249,
+congeneric 0.265, popularity 0.233 -- the system's lead is intact on the rarest plants. Unseen-genus AUPR: v1 0.069 > final
+0.051 (nR@10 0.260 vs 0.245, p = 0.25): symmetric rehearsal costs a little where the plant's genus is unseen. Zero-shot
+(text-imputed feature) plants: final 0.361, v1 0.369, others <= 0.32.

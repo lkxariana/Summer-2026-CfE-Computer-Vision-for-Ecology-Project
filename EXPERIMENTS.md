@@ -1802,3 +1802,9 @@ AUROC 0.892, recall@500 0.905 -- above the best baseline on this split (0.037) a
 **R4 joint pair statistic, local networks seed 42:** mean AUPR 0.195 [0.181, 0.210] (frozen 0.204), warm 0.197 (0.206), cold 0.250
 (0.241), precision@L 0.219. Fails the rule: universe +0.024 with a within-site loss of 0.009. Same pattern as R1 -- the
 statistic sharpens continental ranking (it is a co-presence prior) and blunts within-site ranking, where presence is fixed.
+
+**R5 degree encoding, local networks seed 42:** mean AUPR 0.197 [0.183, 0.211] (frozen 0.204), warm 0.198, cold 0.240, precision@L
+0.225. Fails the rule (universe +0.015, local -0.007). Degree is a popularity prior: same trade-off as R1 and R4.
+
+Refinement tally after seed 42 on both tables: R3 passes (both up); R1, R4, R5 lift the universe and lower within-site AUPR;
+R2 neutral/negative. Pending: R4 marginal + scalar controls, R3+R4, R3+R1, attention control, protocol-v2 re-runs.

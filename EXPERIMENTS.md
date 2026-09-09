@@ -1863,3 +1863,9 @@ Frozen system warm, three clean seeds: 0.043 / 0.044 / 0.043.
 **R3+R4 (symmetric anchors + joint pair statistic), cold_poll seed 42, protocol v2: AUPR 0.127, AUROC 0.923, nR@10 0.396, nR@50
 0.659** (best baseline 0.037 / 0.837 / 0.306 / 0.573; R3+R1 clean 0.104). Cold-plant 0.181. Local networks running -- the
 deciding table, given R4 alone cost 0.009 within sites.
+
+**R3+R4, local networks seed 42:** mean AUPR 0.203 [0.189, 0.219] (R3 0.215, frozen 0.204), warm 0.205, cold 0.246, precision@L
+0.230. Fails the rule against the R3 base (within-site -0.012) despite universe +0.011 and cold_poll 0.127. R4 is a
+continental co-presence prior: it helps wherever presence is the only signal (unseen pollinators) and costs within sites.
+Decision stays with the rule: R3 is the retriever; R4 is reported as a documented trade-off (appendix row), unless the clean R3
+cold_poll re-run shows a gap that changes the paper's regime claim -- Dan's call then.

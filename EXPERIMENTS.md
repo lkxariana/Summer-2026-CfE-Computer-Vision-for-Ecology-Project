@@ -1766,3 +1766,7 @@ This is the regime where leave-own-edges-out costs something by design; the re-r
 0.966, nR@10 0.382 (0.368), nR@50 0.552, unseen-genus 0.257 (0.23). Largest single-arm universe gain so far, and it comes from
 the marginalisation-ladder statistic handed to the pair head, on top of the graph's own cell x month integration. Space/time
 marginal controls and the local networks follow in refine3; cold_poll and the R3+R4 combination in refine4.
+
+**System on R3, cold-plant 3 seeds:** AUPR 0.208 / 0.209 / 0.209 (mean 0.209; frozen system 0.188), AUROC 0.972-0.973, nR@10
+0.380-0.386, nR@50 0.545-0.551, unseen-genus 0.240-0.249. Universe criterion met by +0.021 on every seed. Local networks
+(fusion) running, then battery seed 42.

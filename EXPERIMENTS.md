@@ -2071,3 +2071,7 @@ final model. Wording for the paper: modest, not inert. Cold-plant seeds 0/1 of M
 **Cold-plant paired bootstrap, M5.0 as reference:** vs System v2 +0.003 [-0.006, +0.013] p = 0.47 (tie); vs own retriever +0.039;
 vs Wide & Deep +0.071, vs DCN-V2 +0.077 (p < 0.001). nR@10 vs v2: -0.006, p = 0.20. The two systems are equivalent on cold plant;
 M5.0's advantage is on the pollinator side (paired tests on cold_poll / cold_both running).
+**M5.2 presence-augmented system (R6b retriever + re-ranker), local s42: 0.195 (M5.0 0.216), precision@L 0.218.** The presence
+embedding costs the system 0.02 within sites and 0.02 on cold plant; cold_poll / cold_both / warm running. Appendix tables
+generated (`results/tables_publish_appendix.md`): low-degree plants -- final 0.344 nR@10 vs <= 0.267 for every non-neural model;
+unseen-genus AUPR final 0.078 (v2 0.051, v1 0.069); within-site by source -- BC 0.212 vs congeneric 0.221, web-of-life 0.235 vs 0.236.

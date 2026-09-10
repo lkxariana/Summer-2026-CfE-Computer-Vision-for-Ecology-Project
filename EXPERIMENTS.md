@@ -2088,3 +2088,18 @@ pollinators) and a tie on cold plant (p = 0.47).
 of any tier before the cutoff ("prospective cold"; 757 / 263 held-out pairs); 159,437 pre-cutoff training pairs (all tiers, undated kept). Split built (`data/splits/prospective_2024.json`,
 `scripts/build_prospective_split.py`) and wired into `run_ladder.py` as `--split prospective_2024` with filtered ranking and a
 `prospective_cold` stratum. Not run: Dan's call (it is a new evaluation, and the strongest ecological test we can offer).
+
+### Opportunity x affinity (09-10 03:50)
+
+**A4 = no-taxon retriever + explicit pair co-presence term (joint), seed 42:** cold-plant **0.197** (A2 0.174), nR@10 0.390, unseen-genus
+0.304 (both best of any retriever); cold_poll **0.155** (A2 0.129; best of any model); within sites scored with the full logit
+0.215 (A2 0.218); **scored affinity-only (opportunity term zeroed, since the survey fixes co-presence): 0.224 [0.209, 0.240],
+precision@L 0.249, warm-plant 0.226 -- the best within-site numbers of any model** (congeneric 0.222 / 0.239; trees 0.222 / 0.252);
+cold plants inside sites 0.203 (full logit 0.237: for a cold plant inside a site the opportunity term still helps). On the no-taxon
+graph the co-presence term costs only 0.003 within sites even when left on, against 0.012 on the taxon graph.
+Interpretation: interaction = opportunity (co-presence in space and time; between-site) x affinity (identity; within-site). One
+model, two terms, the second switched off where the first is fixed by the survey. Seeds 0/1 queued (`scripts/queue_a4_seeds.sh`,
+GPU 0) and the re-ranked system on A4 (M6.0; within-site scored with the affinity-only retriever; `scripts/queue_sys_a4.sh`, GPU 1).
+**M5.2 presence-augmented system (R6b + re-ranker):** cold-plant 0.194, local 0.195, cold_poll 0.157 (AUROC 0.931, nR@50 0.687,
+best), cold_both 0.101 (AUROC 0.911, nR@10 0.376). Appendix variant: pollinator-side gains bought with -0.02 elsewhere.
+**M5.1 no-cell final, cold-plant 3 seeds: 0.206 / 0.208 / 0.202 (M5.0 0.213).** Cells stay.

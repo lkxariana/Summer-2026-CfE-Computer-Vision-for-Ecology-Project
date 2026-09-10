@@ -2084,7 +2084,7 @@ pollinators) and a tie on cold plant (p = 0.47).
 0.304. The opportunity term adds +0.023 to the affinity retriever on the continent. cold_poll and the two within-site scorings next.
 
 **Prospective holdout, feasibility (edges carry first_year / last_year; 90,585 of 101,070 tier-A pairs dated):** cutoff 2024 holds out
-18,069 tier-A pairs first recorded in 2024-2026 (18%), with 910 plants and 541 pollinators that have no record at all before
-the cutoff ("prospective cold"); 49,080 pre-cutoff training pairs. Split built (`data/splits/prospective_2024.json`,
+18,069 tier-A pairs first recorded in 2024-2026 (18%) over 3,900 plants, of which 483 plants and 226 pollinators have no record
+of any tier before the cutoff ("prospective cold"; 757 / 263 held-out pairs); 159,437 pre-cutoff training pairs (all tiers, undated kept). Split built (`data/splits/prospective_2024.json`,
 `scripts/build_prospective_split.py`) and wired into `run_ladder.py` as `--split prospective_2024` with filtered ranking and a
 `prospective_cold` stratum. Not run: Dan's call (it is a new evaluation, and the strongest ecological test we can offer).

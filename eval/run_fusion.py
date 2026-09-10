@@ -116,11 +116,23 @@ def main():
     hits = sum(len(set(c_ev[i].tolist()) & set(ci[np.flatnonzero(Y[i])].tolist())) for i in range(len(ev_plants)))
     rec_k = hits / Y.sum()
     print(f"  retriever fit+scored in {time.time() - t0:.0f}s; recall@{K} on eval plants {rec_k:.3f}", flush=True)
+    id_override = None
+    src = fcfg.get("id_source", "text")
+    if src != "text":
+        with torch.no_grad():
+            n_p = len(store.plants)
+            if src == "retriever_proj":
+                pq = (ret.proj_text_q if getattr(ret.cfg, "text_proj", "shared") == "kingdom" else ret.proj_text)
+                id_override = (ret.proj_text(ret.text_p).cpu().numpy(), pq(ret.text_q).cpu().numpy())
+            elif src == "retriever_h":
+                id_override = (ret.h_all[:n_p].cpu().numpy(), ret.hq_all.cpu().numpy())
+            else:
+                raise ValueError(src)
     del ret; torch.cuda.empty_cache()
 
     # ---- fusion ---------------------------------------------------------------------------------
     t1 = time.time()
-    fus = FusionReranker(**dict(fcfg, seed=args.seed, device=args.device)).fit(train, store, s_tr, c_tr, tpi)
+    fus = FusionReranker(**dict(fcfg, seed=args.seed, device=args.device)).fit(train, store, s_tr, c_tr, tpi, id_override=id_override)
     S = S_ev.copy()
     for i, p in enumerate(ev_plants):
         new, qidx = fus.rerank(store.p2i[p], s_ev[i], c_ev[i], len(ci))

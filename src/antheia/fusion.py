@@ -76,6 +76,8 @@ class FusionConfig:
     seed: int = 42
     device: str = "cuda"
     text_variant: str = "bioclip2"
+    id_source: str = "text"             # "text": frozen BioCLIP-2 names (768) | "retriever_proj": the retriever's projected names (d_r) |
+                                        # "retriever_h": the retriever's graph output vectors h_p, h_q (d_r); arrays passed via fit(id_override=)
     name: str = "Fusion re-ranker over identity and field tokens (ours)"
 
 
@@ -149,6 +151,10 @@ class FusionReranker:
         tp = torch.load(TEXT_DIR / f"plants_{cfg.text_variant}.pt", weights_only=False)["embeddings"].float()
         tq = torch.load(TEXT_DIR / f"polls_{cfg.text_variant}.pt", weights_only=False)["embeddings"].float()
         self.text_p = F.normalize(tp, dim=1).to(dev); self.text_q = F.normalize(tq, dim=1).to(dev)
+        if getattr(self, "_id_override", None) is not None:
+            a, b = self._id_override
+            self.text_p = F.normalize(torch.as_tensor(np.asarray(a, np.float32)), dim=1).to(dev)
+            self.text_q = F.normalize(torch.as_tensor(np.asarray(b, np.float32)), dim=1).to(dev)
         H = np.load(fd / "grid_h.npy")                                              # [C, 52, 256]
         self.C, self.W, dh = H.shape
         suffix = "" if cfg.token_variant == "joint" else f"_{cfg.token_variant}"
@@ -200,14 +206,15 @@ class FusionReranker:
         return (self.text_p[pi], self.H[ip], lpp, self.text_q[qi], self.H[iq], lpq) + self._genus(pi, qi)
 
     # ---- training -------------------------------------------------------------------------------
-    def fit(self, edges, store, retriever_scores_train, retriever_cands_train, train_plants_idx):
+    def fit(self, edges, store, retriever_scores_train, retriever_cands_train, train_plants_idx, id_override=None):
         """retriever_scores_train / cands_train: [n_train_plants, K] scores and pollinator indices from the
         retriever, aligned with train_plants_idx (plant indices into store)."""
         cfg = self.cfg; seed_everything(cfg.seed)
         self.dev = dev = cfg.device
         self.store = store
+        self._id_override = id_override
         self._load_inputs(store)
-        self.net = Fusion(cfg, d_field=self.H.shape[1]).to(dev)
+        self.net = Fusion(cfg, d_text=self.text_p.shape[1], d_field=self.H.shape[1]).to(dev)
         opt = torch.optim.AdamW(self.net.parameters(), lr=cfg.lr, weight_decay=cfg.weight_decay)
         rng = np.random.default_rng(cfg.seed)
 

@@ -78,6 +78,7 @@ class RGCNConfig:
     seed: int = 42
     device: str = "cuda"
     text_variant: str = "bioclip2"
+    text_proj: str = "shared"           # "shared": one 768->d map for both kingdoms | "kingdom": separate maps for plants and pollinators
     name: str = "R-GCN over species, taxa and cell x month (ours)"
 
 
@@ -245,7 +246,7 @@ class RGCNRanker:
         if self.cfg.presence_input != "none" and self.cfg.presence_fusion == "concat":
             x[:n_p] = self.proj_in(torch.cat([self.text_p, self.pres_p], 1)); x[n_p:n_p + n_q] = self.proj_in(torch.cat([self.text_q, self.pres_q], 1))
         else:
-            x[:n_p] = self.proj_text(self.text_p); x[n_p:n_p + n_q] = self.proj_text(self.text_q)
+            x[:n_p] = self.proj_text(self.text_p); x[n_p:n_p + n_q] = (self.proj_text_q if self.cfg.text_proj == "kingdom" else self.proj_text)(self.text_q)
         if self.cfg.warm_residual:
             x[:n_p + n_q] = x[:n_p + n_q] + self.res_emb.weight * self._res_mask[:, None]
         if self.cfg.degree_encoding:
@@ -273,12 +274,14 @@ class RGCNRanker:
         self.text_p = F.normalize(tp, dim=1).to(dev); self.text_q = F.normalize(tq, dim=1).to(dev)
         self._build_graph(store, edges)
         self.proj_text = nn.Linear(tp.shape[1], cfg.d).to(dev)
+        if cfg.text_proj == "kingdom":
+            self.proj_text_q = nn.Linear(tq.shape[1], cfg.d).to(dev)
         self.tax_emb = nn.Embedding(max(self.n_t, 1), cfg.d).to(dev)
         self.proj_cell = nn.Linear(self.cell_feat.shape[1] if self.cell_feat is not None else 1, cfg.d).to(dev)
         self.layers = nn.ModuleList([RelLayer(cfg.d, self.n_rel, cfg.bases, cfg.dropout, cfg.aggregation) for _ in range(cfg.layers)]).to(dev)
         self.head = PairHead(cfg.d, 2 * cfg.d, cfg.dropout, head_type=cfg.head_type, bilinear_rank=cfg.bilinear_rank,
                              n_extra=(1 if cfg.pair_stat != "none" else 0) + (1 if cfg.pres_bilinear_rank > 0 else 0)).to(dev)
-        mods = [self.proj_text, self.tax_emb, self.proj_cell, self.layers, self.head]
+        mods = [self.proj_text, self.tax_emb, self.proj_cell, self.layers, self.head] + ([self.proj_text_q] if cfg.text_proj == "kingdom" else [])
         if cfg.degree_encoding:
             self.proj_deg = nn.Linear(self.n_rel, cfg.d).to(dev); nn.init.normal_(self.proj_deg.weight, std=0.01); mods.append(self.proj_deg)
         if cfg.pair_stat != "none":

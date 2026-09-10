@@ -72,7 +72,19 @@ def main():
         if p not in ret_cache:
             ret_cache[p] = ret.score_plant(int(p)).astype(np.float32)
         return ret_cache[p]
-    fus = FusionReranker(**dict(fcfg, seed=args.seed, device=args.device)).fit(train, store, s_tr, c_tr, tpi)
+    id_override = None
+    src = fcfg.get("id_source", "text")
+    if src != "text":
+        with torch.no_grad():
+            n_p = len(store.plants)
+            if src == "retriever_proj":
+                pq = (ret.proj_text_q if getattr(ret.cfg, "text_proj", "shared") == "kingdom" else ret.proj_text)
+                id_override = (ret.proj_text(ret.text_p).cpu().numpy(), pq(ret.text_q).cpu().numpy())
+            elif src == "retriever_h":
+                id_override = (ret.h_all[:n_p].cpu().numpy(), ret.hq_all.cpu().numpy())
+            else:
+                raise ValueError(src)
+    fus = FusionReranker(**dict(fcfg, seed=args.seed, device=args.device)).fit(train, store, s_tr, c_tr, tpi, id_override=id_override)
 
     grid = pd.read_parquet(ROOT / "data/features/grid.parquet"); tree = cKDTree(np.c_[grid.centroid_lat, grid.centroid_lon])
     rows = []; pooled_y, pooled_s = [], []

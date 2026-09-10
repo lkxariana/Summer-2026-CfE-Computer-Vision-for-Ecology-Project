@@ -2146,3 +2146,10 @@ table except warm AUPR and cold-plant nR@10 (tie with v2). Pollinator-side and w
 0.163 / 0.170 = **0.162**; cold_both 0.137 / 0.148 / s1 below = see table; warm 0.050 / 0.053 / s1 below; within sites 0.220 / 0.215 /
 0.217 = **0.217**, precision@L 0.253 / 0.247 / 0.248 = **0.249**. All queues finished; both GPUs idle; tables regenerated from
 three-seed bundles. Open for Dan: adopt M6.0 as the paper's system; test split; prospective-2024 holdout.
+
+### Design ablations requested by Dan (09-10 09:40)
+
+K1: kingdom-specific text projections (separate 768->128 maps for plants and pollinators) in the final retriever; M6.1: re-ranker
+identity tokens taken from the retriever's projected names (128-D) instead of raw BioCLIP-2; M6.2: re-ranker tokens = the
+retriever's graph outputs h_p, h_q. Each on cold_plant s42 and within sites (affinity-only retriever), K1 also cold_poll.
+Smokes (1 epoch): kingdom projection trains (0.113 after one epoch); re-ranker on retriever h trains (0.102 on a 1-epoch retriever).

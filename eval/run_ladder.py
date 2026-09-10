@@ -47,6 +47,11 @@ def load_split(name, part):
         return dict(train_plants=set(w["train_plants"]), train_polls=set(w["train_polls"]),
                     eval_plants=sorted({p for p, _ in held}), cand_polls=sorted(w["train_polls"]), held_pairs=held,
                     drop_pairs={tuple(x) for x in w["val_pairs"] + w["test_pairs"]})
+    if name.startswith("prospective"):
+        w = json.load(open(sp / f"{name}.json"))
+        held = {tuple(x) for x in w["eval_pairs"]}
+        return dict(train_plants=None, train_polls=None, eval_plants=sorted(w["eval_plants"]), cand_polls=None, held_pairs=held,
+                    drop_pairs=held, train_pairs={tuple(x) for x in w["train_pairs"]}, cold_plants=set(w["cold_plants"]))
     raise ValueError(name)
 
 
@@ -55,7 +60,7 @@ def main():
     ap.add_argument("--model", required=True, help="REGISTRY key, e.g. embednet, routed, popularity")
     ap.add_argument("--name", default=None, help="bundle name (defaults to --model)")
     ap.add_argument("--config", default="{}", help="JSON of model kwargs")
-    ap.add_argument("--split", default="cold_plant", choices=["cold_plant", "cold_poll", "cold_both", "warm"])
+    ap.add_argument("--split", default="cold_plant", choices=["cold_plant", "cold_poll", "cold_both", "warm", "prospective_2024"])
     ap.add_argument("--part", default="val", choices=["val", "test"])
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--topk", type=int, default=500, help="candidates saved per query (retriever role)")
@@ -74,6 +79,8 @@ def main():
         train = train[train.plant.isin(sp["train_plants"])]
     if sp["train_polls"] is not None:
         train = train[train.pollinator.isin(sp["train_polls"])]
+    if sp.get("train_pairs") is not None:
+        train = train[pd.Series(list(zip(train.plant, train.pollinator))).isin(sp["train_pairs"]).to_numpy()]
     if sp.get("drop_pairs"):
         keep = ~pd.Series(list(zip(train.plant, train.pollinator))).isin(sp["drop_pairs"]).to_numpy()
         train = train[keep]
@@ -87,7 +94,7 @@ def main():
         assert not set(cand) & set(train.pollinator), "evaluated pollinators leak into training"
 
     A = e[e.tier == "A"]
-    if args.split == "warm":
+    if args.split == "warm" or args.split.startswith("prospective"):
         pos = {(p, q) for p, q in sp["held_pairs"] if (p, q) in set(zip(A.plant, A.pollinator))}
         part_of = {}
         for p, q in pos:
@@ -102,7 +109,7 @@ def main():
     for i, p in enumerate(ev_plants):
         Y[i, [col[q] for q in part_of[p]]] = 1
     exclude = None
-    if args.split == "warm":
+    if args.split == "warm" or args.split.startswith("prospective"):
         # filtered ranking: an evaluated plant's known pairs (training edges and the other part's held pairs) are not negatives
         known = {}
         for p, q in zip(train.plant, train.pollinator):
@@ -126,6 +133,8 @@ def main():
     strata = {"genus_unseen": np.array([p.split()[0] not in train_gen for p in ev_plants]),
               "zeroshot": np.array([src.get(p, "direct") != "direct" for p in ev_plants]),
               "low_degree": np.array([len(part_of[p]) <= 2 for p in ev_plants])}
+    if sp.get("cold_plants") is not None:
+        strata["prospective_cold"] = np.array([p in sp["cold_plants"] for p in ev_plants])
 
     t0 = time.time()
     Model = REGISTRY[args.model]

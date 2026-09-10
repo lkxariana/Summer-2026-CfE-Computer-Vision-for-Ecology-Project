@@ -2082,3 +2082,9 @@ unseen-genus AUPR final 0.078 (v2 0.051, v1 0.069); within-site by source -- BC 
 pollinators) and a tie on cold plant (p = 0.47).
 **A4 (no-taxon retriever + explicit pair co-presence term), cold-plant s42: 0.197** (A2 0.174; R3+R4 0.180), nR@10 0.390, unseen-genus
 0.304. The opportunity term adds +0.023 to the affinity retriever on the continent. cold_poll and the two within-site scorings next.
+
+**Prospective holdout, feasibility (edges carry first_year / last_year; 90,585 of 101,070 tier-A pairs dated):** cutoff 2024 holds out
+18,069 tier-A pairs first recorded in 2024-2026 (18%), with 910 plants and 541 pollinators that have no record at all before
+the cutoff ("prospective cold"); 49,080 pre-cutoff training pairs. Split built (`data/splits/prospective_2024.json`,
+`scripts/build_prospective_split.py`) and wired into `run_ladder.py` as `--split prospective_2024` with filtered ranking and a
+`prospective_cold` stratum. Not run: Dan's call (it is a new evaluation, and the strongest ecological test we can offer).

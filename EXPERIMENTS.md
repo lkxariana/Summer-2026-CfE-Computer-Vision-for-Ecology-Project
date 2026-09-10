@@ -2176,3 +2176,10 @@ System v2 +0.004 p = 0.10; vs the affinity-only system +0.002 p = 0.22.
 reading: the re-ranker exists to fix the head of a 13,124-long candidate list from the retriever's own confusers; inside a site
 the candidate set is a few dozen co-present species and there is no such head to fix. Table 2 reports the system with the
 retriever as a labelled ablation; we do not switch the re-ranker off by task (only the opportunity term, which the survey fixes).
+
+**Shared-projection re-ranker (M6.1: tokens = the retriever's 128-D projected names) vs the final (its own 768->192 projection of
+the raw names), three seeds on cold plant:** 0.2249 / 0.2281 / 0.2207 (mean **0.2246**) against 0.2306 / 0.2299 / 0.2281 (mean
+**0.2295**). Gap -0.005, negative on all three seeds, and comparable to M6.1's own seed spread (0.007). Within sites s42/s0:
+0.218 / 0.217 vs 0.220 / 0.215 -- indistinguishable. Reading: sharing stage 1's projection costs about 0.005 AUPR on the
+continental task and nothing within sites. The final model keeps the independent projection (better on every seed, and the
+standard two-stage design); M6.1 is the appendix answer to "can the two stages share the species encoding" -- yes, at 2% of AUPR.

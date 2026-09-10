@@ -105,50 +105,48 @@ A model that beats the nulls by a wide margin; a temporal effect that survives m
 that effort can be removed from occurrence-derived embeddings by negative sampling; that niche
 transfer is the best cold-start fallback (it is fourth).
 
-## 6b. Current standing (2026-09-09 14:00, clean protocol, three seeds)
+## 6b. Current standing (2026-09-10 02:30, clean protocol, three seeds everywhere)
 
-**One system:** an R-GCN retriever (species, genus/family and cell x month nodes; two relation-typed layers; **symmetric**
-leave-own-edges-out, so both a plant and a pollinator are rehearsed without their edges) whose top-500 are re-scored by an
-identity-token re-ranker trained on the retriever's own hard negatives with a pooled objective. Evaluated under a DTI-style
-regime battery plus within-site completion (`results/tables_publish.md`).
+**Candidate final system (M5.0, pending Dan's call):** species nodes carrying frozen BioCLIP-2 text, connected by training
+interaction edges (plus near-inert cell x month presence edges), two relation-typed R-GCN layers, **symmetric
+leave-own-edges-out** (a random 30% of plants and of pollinators lose their edges each epoch, so both kinds of cold species are
+rehearsed), pair head with the retriever objective; top-500 re-scored by an identity-token re-ranker trained on the retriever's
+own hard negatives. No taxon nodes: the text already carries taxonomy and pooled genus/family nodes over-smooth it.
 
-| regime | System v2 | best other model | ratio |
-|---|---:|---|---:|
-| cold plant (AUPR / AUROC / nR@10) | **0.209 / 0.972 / 0.383** | Wide & Deep 0.144 / DCN-V2 0.945 / v1 0.383 | 1.5x |
-| cold pollinator | **0.117 / 0.915 / 0.361** | pair GBM 0.044 / 0.858 / ANTHEIA v1 0.305 | 2.7x |
-| cold both | **0.094 / 0.886** / 0.288 | ANTHEIA v1 scalar 0.044 / pair GBM 0.853 / v1 0.324 | 2.1x |
-| warm | 0.050 / **0.976** / **0.298** | SVD + taxonomic **0.105** / 0.928 / 0.250 | 0.5x on AUPR |
-| within sites (mean AUPR / precision@L) | 0.214 / 0.235 | congeneric transfer 0.222 / 0.239 (tie, p = 0.13) | — |
+| regime | final (M5.0) | System v2 (taxon nodes) | best other model |
+|---|---|---|---|
+| cold plant (AUPR / AUROC / nR@10) | **0.213** / 0.970 / 0.376 | 0.209 / 0.972 / 0.383 | Wide & Deep 0.144 |
+| cold pollinator | **0.135 / 0.917** / 0.399 | 0.117 / 0.915 / 0.361 | pair GBM 0.044 |
+| cold both | **0.105 / 0.888 / 0.341** | 0.094 / 0.886 / 0.288 | ANTHEIA v1 scalar 0.044 / nR@10 0.324 |
+| warm | 0.051 / 0.974 / **0.304** | 0.050 / 0.976 / 0.298 | SVD + taxonomic **0.105** |
+| within sites (mean AUPR / precision@L) | 0.216 / **0.241** | 0.214 / 0.235 | congeneric transfer 0.222 / 0.239 (tie) |
 
-Paired bootstraps (cold plant, System v2 as reference): every other model p < 0.001 on AUPR; System v2 vs v1 +0.021.
-Within sites: vs v1 +0.010 (p < 0.001); vs congeneric transfer -0.008 (p = 0.13); vs our earlier trees -0.008 (p = 0.016).
+Paired bootstraps (System v2 as reference on cold plant): every comparison model p < 0.001. Within sites: vs congeneric
+transfer -0.008 (p = 0.13); vs our earlier trees -0.008 (p = 0.016); vs v1 +0.010 (p < 0.001).
 
-**Mechanisms, each with its control.** (i) Re-ranking on the retriever's own confusers under a pooled objective: +0.03 to +0.04
-AUPR on either retriever, +0.03 on cold pollinator. (ii) Message passing through genus and cell nodes supplies the warm-plant
-information pair models lack (within-site 0.165 -> 0.204). (iii) Symmetric leave-own-edges-out: the plant-only scheme collapses
-on unseen pollinators (0.006, at the level of identity-free nulls) because the pollinator side was never trained without
-edges; making the rehearsal symmetric lifts cold pollinator to 0.101 and cold both to 0.073 for the retriever alone, and adds
-+0.02 on cold plant and +0.011 within sites. (iv) The marginalisation ladder stands as a result about the inputs; inside the
-graph model an explicit co-presence statistic reproduces its ordering (scalar 0.166 < time 0.171 ~ space 0.172 < joint 0.174)
-but two-thirds of the gain is prevalence, and it costs within-site accuracy.
+**What the ablations say the model is** (all on the symmetric retriever, seed 42 unless noted):
+- Month-collapsed cell nodes: 0.167 / 0.210 / 0.099 vs 0.169 / 0.215 / 0.101 (cold plant / within sites / cold pollinator).
+- No cell nodes: 0.165 / 0.212 / 0.097. The presence edges are near-inert in every regime and halve training time.
+- No taxon nodes (3 seeds): 0.174 / 0.218 / 0.129. Better everywhere; largest on the pollinator side.
+- Attention aggregation: 0.155 / 0.196 vs 0.150 / 0.204 for mean, 12x the time. The layer is not the lever.
+- Plant-only rehearsal (v1 scheme): cold pollinator 0.006, cold both 0.011 -- at identity-free null level.
+The model's work is done by the text features, the interaction edges and the rehearsal scheme.
 
-**A trade-off the paper states rather than hides.** Every arm that adds a continental prior to the retriever -- a per-species
-memory vector (R1), the explicit co-presence statistic (R4), degree encoding (R5), a presence embedding as node input (R6, three
-forms), a learned co-presence metric (R6c) -- raises cold-plant AUPR by 0.015 to 0.024 and lowers within-site AUPR by 0.006 to
-0.025, where the survey fixes presence and prevalence is neutralised. The presence-input family also lifts cold pollinator
-further (R6b 0.143 vs 0.101 for the retriever) and is reported as a regime-specific variant. Attention aggregation (SimpleHGN-
-style) equals mean aggregation at 12x the cost. Within-site-style negatives in the retriever objective (R7) cost 0.017 on cold
-plant. The pre-registered rule (adopt only if within-site mean AUPR rises >= 0.01 with no universe loss > 0.01) admitted exactly
-one refinement, the symmetric rehearsal.
+**The spatio-temporal result, restated.** Presence is not inert; the graph route for it is. Handed to the model explicitly the
+same surfaces move the numbers: pair co-presence statistic in the head +0.024 on cold plant (scalar 0.166 < time 0.171 ~ space
+0.172 < joint 0.174: the marginalisation ordering, mostly prevalence); per-species presence embedding +0.04 on cold pollinator
+(0.143 vs 0.101 for the retriever). Every such route costs 0.006-0.025 within sites, where the survey fixes presence. So:
+(i) co-presence is a between-site signal -- it decides who can meet, not who interacts once they meet; (ii) the form of
+integration matters more than the source -- explicit pair or species-level presence beats presence diffused through averaging
+edges; (iii) season adds little beyond range in every model we built (the joint-vs-space gap appears only in the re-ranking
+ladder). A presence-augmented variant (R6b retriever + re-ranker, M5.2) is reported as one labelled row for the
+pollinator-cold regime, not as a second system.
 
-**Two evaluation-protocol corrections made before any number was used** (both worth a sentence in the paper): filtered ranking on
-the warm split (a plant's known partners are not negatives); and a pollinator negative-sampling pool restricted to training
-pollinators on the pollinator-side splits, including the re-ranker's hard negatives -- without it the re-ranker is trained to
-call the evaluated pollinators negative and the numbers on those splits are meaningless.
+**Evaluation-protocol corrections made before use:** filtered ranking on warm; pollinator negative pool restricted to training
+pollinators on the pollinator-side splits, including the re-ranker's hard negatives.
 
-Residual gaps: warm AUPR (SVD completes a plant's own row, which leave-own-edges-out deliberately does not exploit; we lead
-AUROC and recall there); within sites, a tie with congeneric transfer and a 0.008 deficit to our earlier hand-engineered trees,
-concentrated on cold plants inside sites (0.226 vs 0.260).
+Residual gaps: warm AUPR (SVD completes the plant's own row; we lead AUROC and recall); within sites a tie with congeneric
+transfer, concentrated on cold plants inside sites (0.233 vs 0.260) and on the GloBI-derived surveys (web-of-life: four-way tie).
 
 ## 7. Open items before writing
 

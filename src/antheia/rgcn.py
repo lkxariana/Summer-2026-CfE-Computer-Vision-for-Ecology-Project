@@ -54,6 +54,8 @@ class RGCNConfig:
     genus_edges: bool = False           # R2: direct genus <-> partner relations weighted by log1p(training count), leave-own-edges-out
     aggregation: str = "mean"           # "mean" (R-GCN) | "attention" (per-relation GAT-style attention, SimpleHGN-like control)
     pair_stat: str = "none"             # R4: explicit co-presence statistic of the pair into the head: joint | space | time | scalar
+    pair_stat_at_inference: bool = True # False: the co-presence ("opportunity") term is zeroed at inference -- affinity-only scoring,
+                                        #        for within-site completion where the survey fixes co-presence
     degree_encoding: bool = False       # R5: Graphormer-style centrality encoding -- log(1 + in-degree per relation) added to node inputs
     presence_input: str = "none"        # R6: per-species presence embedding added to the species node input: "field" (SDM species vector,
                                         #     256-D, whose dot with h(c,w) is the presence surface) | "surface" (SVD projection of the full surface)
@@ -424,7 +426,10 @@ class RGCNRanker:
     def _extra(self, pidx, qidx):
         parts = []
         if self.cfg.pair_stat != "none":
-            parts.append(self._pair_stat(pidx, qidx))
+            v = self._pair_stat(pidx, qidx)
+            if not self.cfg.pair_stat_at_inference and not torch.is_grad_enabled():
+                v = torch.zeros_like(v)
+            parts.append(v)
         if self.cfg.pres_bilinear_rank > 0:
             parts.append((self.bil_p(self.pres_p[pidx]) @ self.bil_q(self.pres_q[qidx]).T).unsqueeze(-1))
         return torch.cat(parts, -1) if parts else None

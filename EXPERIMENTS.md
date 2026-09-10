@@ -2016,3 +2016,7 @@ M5.0 running; adoption as the final system (simpler graph: species nodes + text 
 Dan's call.
 No-taxon retriever local 3 seeds: 0.220 / 0.217 / 0.218 (mean 0.218; R3 0.215; congeneric 0.222), precision@L 0.240-0.241.
 M5.0 local seeds 0/1 queued on GPU 1 (`scripts/queue_sys_a2_local.sh`).
+
+**No-taxon system (M5.0), cold-plant three seeds: 0.215 / 0.212 / 0.211 (mean 0.213; System v2 0.209), AUROC 0.970, nR@10 0.374-0.382
+(v2 0.380-0.386), unseen-genus 0.256-0.271 (v2 0.240-0.249).** Local s0 0.215 (s42 0.216). Cold-plant seeds complete; local s1
+and the pollinator-side seeds remain for a full three-seed table.

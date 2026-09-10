@@ -2044,3 +2044,13 @@ no-taxon rows: final (M5.0) leads AUPR on all three cold regimes (0.213 / 0.135 
 Two closing runs queued (Dan's reading of the cell-node ablation): M5.1 = final without cell nodes (species nodes + text +
 edges only; `scripts/queue_sys_nocell.sh`, GPU 0) and M5.2 = presence-augmented variant (R6b retriever + re-ranker;
 `scripts/queue_sys_presence.sh`, GPU 1); cold_plant s42, local, cold_poll/cold_both/warm s42, cold_plant seeds 0/1.
+
+### Closing runs (09-10 02:45)
+
+**M5.1 final without cell nodes (species nodes + text + edges only), seed 42:** cold-plant 0.206 (M5.0 0.215), nR@10 0.350 (0.374),
+nR@50 0.524 (0.550); local 0.208 (0.216); cold_poll 0.116 (0.129). At the system level the cell nodes are worth ~0.01 on every
+table -- more than the retriever-alone ablation showed (0.004), through the quality of the top-500 lists the re-ranker sees.
+Cell nodes stay in the final model; "near-inert" was true of the retriever alone, not of the system.
+**M5.2 presence-augmented variant (R6b retriever + re-ranker), cold-plant seed 42:** 0.194 (M5.0 0.215, v2 0.209), nR@10 0.357.
+The presence embedding costs the *system* 0.02 on cold plant even though it was neutral for the retriever alone. Local and
+pollinator-side splits running.

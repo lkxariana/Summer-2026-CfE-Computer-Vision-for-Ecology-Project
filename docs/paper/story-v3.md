@@ -56,7 +56,7 @@ encoding, presence embeddings as node inputs, co-occurrence negatives, a third l
 | best comparison model | Wide & Deep 0.144 / DCN-V2 0.945 / ANTHEIA v1 0.383 | pair GBM 0.044 / 0.858 / ANTHEIA v1 0.305 | ANTHEIA v1 0.044 / pair GBM 0.853 / ANTHEIA v1 0.324 | SVD **0.105** / 0.928 / 0.250 |
 | **final system** | **0.213** / 0.970 / 0.376 | **0.135 / 0.917 / 0.399** | **0.105 / 0.888 / 0.341** | 0.051 / 0.974 / **0.304** |
 
-Cold plant: 1.5x the best published architecture, every comparison p < 0.001. Cold pollinator and cold both: 3x and 2.4x the
+Cold plant: 1.5x the best published architecture, every comparison p < 0.001 (final vs System v2: tie, p = 0.47). Cold pollinator and cold both: final vs System v2 +0.018 (p < 0.001) and +0.012 (p = 0.008); vs the best comparison model +0.085 and +0.058. Cold pollinator and cold both: 3x and 2.4x the
 best model; every identity-based method (congeneric, SVD, trees, pair MLP) is at chance there. Warm: best whole-list ordering
 and recall; SVD owns the head of the list (it completes the plant's own row, which leave-own-edges-out deliberately does not
 exploit) -- stated as a design trade-off.

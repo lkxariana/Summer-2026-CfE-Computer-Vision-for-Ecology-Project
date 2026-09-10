@@ -45,7 +45,8 @@ GROUPS = [
     ("Ours: graph retriever + re-ranker", [
         ("M5.0_system_notaxon", "**System v3: species-node R-GCN (text + interaction edges, symmetric rehearsal, no taxon nodes) + identity re-ranker**", "this work"),
         ("A2_rgcn_sym_notaxon", "  ablation: v3 retriever alone", "this work"),
-        ("A4_rgcn_notaxon_pair", "  variant: v3 retriever + explicit co-presence (opportunity) term", "this work"),
+        ("A4_rgcn_notaxon_pair", "  factorised retriever: v3 + explicit co-presence (opportunity) term", "this work"),
+        ("M6.0_system_factorised", "  factorised retriever + identity re-ranker", "this work"),
         ("M5.2_system_presence", "  variant: presence-embedding retriever + re-ranker", "this work"),
         ("M5.1_system_nocell_notaxon", "  ablation: v3 system without cell x month nodes", "this work"),
         ("M4.0_system_sym", "System v2: R-GCN (symmetric leave-own-edges-out, R3) + identity re-ranker", "this work"),

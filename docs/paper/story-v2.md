@@ -108,7 +108,7 @@ transfer is the best cold-start fallback (it is fourth).
 ## 6b. Current standing (2026-09-10 02:30, clean protocol, three seeds everywhere)
 
 **Candidate final system (M5.0, pending Dan's call):** species nodes carrying frozen BioCLIP-2 text, connected by training
-interaction edges (plus near-inert cell x month presence edges), two relation-typed R-GCN layers, **symmetric
+interaction edges and by presence-weighted edges to cell x month nodes, two relation-typed R-GCN layers, **symmetric
 leave-own-edges-out** (a random 30% of plants and of pollinators lose their edges each epoch, so both kinds of cold species are
 rehearsed), pair head with the retriever objective; top-500 re-scored by an identity-token re-ranker trained on the retriever's
 own hard negatives. No taxon nodes: the text already carries taxonomy and pooled genus/family nodes over-smooth it.
@@ -126,7 +126,7 @@ transfer -0.008 (p = 0.13); vs our earlier trees -0.008 (p = 0.016); vs v1 +0.01
 
 **What the ablations say the model is** (all on the symmetric retriever, seed 42 unless noted):
 - Month-collapsed cell nodes: 0.167 / 0.210 / 0.099 vs 0.169 / 0.215 / 0.101 (cold plant / within sites / cold pollinator).
-- No cell nodes: 0.165 / 0.212 / 0.097. The presence edges are near-inert in every regime and halve training time.
+- No cell nodes: retriever alone 0.165 / 0.212 / 0.097 (near-inert); but the *system* without them loses ~0.01 on every table (cold plant 0.206 vs 0.215, within sites 0.208 vs 0.216, cold pollinator 0.116 vs 0.129): the presence edges shape the top-500 lists the re-ranker sees. Cell nodes stay in the final model.
 - No taxon nodes (3 seeds): 0.174 / 0.218 / 0.129. Better everywhere; largest on the pollinator side.
 - Attention aggregation: 0.155 / 0.196 vs 0.150 / 0.204 for mean, 12x the time. The layer is not the lever.
 - Plant-only rehearsal (v1 scheme): cold pollinator 0.006, cold both 0.011 -- at identity-free null level.

@@ -2036,3 +2036,11 @@ M5.0 is equal or better than System v2 on every column but cold-plant nR@10 (0.3
 species nodes with frozen BioCLIP-2 text + interaction edges + symmetric leave-own-edges-out; cell nodes retained but near-inert;
 taxon nodes removed (the text already carries taxonomy and the pooled nodes over-smooth it). Adoption of M5.0 as the paper's
 system is Dan's call; tables regenerate with both rows.
+
+**09-10 02:30.** A2 retriever cold_both s42 0.100 (3 seeds 0.100 / 0.092 / 0.093 = 0.095), warm s42 0.032. Tables regenerated with the
+no-taxon rows: final (M5.0) leads AUPR on all three cold regimes (0.213 / 0.135 / 0.105), cold_both nR@10 (0.341), warm nR@10
+(0.304); v2 keeps cold-plant AUROC/nR@10 and warm AUROC by <= 0.007. Within sites the no-taxon retriever has the best AUROC
+(0.633) and precision@L (0.241) of any model.
+Two closing runs queued (Dan's reading of the cell-node ablation): M5.1 = final without cell nodes (species nodes + text +
+edges only; `scripts/queue_sys_nocell.sh`, GPU 0) and M5.2 = presence-augmented variant (R6b retriever + re-ranker;
+`scripts/queue_sys_presence.sh`, GPU 1); cold_plant s42, local, cold_poll/cold_both/warm s42, cold_plant seeds 0/1.

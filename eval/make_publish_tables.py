@@ -37,7 +37,10 @@ ROWS = [
         ("M3.7_rgcn_sym", "R-GCN, taxon + cell nodes (symmetric leave-own-edges-out)"),
         ("M4.0_system_sym", "  + identity re-ranker"),
         ("A2_rgcn_sym_notaxon", "R-GCN, species + cell nodes (symmetric leave-own-edges-out)"),
-        ("M5.0_system_notaxon", "  + identity re-ranker (**final**)")]),
+        ("M5.0_system_notaxon", "  + identity re-ranker (**final**)"),
+        ("A4_rgcn_notaxon_pair", "  variant: retriever + explicit co-presence (opportunity) term"),
+        ("A4_rgcn_notaxon_pair_affinityonly", "  variant: same, opportunity term off within sites"),
+        ("M5.2_system_presence", "  variant: presence-embedding retriever + re-ranker")]),
 ]
 SPLITS = [("cold_plant/val", "cold plant"), ("cold_poll/val", "cold pollinator"), ("cold_both/val", "cold both"), ("warm/val", "warm")]
 METS = [("aupr", "AUPR"), ("auroc", "AUROC"), ("nrecall_at_10", "nR@10")]

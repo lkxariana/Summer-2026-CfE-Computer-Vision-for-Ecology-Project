@@ -2167,3 +2167,12 @@ Smokes (1 epoch): kingdom projection trains (0.113 after one epoch); re-ranker o
 Answers: a shared projection is as good as kingdom-specific ones (the graph and the head already separate the kingdoms); the
 re-ranker should keep its own projection of the raw names -- reusing the retriever's representations gives it nothing new to
 say and, with the graph outputs, makes it agree with the retriever's mistakes. Both GPUs idle; nothing queued.
+
+**Within-site paired bootstraps for the factorised system (3 seeds, 91 networks, 5,000 resamples):** vs congeneric transfer
+-0.005 [-0.016, +0.005] p = 0.32; **vs our earlier trees -0.005 [-0.013, +0.002] p = 0.175** (System v2 lost these by 0.008,
+p = 0.016 -- the factorised model closes it to a tie on both); vs pair GBM +0.014 p = 0.001; vs SVD +0.038 p < 0.001; vs
+System v2 +0.004 p = 0.10; vs the affinity-only system +0.002 p = 0.22.
+**The re-ranker is slightly negative within sites: system 0.217 vs its retriever alone 0.223 (-0.005, p < 0.001).** Mechanistic
+reading: the re-ranker exists to fix the head of a 13,124-long candidate list from the retriever's own confusers; inside a site
+the candidate set is a few dozen co-present species and there is no such head to fix. Table 2 reports the system with the
+retriever as a labelled ablation; we do not switch the re-ranker off by task (only the opportunity term, which the survey fixes).

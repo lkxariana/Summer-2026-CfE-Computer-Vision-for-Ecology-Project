@@ -43,8 +43,12 @@ GROUPS = [
         ("baseline_routed", "Genus-routed experts (booster / SVD by genus)", "this work, v2"),
     ]),
     ("Ours: graph retriever + re-ranker", [
-        ("M4.0_system_sym", "**System v2: R-GCN (symmetric leave-own-edges-out, R3) + identity re-ranker**", "this work"),
+        ("M5.0_system_notaxon", "**System v3: species-node R-GCN (text + interaction edges, symmetric rehearsal, no taxon nodes) + identity re-ranker**", "this work"),
+        ("A2_rgcn_sym_notaxon", "  ablation: v3 retriever alone", "this work"),
+        ("M4.0_system_sym", "System v2: R-GCN (symmetric leave-own-edges-out, R3) + identity re-ranker", "this work"),
         ("M3.7_rgcn_sym", "  ablation: R3 retriever alone", "this work"),
+        ("A1_rgcn_sym_nocell", "  ablation: R3 without cell x month nodes", "this work"),
+        ("A3_rgcn_sym_monthcollapsed", "  ablation: R3 with month-collapsed cells", "this work"),
         ("M2.12_fusion_on_rgcn", "System v1: R-GCN (plant-side leave-own-edges-out) + identity re-ranker", "this work"),
         ("M3.1_rgcn", "  ablation: frozen R-GCN retriever alone", "this work"),
         ("M2.1_fusion_identity", "  ablation: re-ranker on the embedding-model retriever", "this work"),

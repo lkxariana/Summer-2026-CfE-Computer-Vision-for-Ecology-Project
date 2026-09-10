@@ -32,10 +32,12 @@ ROWS = [
         ("baseline_widedeep", "Wide & Deep"),
         ("baseline_dcnv2", "DCN-V2")]),
     ("Ours", [
-        ("M3.1_rgcn", "R-GCN (plant-side leave-own-edges-out)"),
+        ("M3.1_rgcn", "R-GCN, taxon + cell nodes (plant-side leave-own-edges-out)"),
         ("M2.12_fusion_on_rgcn", "  + identity re-ranker"),
-        ("M3.7_rgcn_sym", "R-GCN (symmetric leave-own-edges-out)"),
-        ("M4.0_system_sym", "  + identity re-ranker (**final**)")]),
+        ("M3.7_rgcn_sym", "R-GCN, taxon + cell nodes (symmetric leave-own-edges-out)"),
+        ("M4.0_system_sym", "  + identity re-ranker"),
+        ("A2_rgcn_sym_notaxon", "R-GCN, species + cell nodes (symmetric leave-own-edges-out)"),
+        ("M5.0_system_notaxon", "  + identity re-ranker (**final**)")]),
 ]
 SPLITS = [("cold_plant/val", "cold plant"), ("cold_poll/val", "cold pollinator"), ("cold_both/val", "cold both"), ("warm/val", "warm")]
 METS = [("aupr", "AUPR"), ("auroc", "AUROC"), ("nrecall_at_10", "nR@10")]

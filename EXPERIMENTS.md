@@ -2075,3 +2075,10 @@ M5.0's advantage is on the pollinator side (paired tests on cold_poll / cold_bot
 embedding costs the system 0.02 within sites and 0.02 on cold plant; cold_poll / cold_both / warm running. Appendix tables
 generated (`results/tables_publish_appendix.md`): low-degree plants -- final 0.344 nR@10 vs <= 0.267 for every non-neural model;
 unseen-genus AUPR final 0.078 (v2 0.051, v1 0.069); within-site by source -- BC 0.212 vs congeneric 0.221, web-of-life 0.235 vs 0.236.
+
+**Pollinator-side paired bootstraps, M5.0 as reference (500 plant resamples, shared seeds):** cold_poll vs System v2 +0.018 [+0.014,
++0.022] p < 0.001, vs pair GBM +0.085, vs ANTHEIA v1 scalar +0.093; cold_both vs v2 +0.012 [+0.004, +0.020] p = 0.008, vs pair GBM
++0.065, vs ANTHEIA v1 +0.058 (all p < 0.001). The no-taxon system's advantage over v2 is significant where it matters (unseen
+pollinators) and a tie on cold plant (p = 0.47).
+**A4 (no-taxon retriever + explicit pair co-presence term), cold-plant s42: 0.197** (A2 0.174; R3+R4 0.180), nR@10 0.390, unseen-genus
+0.304. The opportunity term adds +0.023 to the affinity retriever on the continent. cold_poll and the two within-site scorings next.

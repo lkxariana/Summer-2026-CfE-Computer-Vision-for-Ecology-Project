@@ -2054,3 +2054,9 @@ Cell nodes stay in the final model; "near-inert" was true of the retriever alone
 **M5.2 presence-augmented variant (R6b retriever + re-ranker), cold-plant seed 42:** 0.194 (M5.0 0.215, v2 0.209), nR@10 0.357.
 The presence embedding costs the *system* 0.02 on cold plant even though it was neutral for the retriever alone. Local and
 pollinator-side splits running.
+
+**Within-site paired bootstraps, M5.0 (3 seeds) as reference:** vs System v2 +0.002 (p = 0.19); vs its own retriever -0.003 (p = 0.02:
+the re-ranker costs 0.003 within sites); vs congeneric transfer -0.007 [-0.019, +0.004] (p = 0.21); vs our earlier trees -0.007
+(p = 0.085, no longer significant); vs pair GBM +0.013 (p = 0.006); vs R3 retriever 0.000. Dataset labels fixed in
+`data/network/local_networks.parquet`: 71 networks are Guzman et al. 2022 (British Columbia, Dryad), 1 LaManna et al. (Missouri),
+19 web-of-life. Cold-plant paired bootstrap with M5.0 as reference running (logs/paired_v3.log).

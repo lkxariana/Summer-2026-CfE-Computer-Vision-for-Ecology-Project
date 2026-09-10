@@ -14,7 +14,7 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-from antheia.bundle import load_bundles, seed_pooled
+from antheia.bundle import RUNS as RUNS_DIR, load_bundles, seed_pooled
 
 ROWS = [
     ("Nulls", [("baseline_popularity", "Pollinator popularity"), ("baseline_cooccurrence", "Co-occurrence N")]),
@@ -119,6 +119,42 @@ def main():
     lines += ["", "precision@L and NODF from the top-L pairs per network (L = observed links). Warm = plant keeps at least one edge outside the site; "
               "cold = none. Seeds averaged where several exist; single-seed rows show the bootstrap CI over networks."]
     Path(args.out).write_text("\n".join(lines) + "\n"); print("\n".join(lines))
+    appendix(Path(args.out).with_name("tables_publish_appendix.md"))
+
+
+def appendix(out_path):
+    """Appendix tables: A1 cold-plant strata (low-degree, unseen-genus, zero-shot), A2 within-site by dataset."""
+    import glob, json
+    import numpy as np
+    df = load_bundles()
+    names = [n for _, rows in ROWS for n, _ in rows]; labels = {n: l for _, rows in ROWS for n, l in rows}
+    lines = ["## Table A1 — cold-plant validation by stratum (nR@10 unless noted; seeds averaged)", "",
+             "| Method | low-degree plants (<= 2 partners): nR@10 / AUPR | other plants: nR@10 | unseen-genus: nR@10 / AUPR | zero-shot (text-imputed features): nR@10 |",
+             "|---|---:|---:|---:|---:|"]
+    cp = df[df.split == "cold_plant/val"]
+    for n in names:
+        g = cp[cp.model == n]
+        if g.empty: continue
+        m = lambda k: g[k].mean() if k in g else float("nan")
+        lines.append(f"| {labels[n].strip()} | {m('nrecall_at_10__low_degree'):.3f} / {m('aupr__low_degree'):.3f} | {m('nrecall_at_10__not_low_degree'):.3f} | "
+                     f"{m('nrecall_at_10__genus_unseen'):.3f} / {m('aupr__genus_unseen'):.3f} | {m('nrecall_at_10__zeroshot'):.3f} |")
+    lines += ["", "## Table A2 — within-site mean AUPR by survey source (seeds averaged)", ""]
+    nets = pd.read_parquet(ROOT / "data/network/local_networks.parquet").drop_duplicates("network").set_index("network")["dataset"]
+    per = {}
+    for n in names:
+        fs = glob.glob(str(RUNS_DIR / n / "*" / "localnet" / "s*" / "per_network.csv"))
+        if not fs: continue
+        d = pd.concat([pd.read_csv(f) for f in fs]).groupby("network")["aupr"].mean()
+        d = d.to_frame("aupr").join(nets, how="left")
+        per[n] = d.groupby("dataset")["aupr"].mean()
+    if per:
+        tab = pd.DataFrame(per).T; tab.columns = [str(c) for c in tab.columns]
+        counts = nets.value_counts()
+        lines.append("| Method | " + " | ".join(f"{c} (n={counts.get(c, 0)})" for c in tab.columns) + " |")
+        lines.append("|---|" + "---:|" * len(tab.columns))
+        for n in tab.index:
+            lines.append(f"| {labels[n].strip()} | " + " | ".join(f"{tab.loc[n, c]:.3f}" for c in tab.columns) + " |")
+    Path(out_path).write_text("\n".join(lines) + "\n"); print("\n".join(lines))
 
 
 if __name__ == "__main__":

@@ -25,10 +25,10 @@
 |   + identity re-ranker | 0.209 | **0.972** | 0.383 | 0.117 | 0.915 | 0.361 | 0.094 | 0.886 | 0.288 | 0.050 | **0.976** | 0.298 |
 | R-GCN, species + cell nodes (symmetric leave-own-edges-out) | 0.174 | 0.963 | 0.377 | 0.129 | 0.906 | 0.401 | 0.095 | 0.868 | 0.336 | 0.032 | 0.974 | 0.280 |
 |   + identity re-ranker (**final**) | 0.213 | 0.970 | 0.376 | 0.135 | 0.917 | 0.399 | 0.105 | 0.888 | 0.341 | 0.051 | 0.974 | **0.304** |
-|   factorised retriever: + explicit co-presence (opportunity) term | 0.199 | 0.966 | 0.385 | 0.153 | 0.919 | **0.425** | — | — | — | — | — | — |
+|   factorised retriever: + explicit co-presence (opportunity) term | 0.199 | 0.966 | 0.385 | 0.153 | 0.919 | 0.425 | — | — | — | — | — | — |
 |   factorised retriever, opportunity term off within sites | — | — | — | — | — | — | — | — | — | — | — | — |
-|   factorised retriever + identity re-ranker (opportunity off within sites) | **0.230** | 0.972 | **0.386** | 0.153 | 0.929 | 0.420 | **0.137** | 0.906 | **0.411** | 0.050 | 0.975 | 0.291 |
-|   variant: presence-embedding retriever + re-ranker | 0.203 | 0.971 | 0.362 | **0.157** | **0.931** | 0.422 | 0.101 | **0.911** | 0.376 | 0.048 | 0.974 | 0.286 |
+|   factorised retriever + identity re-ranker (opportunity off within sites) | **0.230** | 0.972 | **0.386** | **0.162** | 0.926 | **0.427** | **0.142** | 0.907 | **0.403** | 0.051 | 0.974 | 0.296 |
+|   variant: presence-embedding retriever + re-ranker | 0.203 | 0.971 | 0.362 | 0.157 | **0.931** | 0.422 | 0.101 | **0.911** | 0.376 | 0.048 | 0.974 | 0.286 |
 
 Chance AUPR: cold plant 0.0013, cold pollinator 0.0023, cold both 0.0029, warm 0.0003. Learned models: mean of seeds {42, 0, 1} where available; deterministic baselines single run. † = run predates the pollinator-side protocol fix (being re-run). Bold = column best. Re-expressed AUPR (1:3, 1:1), nR@50 and strata: appendix.
 
@@ -60,7 +60,7 @@ Chance AUPR: cold plant 0.0013, cold pollinator 0.0023, cold both 0.0029, warm 0
 |   + identity re-ranker (**final**) | 0.216 | 0.631 | 0.241 | 52 | — | — |
 |   factorised retriever: + explicit co-presence (opportunity) term | 0.213 | 0.632 | 0.238 | 50 | 0.215 | 0.232 |
 |   factorised retriever, opportunity term off within sites | **0.223** | **0.639** | 0.248 | 51 | **0.224** | 0.211 |
-|   factorised retriever + identity re-ranker (opportunity off within sites) | 0.220 [0.205, 0.235] | 0.637 | **0.253** | 54 | — | — |
+|   factorised retriever + identity re-ranker (opportunity off within sites) | 0.217 | 0.636 | **0.249** | 54 | — | — |
 |   variant: presence-embedding retriever + re-ranker | 0.195 [0.181, 0.210] | 0.607 | 0.218 | 51 | — | — |
 
 precision@L and NODF from the top-L pairs per network (L = observed links). Warm = plant keeps at least one edge outside the site; cold = none. Seeds averaged where several exist; single-seed rows show the bootstrap CI over networks.

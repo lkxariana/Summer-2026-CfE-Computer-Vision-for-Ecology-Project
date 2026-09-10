@@ -2141,3 +2141,8 @@ cold_both **0.137**, nR@10 0.411 (M5.0 0.105 / 0.341; best baseline 0.045 / 0.32
 **within sites 0.220, precision@L 0.253** (M5.0 0.216 / 0.241; trees 0.252; congeneric 0.239). Leads every column of every
 table except warm AUPR and cold-plant nR@10 (tie with v2). Pollinator-side and within-site seeds 0/1 queued
 (`scripts/queue_m6_seeds.sh`, GPU 0/1) to complete the three-seed table.
+
+**Factorised system (M6.0), three seeds on every table (09-10 08:50).** cold_plant 0.231 / 0.230 / 0.228 = **0.230**; cold_poll 0.153 /
+0.163 / 0.170 = **0.162**; cold_both 0.137 / 0.148 / s1 below = see table; warm 0.050 / 0.053 / s1 below; within sites 0.220 / 0.215 /
+0.217 = **0.217**, precision@L 0.253 / 0.247 / 0.248 = **0.249**. All queues finished; both GPUs idle; tables regenerated from
+three-seed bundles. Open for Dan: adopt M6.0 as the paper's system; test split; prospective-2024 holdout.

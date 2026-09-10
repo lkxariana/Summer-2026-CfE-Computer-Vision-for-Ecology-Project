@@ -26,9 +26,9 @@
 | *Ours: graph retriever + re-ranker* | | |  |  |  |  |  |  |  |
 | **System v3: species-node R-GCN (text + interaction edges, symmetric rehearsal, no taxon nodes) + identity re-ranker** | this work | 3 | 0.135 | 0.832 | 0.923 | 0.917 | 0.399 | 0.627 | 0.259 |
 |   ablation: v3 retriever alone | this work | 3 | 0.129 | 0.816 | 0.915 | 0.906 | 0.401 | 0.619 | 0.148 |
-|   factorised retriever: v3 + explicit co-presence (opportunity) term | this work | 3 | 0.153 | 0.840 | 0.927 | 0.919 | **0.425** | 0.662 | 0.111 |
-|   factorised retriever + identity re-ranker | this work | 1 (incomplete) | 0.153 | 0.853 | 0.934 | 0.929 | 0.420 | 0.664 | 0.222 |
-|   variant: presence-embedding retriever + re-ranker | this work | 1 (incomplete) | **0.157** | **0.860** | **0.937** | **0.931** | 0.422 | **0.687** | 0.111 |
+|   factorised retriever: v3 + explicit co-presence (opportunity) term | this work | 3 | 0.153 | 0.840 | 0.927 | 0.919 | 0.425 | 0.662 | 0.111 |
+|   factorised retriever + identity re-ranker | this work | 3 | **0.162** | 0.851 | 0.933 | 0.926 | **0.427** | 0.666 | 0.222 |
+|   variant: presence-embedding retriever + re-ranker | this work | 1 (incomplete) | 0.157 | **0.860** | **0.937** | **0.931** | 0.422 | **0.687** | 0.111 |
 |   ablation: v3 system without cell x month nodes | this work | 1 (incomplete) | 0.116 | 0.821 | 0.919 | 0.915 | 0.358 | 0.596 | 0.111 |
 | System v2: R-GCN (symmetric leave-own-edges-out, R3) + identity re-ranker | this work | 3 | 0.117 | 0.827 | 0.921 | 0.915 | 0.361 | 0.620 | 0.185 |
 |   ablation: R3 retriever alone | this work | 3 | 0.101 | 0.809 | 0.913 | 0.906 | 0.352 | 0.608 | 0.111 |

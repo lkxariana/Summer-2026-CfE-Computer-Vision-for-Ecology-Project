@@ -26,7 +26,7 @@
 | *Ours: graph retriever + re-ranker* | | |  |  |  |  |  |  |  |
 | **System v3: species-node R-GCN (text + interaction edges, symmetric rehearsal, no taxon nodes) + identity re-ranker** | this work | 3 | 0.051 | 0.941 | 0.976 | 0.974 | **0.304** | **0.568** | 0.455 |
 |   ablation: v3 retriever alone | this work | 3 | 0.032 | 0.934 | 0.973 | 0.974 | 0.280 | 0.538 | 0.455 |
-|   factorised retriever + identity re-ranker | this work | 1 (incomplete) | 0.050 | 0.941 | 0.976 | 0.975 | 0.291 | 0.556 | 0.455 |
+|   factorised retriever + identity re-ranker | this work | 3 | 0.051 | 0.941 | 0.976 | 0.974 | 0.296 | 0.561 | 0.455 |
 |   variant: presence-embedding retriever + re-ranker | this work | 1 (incomplete) | 0.048 | 0.939 | 0.975 | 0.974 | 0.286 | 0.551 | **0.545** |
 |   ablation: v3 system without cell x month nodes | this work | 1 (incomplete) | 0.046 | 0.937 | 0.974 | 0.973 | 0.273 | 0.542 | 0.455 |
 | System v2: R-GCN (symmetric leave-own-edges-out, R3) + identity re-ranker | this work | 3 | 0.050 | **0.942** | **0.976** | **0.976** | 0.298 | 0.550 | 0.455 |

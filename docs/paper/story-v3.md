@@ -17,19 +17,34 @@ sampled negatives. We evaluate all of them under one protocol at network prevale
 
 ## 2. The model (Figure 1)
 
-A relational GNN over species nodes (frozen BioCLIP-2 text of the species name, projected) and cell x month nodes (frozen
-joint-field coordinate encoding), connected by training interaction edges and presence-weighted occurrence edges; two R-GCN
-layers (Schlichtkrull 2018); a pair head with the retriever objective (sampled softmax with logQ + BCE). Its top-500 per query
-are re-scored by a single-stream identity re-ranker trained on the retriever's own confusers with a pooled objective.
+Interaction = **opportunity** (the two species are in the same place at the same time) x **affinity** (they are the kind of
+species that interact given they meet). The model computes both.
 
-The one non-standard ingredient is the training scheme: **symmetric leave-own-edges-out**. Each epoch 30% of plants and 30% of
+*Affinity.* A relational GNN over species nodes (frozen BioCLIP-2 text of the species name, one shared 768->128 projection) and
+cell x month nodes (frozen joint-field coordinate encoding), connected by training interaction edges and presence-weighted
+occurrence edges; two R-GCN layers (Schlichtkrull 2018), d = 128.
+
+*Opportunity.* One scalar per pair, c(p,q) = z-score of log(1 + u_p . u_q), where u is the 256-D SVD projection of the species'
+presence surface, so u_p . u_q is the expected number of cell-weeks in which both species are present. Concatenated with the
+pair's affinity features into the head MLP.
+
+*The switch.* Inside a surveyed site every candidate pair is co-present by construction, so opportunity is constant there and
+only affinity should be scored: c is held at its mean. Same trained weights, one inference-time flag, decided by the task.
+
+*Second stage.* The retriever's top-500 per query are re-scored by a single-stream identity re-ranker (transformer over
+[CLS, plant name, candidate name], its own projection of the frozen names) trained on the retriever's own confusers with a
+pooled objective, added as a residual to the retriever score.
+
+The one non-standard training ingredient is **symmetric leave-own-edges-out**. Each epoch 30% of plants and 30% of
 pollinators lose their interaction edges before the forward pass, so the model rehearses both kinds of cold species. The
 plant-only version of this (DropoutNet-style, what we started with) collapses to the level of identity-free nulls the moment a
 pollinator is unseen.
 
 Design choices that were tested and rejected, each with a number in Table 3: genus/family nodes (hurt: the text already carries
-taxonomy), attention aggregation (equal at 12x cost), a per-species memory vector, an explicit co-presence statistic, degree
-encoding, presence embeddings as node inputs, co-occurrence negatives, a third layer, direct genus->partner edges.
+taxonomy), attention aggregation (equal at 12x cost), kingdom-specific text projections (a wash), a per-species memory vector,
+degree encoding, presence embeddings as node inputs, co-occurrence negatives, a third layer, direct genus->partner edges,
+re-ranker tokens taken from the retriever's own representations (its graph outputs make the second stage agree with the
+first: 0.182 vs 0.230).
 
 ## 3. Evaluation (Section 3 of the paper)
 
@@ -49,24 +64,34 @@ encoding, presence embeddings as node inputs, co-occurrence negatives, a third l
 
 ## 4. Results
 
-### 4.1 Table 1 -- regimes (AUPR / AUROC / nR@10)
+### 4.1 Table 1 -- regimes (AUPR / AUROC / nR@10), three seeds
 
 | | cold plant | cold pollinator | cold both | warm |
 |---|---|---|---|---|
 | best comparison model | Wide & Deep 0.144 / DCN-V2 0.945 / ANTHEIA v1 0.383 | pair GBM 0.044 / 0.858 / ANTHEIA v1 0.305 | ANTHEIA v1 0.044 / pair GBM 0.853 / ANTHEIA v1 0.324 | SVD **0.105** / 0.928 / 0.250 |
-| **final system** | **0.213** / 0.970 / 0.376 | **0.135 / 0.917 / 0.399** | **0.105 / 0.888 / 0.341** | 0.051 / 0.974 / **0.304** |
+| affinity only (no opportunity term) | 0.213 / 0.970 / 0.376 | 0.135 / 0.917 / 0.399 | 0.106 / 0.888 / 0.341 | 0.051 / 0.974 / **0.304** |
+| **final (opportunity x affinity)** | **0.230 / 0.972 / 0.386** | **0.162 / 0.926 / 0.427** | **0.142 / 0.907 / 0.403** | 0.051 / 0.974 / 0.296 |
 
-Cold plant: 1.5x the best published architecture, every comparison p < 0.001 (final vs System v2: tie, p = 0.47). Cold pollinator and cold both: final vs System v2 +0.018 (p < 0.001) and +0.012 (p = 0.008); vs the best comparison model +0.085 and +0.058. Cold pollinator and cold both: 3x and 2.4x the
-best model; every identity-based method (congeneric, SVD, trees, pair MLP) is at chance there. Warm: best whole-list ordering
-and recall; SVD owns the head of the list (it completes the plant's own row, which leave-own-edges-out deliberately does not
-exploit) -- stated as a design trade-off.
+Cold plant 1.6x the best published architecture; cold pollinator 3.7x and cold both 3.2x the best model of any kind, where every
+identity-based method (congeneric, SVD, trees, pair MLP) is at chance. Warm: best whole-list ordering and recall; SVD owns the
+head of the list (it completes the plant's own row, which leave-own-edges-out deliberately does not exploit) -- a stated design
+trade-off. The opportunity term is worth +0.017 / +0.027 / +0.036 AUPR on the three cold regimes and nothing on warm.
 
 ### 4.2 Table 2 -- within-site completion
 
-Final 0.216 [0.201, 0.232], precision@L 0.241 (best of any model), NODF 52 (observed 36; congeneric 70, popularity 92).
-Congeneric transfer 0.222 (tie, p = 0.21); our earlier hand-engineered trees 0.222 (p = 0.085); pair GBM 0.203 (p = 0.006).
-On the 19 web-of-life networks everything strong ties at 0.236; the residual sits in the British Columbia surveys and on cold
-plants inside sites (0.233 vs congeneric 0.260), where an exact genus lookup still beats a learned one.
+| | mean AUPR | precision@L | NODF (obs 36) |
+|---|---|---|---|
+| congeneric transfer | **0.222** [0.205, 0.242] | 0.239 | 70 |
+| boosted trees (our earlier system) | 0.222 [0.205, 0.239] | **0.252** | 62 |
+| pair-feature GBM | 0.203 | 0.218 | 83 |
+| **final, opportunity term held at its mean** | 0.217 | 0.249 | 54 |
+| final, opportunity term left on | 0.213 | 0.238 | 50 |
+
+The switch is worth +0.004 AUPR and +0.011 precision@L on the system and +0.010 / +0.010 on the retriever alone (0.223 / 0.248
+vs 0.213 / 0.238), on every seed. Mean AUPR is a statistical tie with congeneric transfer (-0.005, p > 0.1 on the paired
+network bootstrap); precision@L is within 0.003 of the trees; the predicted network's nestedness is the closest to observed of
+any model above 0.20 AUPR. Chance AUPR (mean connectance) is 0.135, so the whole field is between 1.2x and 1.7x chance here:
+an absent pair among surveyed species is often an unobserved real interaction, which caps AUPR for everyone.
 
 ### 4.3 Table 3 -- what the model is (ablations, symmetric retriever, seed 42 unless 3 seeds)
 

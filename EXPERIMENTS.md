@@ -2020,3 +2020,19 @@ M5.0 local seeds 0/1 queued on GPU 1 (`scripts/queue_sys_a2_local.sh`).
 **No-taxon system (M5.0), cold-plant three seeds: 0.215 / 0.212 / 0.211 (mean 0.213; System v2 0.209), AUROC 0.970, nR@10 0.374-0.382
 (v2 0.380-0.386), unseen-genus 0.256-0.271 (v2 0.240-0.249).** Local s0 0.215 (s42 0.216). Cold-plant seeds complete; local s1
 and the pollinator-side seeds remain for a full three-seed table.
+
+### No-taxon system (M5.0) and retriever (A2): all seeds in (09-09 20:32)
+
+| | M5.0 (species + cell nodes, symmetric rehearsal, + re-ranker) | System v2 (taxon + cell nodes) |
+|---|---|---|
+| cold_plant AUPR / nR@10 | 0.215 / 0.212 / 0.211 = **0.213** / 0.376 | 0.209 / 0.383 |
+| cold_poll AUPR | 0.129 / 0.124 / 0.152 = **0.135** | 0.117 |
+| cold_both AUPR / nR@10 | 0.101 / 0.107 / 0.108 = **0.105** / 0.341 | 0.094 / 0.288 |
+| warm AUPR / nR@50 | 0.052 / 0.050 / 0.051 = **0.051** / 0.568 | 0.050 / 0.553 |
+| local AUPR / precision@L | 0.216 / 0.215 / 0.216 = **0.216** / 0.241 | 0.214 / 0.235 |
+
+Retriever alone (A2, 3 seeds): cold_plant 0.174, cold_poll 0.129, cold_both 0.092 (s0/s1; s42 running), warm 0.032, local 0.218.
+M5.0 is equal or better than System v2 on every column but cold-plant nR@10 (0.376 vs 0.383). The structural story is now:
+species nodes with frozen BioCLIP-2 text + interaction edges + symmetric leave-own-edges-out; cell nodes retained but near-inert;
+taxon nodes removed (the text already carries taxonomy and the pooled nodes over-smooth it). Adoption of M5.0 as the paper's
+system is Dan's call; tables regenerate with both rows.

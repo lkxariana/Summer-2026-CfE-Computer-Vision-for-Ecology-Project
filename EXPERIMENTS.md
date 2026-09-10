@@ -2124,3 +2124,8 @@ the only arm above and to the right of the final retriever.
 cold_poll 0.157 (final 0.135), cold_both 0.101 (0.105), warm 0.048 (0.051), local 0.195 (0.216). Reported as the regime-specific
 variant row (best on cold pollinator, worse elsewhere). **A4 seed 0:** cold-plant 0.201, cold_poll 0.145 (two-seed means 0.199 /
 0.150 vs affinity-only 0.174 / 0.129); within-site scorings for seed 0 running. Factorised system (M6.0) starts on GPU 1.
+
+**Handoff note (09-10 04:45, session B).** Two Claude sessions were working this repo concurrently since ~03:14 (duplicate queue
+roots for A4 seeds and the factorised system, seed-0 bundles overwritten by parallel runs). Session B has killed its own queue
+roots (children finish and write their bundles; session A's queues skip completed bundles) and stops writing to docs/tables.
+Session A owns story-v3.md, figures, the prospective-2024 split and the remaining A4 / M6.0 runs.

@@ -2119,3 +2119,8 @@ M5.2 presence variant cold_both s42: 0.101 (= final).
 M5.2 presence variant warm s42: 0.048 (final 0.051); its cold-plant seeds 0/1 run, then the factorised system (M6.0) starts on GPU 1.
 Figure 4 regenerated with the factorised model's two points (both-terms 0.197 / 0.215; opportunity-off-in-sites 0.197 / 0.224):
 the only arm above and to the right of the final retriever.
+
+**M5.2 presence-augmented system complete (seed 42 unless noted):** cold-plant 0.194 / 0.203 / 0.211 (mean 0.203; final 0.213),
+cold_poll 0.157 (final 0.135), cold_both 0.101 (0.105), warm 0.048 (0.051), local 0.195 (0.216). Reported as the regime-specific
+variant row (best on cold pollinator, worse elsewhere). **A4 seed 0:** cold-plant 0.201, cold_poll 0.145 (two-seed means 0.199 /
+0.150 vs affinity-only 0.174 / 0.129); within-site scorings for seed 0 running. Factorised system (M6.0) starts on GPU 1.

@@ -20,11 +20,12 @@
 | DCN-V2 (2 cross layers) | Wang et al. 2021, WWW | 3 | 0.166 | 0.576 | 0.167 | 0.036 | **42.5** | — | — |
 | *Hand-engineered features (our earlier system)* | | |  |  |  |  |  |  |  |
 | Boosted ranker: taxonomy + spatial + per-cell features | this work, v2 | 1 | 0.222 [0.205,0.239] | 0.627 | 0.252 | **0.197** | 62.4 | 0.223 | **0.268** |
-| Genus-routed experts (booster / SVD by genus) | this work, v2 | 1 | 0.222 [0.205,0.239] | 0.627 | **0.252** | 0.197 | 62.5 | 0.223 | 0.268 |
+| Genus-routed experts (booster / SVD by genus) | this work, v2 | 1 | 0.222 [0.205,0.239] | 0.627 | 0.252 | 0.197 | 62.5 | 0.223 | 0.268 |
 | *Ours: graph retriever + re-ranker* | | |  |  |  |  |  |  |  |
 | **System v3: species-node R-GCN (text + interaction edges, symmetric rehearsal, no taxon nodes) + identity re-ranker** | this work | 3 | 0.216 | 0.631 | 0.241 | 0.085 | 52.4 | — | — |
 |   ablation: v3 retriever alone | this work | 3 | 0.218 | 0.633 | 0.241 | 0.071 | 51.1 | 0.220 | 0.233 |
-|   variant: v3 retriever + explicit co-presence (opportunity) term | this work | 1 | 0.215 [0.200,0.230] | 0.632 | 0.239 | 0.036 | 51.4 | 0.217 | 0.237 |
+|   factorised retriever: v3 + explicit co-presence (opportunity) term | this work | 3 | 0.213 | 0.632 | 0.238 | 0.044 | 50.4 | 0.215 | 0.232 |
+|   factorised retriever + identity re-ranker | this work | 1 | 0.220 [0.205,0.235] | 0.637 | **0.253** | 0.166 | 54.2 | — | — |
 |   variant: presence-embedding retriever + re-ranker | this work | 1 | 0.195 [0.181,0.210] | 0.607 | 0.218 | 0.037 | 51.2 | — | — |
 |   ablation: v3 system without cell x month nodes | this work | 1 | 0.208 [0.194,0.223] | 0.627 | 0.235 | 0.110 | 55.1 | — | — |
 | System v2: R-GCN (symmetric leave-own-edges-out, R3) + identity re-ranker | this work | 3 | 0.214 | 0.629 | 0.235 | 0.108 | 51.8 | — | — |

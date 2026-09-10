@@ -2129,3 +2129,15 @@ variant row (best on cold pollinator, worse elsewhere). **A4 seed 0:** cold-plan
 roots for A4 seeds and the factorised system, seed-0 bundles overwritten by parallel runs). Session B has killed its own queue
 roots (children finish and write their bundles; session A's queues skip completed bundles) and stops writing to docs/tables.
 Session A owns story-v3.md, figures, the prospective-2024 split and the remaining A4 / M6.0 runs.
+
+### Factorised model complete on seed 42; retriever on three seeds (09-10 07:55; both GPUs idle, no other session active since 04:33)
+
+**A4 retriever, 3 seeds:** cold-plant 0.197 / 0.201 / 0.198 (mean **0.199**; A2 0.174); cold_poll 0.155 / 0.145 / 0.160 (**0.153**; A2 0.129);
+within sites full logit 0.215 / 0.213 / 0.213 (0.214), **affinity-only 0.224 / 0.221 / 0.222 (0.222), precision@L 0.246-0.249**
+(congeneric 0.222 / 0.239; trees 0.222 / 0.252). The within-site switch is worth +0.008 on every seed.
+**M6.0 factorised system (A4 + identity re-ranker; within-site with the affinity-only retriever), seed 42 unless noted:**
+cold-plant **0.231 / 0.230 / 0.228 (mean 0.230**; System v2 0.209, M5.0 0.213), nR@10 0.382-0.390; cold_poll **0.153** (M5.0 0.135);
+cold_both **0.137**, nR@10 0.411 (M5.0 0.105 / 0.341; best baseline 0.045 / 0.324); warm 0.050 (M5.0 0.051; SVD 0.105);
+**within sites 0.220, precision@L 0.253** (M5.0 0.216 / 0.241; trees 0.252; congeneric 0.239). Leads every column of every
+table except warm AUPR and cold-plant nR@10 (tie with v2). Pollinator-side and within-site seeds 0/1 queued
+(`scripts/queue_m6_seeds.sh`, GPU 0/1) to complete the three-seed table.

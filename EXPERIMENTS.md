@@ -2060,3 +2060,9 @@ the re-ranker costs 0.003 within sites); vs congeneric transfer -0.007 [-0.019, 
 (p = 0.085, no longer significant); vs pair GBM +0.013 (p = 0.006); vs R3 retriever 0.000. Dataset labels fixed in
 `data/network/local_networks.parquet`: 71 networks are Guzman et al. 2022 (British Columbia, Dryad), 1 LaManna et al. (Missouri),
 19 web-of-life. Cold-plant paired bootstrap with M5.0 as reference running (logs/paired_v3.log).
+
+**M5.1 final without cell nodes (species nodes + text + edges only), seed 42:** cold-plant 0.206 (M5.0 0.215), nR@10 0.350 (0.374);
+local 0.208 (0.216); cold_poll 0.116 (0.129); cold_both 0.103 (0.101); warm 0.046 (0.051). At the system level the presence
+edges are worth ~0.01 on four of five tables (they shape the top-500 the re-ranker sees), so the cell x month nodes stay in the
+final model. Wording for the paper: modest, not inert. Cold-plant seeds 0/1 of M5.1 run for the record.
+**M5.2 presence-augmented system (R6b retriever + re-ranker), cold-plant s42:** 0.194 (M5.0 0.215). Local / cold_poll pending.

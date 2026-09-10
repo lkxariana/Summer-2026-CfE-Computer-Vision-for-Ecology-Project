@@ -2103,3 +2103,16 @@ GPU 0) and the re-ranked system on A4 (M6.0; within-site scored with the affinit
 **M5.2 presence-augmented system (R6b + re-ranker):** cold-plant 0.194, local 0.195, cold_poll 0.157 (AUROC 0.931, nR@50 0.687,
 best), cold_both 0.101 (AUROC 0.911, nR@10 0.376). Appendix variant: pollinator-side gains bought with -0.02 elsewhere.
 **M5.1 no-cell final, cold-plant 3 seeds: 0.206 / 0.208 / 0.202 (M5.0 0.213).** Cells stay.
+
+**A4 = final retriever + explicit pair co-presence ("opportunity") term, seed 42 -- the factorised model:**
+| scoring | cold plant | cold poll | within sites (mean AUPR / precision@L / warm plants / cold plants) |
+|---|---:|---:|---|
+| A2 affinity-only retriever (reference) | 0.174 | 0.129 | 0.218 / 0.241 / 0.220 / 0.233 |
+| A4, both terms everywhere | **0.197** | **0.155** | 0.215 / 0.239 / 0.217 / 0.237 |
+| A4, opportunity term off within sites | (same) | (same) | **0.224 [0.209, 0.240] / 0.249 / 0.226 / 0.203** |
+With the opportunity term switched off where the survey fixes co-presence, the same trained model has the best within-site mean
+AUPR of anything measured (congeneric 0.222, trees 0.222) and near-best precision@L (trees 0.252), while keeping +0.023 / +0.026
+on the continental splits. Cold plants inside sites drop (0.237 -> 0.203): for a plant with no edges the co-presence term acts as
+a useful prior even inside a site; the warm-plant gain (0.217 -> 0.226) dominates. One seed; seeds 0/1 and the re-ranked system
+on A4 (affinity-only retriever base within sites) queued. The inference switch is a task-dependent choice and is stated as such.
+M5.2 presence variant cold_both s42: 0.101 (= final).

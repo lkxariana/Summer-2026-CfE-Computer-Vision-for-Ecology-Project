@@ -45,7 +45,8 @@ FAMILIES = [
       "attention aggregation"]),
     ("continental priors added", ORANGE, "s",
      ["+ memory vector (R1)", "+ co-presence stat (R4)", "+ learned co-presence (R6c)",
-      "+ presence embed concat (R6b)", "+ presence embed add (R6)"]),
+      "+ presence embed concat (R6b)", "+ presence embed add (R6)",
+      "final + opportunity term (A4)", "A4, opportunity off within sites"]),
     ("objective changes", AQUA, "D", ["co-occurrence negatives (R7)"]),
     ("plant-only rehearsal (v1) and its variants", VIOLET, "^",
      ["plant-only rehearsal (v1)", "+ degree encoding (R5, on v1)",
@@ -67,6 +68,8 @@ SHORT = {
     "+ degree encoding (R5, on v1)": "+ degree (R5, on v1)",
     "+ co-presence stat (R4, on v1)": "+ co-presence (R4, on v1)",
     "+ memory (R1, on v1)": "+ memory (R1, on v1)",
+    "final + opportunity term (A4)": "final + opportunity (A4)",
+    "A4, opportunity off within sites": "A4, opportunity off in sites",
 }
 
 

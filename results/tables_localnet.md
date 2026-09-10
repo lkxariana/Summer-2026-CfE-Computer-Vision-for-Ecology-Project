@@ -22,8 +22,12 @@
 | Boosted ranker: taxonomy + spatial + per-cell features | this work, v2 | 1 | 0.222 [0.205,0.239] | 0.627 | 0.252 | **0.197** | 62.4 | 0.223 | **0.268** |
 | Genus-routed experts (booster / SVD by genus) | this work, v2 | 1 | 0.222 [0.205,0.239] | 0.627 | **0.252** | 0.197 | 62.5 | 0.223 | 0.268 |
 | *Ours: graph retriever + re-ranker* | | |  |  |  |  |  |  |  |
-| **System v2: R-GCN (symmetric leave-own-edges-out, R3) + identity re-ranker** | this work | 3 | 0.214 | 0.629 | 0.235 | 0.108 | 51.8 | — | — |
+| **System v3: species-node R-GCN (text + interaction edges, symmetric rehearsal, no taxon nodes) + identity re-ranker** | this work | 3 | 0.216 | 0.631 | 0.241 | 0.085 | 52.4 | — | — |
+|   ablation: v3 retriever alone | this work | 3 | 0.218 | **0.633** | 0.241 | 0.071 | 51.1 | 0.220 | 0.233 |
+| System v2: R-GCN (symmetric leave-own-edges-out, R3) + identity re-ranker | this work | 3 | 0.214 | 0.629 | 0.235 | 0.108 | 51.8 | — | — |
 |   ablation: R3 retriever alone | this work | 3 | 0.215 | 0.629 | 0.234 | 0.052 | 51.6 | 0.217 | 0.226 |
+|   ablation: R3 without cell x month nodes | this work | 1 | 0.212 [0.196,0.229] | 0.629 | 0.240 | 0.050 | 49.3 | 0.213 | 0.247 |
+|   ablation: R3 with month-collapsed cells | this work | 1 | 0.210 [0.194,0.226] | 0.626 | 0.233 | 0.065 | 51.6 | 0.211 | 0.249 |
 | System v1: R-GCN (plant-side leave-own-edges-out) + identity re-ranker | this work | 3 | 0.204 | 0.620 | 0.232 | 0.128 | 51.1 | — | — |
 |   ablation: frozen R-GCN retriever alone | this work | 3 | 0.204 | 0.620 | 0.231 | 0.113 | 48.8 | 0.206 | 0.241 |
 |   ablation: re-ranker on the embedding-model retriever | this work | 1 | 0.164 [0.151,0.177] | 0.572 | 0.159 | 0.009 | 45.6 | — | — |

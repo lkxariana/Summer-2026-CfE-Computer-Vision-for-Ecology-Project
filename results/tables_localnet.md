@@ -8,7 +8,7 @@
 | Abundance neutral model | Vázquez, Chacoff & Cagnolo 2009, Ecology | 1 | 0.176 [0.162,0.191] | 0.559 | 0.176 | 0.033 | 92.2 | 0.178 | 0.164 |
 | *Ecological baselines* | | |  |  |  |  |  |  |  |
 | Phenology x abundance | Vizentin-Bugoni et al. 2014, Proc R Soc B | 1 | 0.184 [0.169,0.200] | 0.563 | 0.180 | 0.008 | 94.9 | 0.186 | 0.166 |
-| Congeneric transfer | cf. Strydom et al. 2022, MEE | 1 | **0.222** [0.205,0.242] | 0.624 | 0.239 | 0.100 | 69.7 | **0.223** | 0.260 |
+| Congeneric transfer | cf. Strydom et al. 2022, MEE | 1 | 0.222 [0.205,0.242] | 0.624 | 0.239 | 0.100 | 69.7 | 0.223 | 0.260 |
 | Truncated SVD + taxonomic imputation | Strydom et al. 2022, MEE | 1 | 0.179 [0.166,0.192] | 0.586 | 0.199 | 0.133 | 76.0 | 0.180 | 0.244 |
 | Co-occurrence PCA-15 + N (roadmap proof-of-concept; ANTHEIA v1) | Strydom et al. 2021, Phil Trans R Soc B; Li, Cher & Jacobs 2026 | 1 | 0.178 [0.164,0.193] | 0.555 | 0.184 | 0.004 | 99.9 | 0.179 | 0.164 |
 | Co-occurrence PCA-15 + N + Delta (ANTHEIA v1 scalar) | Li, Cher & Jacobs 2026 | 1 | 0.179 [0.165,0.194] | 0.561 | 0.187 | 0.012 | 99.6 | 0.181 | 0.169 |
@@ -23,7 +23,10 @@
 | Genus-routed experts (booster / SVD by genus) | this work, v2 | 1 | 0.222 [0.205,0.239] | 0.627 | **0.252** | 0.197 | 62.5 | 0.223 | 0.268 |
 | *Ours: graph retriever + re-ranker* | | |  |  |  |  |  |  |  |
 | **System v3: species-node R-GCN (text + interaction edges, symmetric rehearsal, no taxon nodes) + identity re-ranker** | this work | 3 | 0.216 | 0.631 | 0.241 | 0.085 | 52.4 | — | — |
-|   ablation: v3 retriever alone | this work | 3 | 0.218 | **0.633** | 0.241 | 0.071 | 51.1 | 0.220 | 0.233 |
+|   ablation: v3 retriever alone | this work | 3 | 0.218 | 0.633 | 0.241 | 0.071 | 51.1 | 0.220 | 0.233 |
+|   variant: v3 retriever + explicit co-presence (opportunity) term | this work | 1 | 0.215 [0.200,0.230] | 0.632 | 0.239 | 0.036 | 51.4 | 0.217 | 0.237 |
+|   variant: presence-embedding retriever + re-ranker | this work | 1 | 0.195 [0.181,0.210] | 0.607 | 0.218 | 0.037 | 51.2 | — | — |
+|   ablation: v3 system without cell x month nodes | this work | 1 | 0.208 [0.194,0.223] | 0.627 | 0.235 | 0.110 | 55.1 | — | — |
 | System v2: R-GCN (symmetric leave-own-edges-out, R3) + identity re-ranker | this work | 3 | 0.214 | 0.629 | 0.235 | 0.108 | 51.8 | — | — |
 |   ablation: R3 retriever alone | this work | 3 | 0.215 | 0.629 | 0.234 | 0.052 | 51.6 | 0.217 | 0.226 |
 |   ablation: R3 without cell x month nodes | this work | 1 | 0.212 [0.196,0.229] | 0.629 | 0.240 | 0.050 | 49.3 | 0.213 | 0.247 |

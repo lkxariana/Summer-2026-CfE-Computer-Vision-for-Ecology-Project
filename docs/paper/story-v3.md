@@ -103,10 +103,21 @@ differently in every experiment we ran:
   little beyond range in every model we built; the season axis on the graph is inert.
 - **Affinity is what the graph learns**: text + edges + rehearsal. It wins every cold regime and ties within sites.
 
-Closing experiment (A4, running): the final model with an explicit opportunity term in the head, scored with both terms on the
-continent and with the opportunity term switched off within sites. If it holds, the final model carries an explicit space-time
-factor without paying for it inside sites; if not, the factorisation is reported as an analysis and the presence variant as one
-labelled row.
+**The factorised model (A4, one seed; seeds 0/1 and the re-ranked version running).** The final retriever plus an explicit pair
+co-presence term in the head, scored with both terms on the continent and with the opportunity term switched off inside a site:
+
+| scoring | cold plant | cold pollinator | within sites: mean AUPR / precision@L / warm plants / cold plants |
+|---|---:|---:|---|
+| affinity-only retriever (final) | 0.174 | 0.129 | 0.218 / 0.241 / 0.220 / 0.233 |
+| both terms everywhere | 0.197 | 0.155 | 0.215 / 0.239 / 0.217 / 0.237 |
+| opportunity term off within sites | 0.197 | 0.155 | **0.224 [0.209, 0.240] / 0.249 / 0.226** / 0.203 |
+
+Same trained weights, one switch that follows from the factorisation, and the model gains 0.02-0.03 on the continent while
+becoming the best within-site model measured (congeneric transfer 0.222, our trees 0.222; precision@L 0.249 vs the trees' 0.252).
+The one place the switch costs is cold plants inside sites (0.237 -> 0.203): for a plant with no edges the co-presence term
+acts as a useful prior even where co-presence is nominally fixed, which is itself consistent with the factorisation (the affinity
+term has less to say about an edgeless plant). The switch is a task-dependent inference choice and is stated as such; if the
+seeds hold, the paper's final model is the factorised one and Table 1/2 carry it.
 
 ## 5. Figures
 

@@ -25,7 +25,10 @@
 | Genus-routed experts (booster / SVD by genus) | this work, v2 | 1 | 0.003 | 0.285 | 0.539 | 0.513 | 0.026 | 0.097 | 0.111 |
 | *Ours: graph retriever + re-ranker* | | |  |  |  |  |  |  |  |
 | **System v3: species-node R-GCN (text + interaction edges, symmetric rehearsal, no taxon nodes) + identity re-ranker** | this work | 3 | 0.135 | 0.832 | 0.923 | 0.917 | 0.399 | 0.627 | 0.259 |
-|   ablation: v3 retriever alone | this work | 3 | 0.129 | 0.816 | 0.915 | 0.906 | **0.401** | 0.619 | 0.148 |
+|   ablation: v3 retriever alone | this work | 3 | 0.129 | 0.816 | 0.915 | 0.906 | 0.401 | 0.619 | 0.148 |
+|   variant: v3 retriever + explicit co-presence (opportunity) term | this work | 1 (incomplete) | 0.155 | 0.841 | 0.927 | 0.919 | 0.418 | 0.658 | 0.111 |
+|   variant: presence-embedding retriever + re-ranker | this work | 1 (incomplete) | **0.157** | **0.860** | **0.937** | **0.931** | **0.422** | **0.687** | 0.111 |
+|   ablation: v3 system without cell x month nodes | this work | 1 (incomplete) | 0.116 | 0.821 | 0.919 | 0.915 | 0.358 | 0.596 | 0.111 |
 | System v2: R-GCN (symmetric leave-own-edges-out, R3) + identity re-ranker | this work | 3 | 0.117 | 0.827 | 0.921 | 0.915 | 0.361 | 0.620 | 0.185 |
 |   ablation: R3 retriever alone | this work | 3 | 0.101 | 0.809 | 0.913 | 0.906 | 0.352 | 0.608 | 0.111 |
 |   ablation: R3 without cell x month nodes | this work | 1 (incomplete) | 0.097 | 0.800 | 0.909 | 0.905 | 0.355 | 0.580 | 0.111 |

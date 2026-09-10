@@ -12,7 +12,7 @@
 | Truncated SVD + taxonomic imputation | Strydom et al. 2022, MEE | 1 | 0.095 | 0.850 | 0.924 | 0.895 | 0.291 | 0.449 | 0.256 |
 | Co-occurrence PCA-15 + N (roadmap proof-of-concept; ANTHEIA v1) | Strydom et al. 2021, Phil Trans R Soc B; Li, Cher & Jacobs 2026 | 1 | 0.048 | 0.741 | 0.868 | 0.839 | 0.117 | 0.256 | 0.087 |
 | Co-occurrence PCA-15 + N + Delta (ANTHEIA v1 scalar) | Li, Cher & Jacobs 2026 | 1 | 0.052 | 0.751 | 0.875 | 0.849 | 0.118 | 0.260 | 0.089 |
-| Gradient boosting on pair features | Pichler et al. 2020, MEE | 1 | 0.079 | 0.857 | 0.936 | 0.930 | 0.290 | 0.442 | **0.276** |
+| Gradient boosting on pair features | Pichler et al. 2020, MEE | 1 | 0.079 | 0.857 | 0.936 | 0.930 | 0.290 | 0.442 | 0.276 |
 | Spatial x phenological overlap product | Baiotto et al. 2026 (bioRxiv), Eq. 1 | 1 | 0.012 | 0.669 | 0.843 | 0.847 | 0.008 | 0.051 | 0.003 |
 | NECTAR-style plausibility (genus constraint x overlap product) | Baiotto et al. 2026 (bioRxiv) | 1 | 0.081 | 0.803 | 0.905 | 0.890 | 0.161 | 0.297 | 0.003 |
 | *Published architectures, re-implemented* | | |  |  |  |  |  |  |  |
@@ -27,6 +27,9 @@
 | *Ours: graph retriever + re-ranker* | | |  |  |  |  |  |  |  |
 | **System v3: species-node R-GCN (text + interaction edges, symmetric rehearsal, no taxon nodes) + identity re-ranker** | this work | 3 | **0.213** | 0.927 | 0.970 | 0.970 | 0.376 | 0.550 | 0.262 |
 |   ablation: v3 retriever alone | this work | 3 | 0.174 | 0.910 | 0.963 | 0.963 | 0.377 | 0.544 | 0.242 |
+|   variant: v3 retriever + explicit co-presence (opportunity) term | this work | 1 (incomplete) | 0.197 | 0.916 | 0.965 | 0.965 | **0.390** | **0.556** | **0.304** |
+|   variant: presence-embedding retriever + re-ranker | this work | 1 (incomplete) | 0.194 | 0.927 | 0.971 | 0.971 | 0.357 | 0.535 | 0.203 |
+|   ablation: v3 system without cell x month nodes | this work | 3 | 0.205 | 0.926 | 0.970 | 0.970 | 0.356 | 0.525 | 0.254 |
 | System v2: R-GCN (symmetric leave-own-edges-out, R3) + identity re-ranker | this work | 3 | 0.209 | **0.931** | **0.972** | **0.972** | 0.383 | 0.549 | 0.245 |
 |   ablation: R3 retriever alone | this work | 3 | 0.170 | 0.916 | 0.966 | 0.966 | 0.375 | 0.541 | 0.236 |
 |   ablation: R3 without cell x month nodes | this work | 1 (incomplete) | 0.165 | 0.914 | 0.965 | 0.964 | 0.361 | 0.517 | 0.233 |

@@ -22,9 +22,12 @@
 | R-GCN, taxon + cell nodes (plant-side leave-own-edges-out) | 0.150 | 0.962 | 0.368 | 0.006 | 0.761 | 0.166 | 0.010 | 0.766 | 0.158 | 0.032 | 0.969 | 0.257 |
 |   + identity re-ranker | 0.188 | 0.970 | 0.383 | 0.008 | 0.803 | 0.193 | 0.029 | 0.841 | 0.212 | 0.043 | 0.971 | 0.267 |
 | R-GCN, taxon + cell nodes (symmetric leave-own-edges-out) | 0.170 | 0.966 | 0.375 | 0.101 | 0.906 | 0.352 | 0.073 | 0.872 | 0.291 | 0.034 | 0.975 | 0.276 |
-|   + identity re-ranker | 0.209 | **0.972** | **0.383** | 0.117 | 0.915 | 0.361 | 0.094 | 0.886 | 0.288 | 0.050 | **0.976** | 0.298 |
-| R-GCN, species + cell nodes (symmetric leave-own-edges-out) | 0.174 | 0.963 | 0.377 | 0.129 | 0.906 | **0.401** | 0.095 | 0.868 | 0.336 | 0.032 | 0.974 | 0.280 |
-|   + identity re-ranker (**final**) | **0.213** | 0.970 | 0.376 | **0.135** | **0.917** | 0.399 | **0.105** | **0.888** | **0.341** | 0.051 | 0.974 | **0.304** |
+|   + identity re-ranker | 0.209 | **0.972** | 0.383 | 0.117 | 0.915 | 0.361 | 0.094 | 0.886 | 0.288 | 0.050 | **0.976** | 0.298 |
+| R-GCN, species + cell nodes (symmetric leave-own-edges-out) | 0.174 | 0.963 | 0.377 | 0.129 | 0.906 | 0.401 | 0.095 | 0.868 | 0.336 | 0.032 | 0.974 | 0.280 |
+|   + identity re-ranker (**final**) | **0.213** | 0.970 | 0.376 | 0.135 | 0.917 | 0.399 | **0.105** | 0.888 | 0.341 | 0.051 | 0.974 | **0.304** |
+|   variant: retriever + explicit co-presence (opportunity) term | 0.197 | 0.965 | **0.390** | 0.155 | 0.919 | 0.418 | — | — | — | — | — | — |
+|   variant: same, opportunity term off within sites | — | — | — | — | — | — | — | — | — | — | — | — |
+|   variant: presence-embedding retriever + re-ranker | 0.194 | 0.971 | 0.357 | **0.157** | **0.931** | **0.422** | 0.101 | **0.911** | **0.376** | — | — | — |
 
 Chance AUPR: cold plant 0.0013, cold pollinator 0.0023, cold both 0.0029, warm 0.0003. Learned models: mean of seeds {42, 0, 1} where available; deterministic baselines single run. † = run predates the pollinator-side protocol fix (being re-run). Bold = column best. Re-expressed AUPR (1:3, 1:1), nR@50 and strata: appendix.
 
@@ -37,7 +40,7 @@ Chance AUPR: cold plant 0.0013, cold pollinator 0.0023, cold both 0.0029, warm 0
 | Co-occurrence N | 0.167 [0.153, 0.181] | 0.540 | 0.181 | 93 | 0.169 | 0.102 |
 | *Ecological baselines* | | | | | | |
 | Phenology x abundance | 0.184 [0.169, 0.200] | 0.563 | 0.180 | 95 | 0.186 | 0.166 |
-| Congeneric transfer | **0.222** [0.205, 0.242] | 0.624 | 0.239 | 70 | **0.223** | **0.260** |
+| Congeneric transfer | 0.222 [0.205, 0.242] | 0.624 | 0.239 | 70 | 0.223 | **0.260** |
 | SVD + taxonomic imputation | 0.179 [0.166, 0.192] | 0.586 | 0.199 | 76 | 0.180 | 0.244 |
 | Pair-feature GBM | 0.203 [0.187, 0.219] | 0.596 | 0.218 | 83 | 0.205 | 0.209 |
 | NECTAR-style plausibility | 0.190 [0.176, 0.204] | 0.591 | 0.215 | 73 | 0.191 | 0.242 |
@@ -52,7 +55,10 @@ Chance AUPR: cold plant 0.0013, cold pollinator 0.0023, cold both 0.0029, warm 0
 |   + identity re-ranker | 0.204 | 0.620 | 0.232 | 51 | — | — |
 | R-GCN, taxon + cell nodes (symmetric leave-own-edges-out) | 0.215 | 0.629 | 0.234 | 52 | 0.217 | 0.226 |
 |   + identity re-ranker | 0.214 | 0.629 | 0.235 | 52 | — | — |
-| R-GCN, species + cell nodes (symmetric leave-own-edges-out) | 0.218 | **0.633** | **0.241** | 51 | 0.220 | 0.233 |
+| R-GCN, species + cell nodes (symmetric leave-own-edges-out) | 0.218 | 0.633 | 0.241 | 51 | 0.220 | 0.233 |
 |   + identity re-ranker (**final**) | 0.216 | 0.631 | 0.241 | 52 | — | — |
+|   variant: retriever + explicit co-presence (opportunity) term | 0.215 [0.200, 0.230] | 0.632 | 0.239 | 51 | 0.217 | 0.237 |
+|   variant: same, opportunity term off within sites | **0.224** [0.209, 0.240] | **0.639** | **0.249** | 52 | **0.226** | 0.203 |
+|   variant: presence-embedding retriever + re-ranker | 0.195 [0.181, 0.210] | 0.607 | 0.218 | 51 | — | — |
 
 precision@L and NODF from the top-L pairs per network (L = observed links). Warm = plant keeps at least one edge outside the site; cold = none. Seeds averaged where several exist; single-seed rows show the bootstrap CI over networks.

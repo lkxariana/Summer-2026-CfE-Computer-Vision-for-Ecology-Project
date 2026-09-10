@@ -2153,3 +2153,17 @@ K1: kingdom-specific text projections (separate 768->128 maps for plants and pol
 identity tokens taken from the retriever's projected names (128-D) instead of raw BioCLIP-2; M6.2: re-ranker tokens = the
 retriever's graph outputs h_p, h_q. Each on cold_plant s42 and within sites (affinity-only retriever), K1 also cold_poll.
 Smokes (1 epoch): kingdom projection trains (0.113 after one epoch); re-ranker on retriever h trains (0.102 on a 1-epoch retriever).
+
+**Design ablations, seed 42 (final = shared 768->128 projection in the retriever; re-ranker with its own 768->192 projection of raw names):**
+
+| variant | cold plant | cold poll | within sites (AUPR / p@L) | verdict |
+|---|---:|---:|---|---|
+| final retriever (A4) | 0.197 | 0.155 | 0.224 / 0.249 | reference |
+| K1 kingdom-specific text projections | 0.195 | 0.165 | 0.222 / 0.252 | wash; +0.01 on the pollinator side only; not adopted |
+| final system (M6.0) | 0.231 | 0.153 | 0.220 / 0.253 | reference |
+| M6.1 re-ranker tokens = retriever's projected names | 0.225 | -- | 0.218 / 0.246 | slightly worse on both tables |
+| M6.2 re-ranker tokens = retriever's graph outputs h | 0.182 | -- | 0.216 / 0.245 | worse than the retriever alone (0.197): the second stage loses its independent view |
+
+Answers: a shared projection is as good as kingdom-specific ones (the graph and the head already separate the kingdoms); the
+re-ranker should keep its own projection of the raw names -- reusing the retriever's representations gives it nothing new to
+say and, with the graph outputs, makes it agree with the retriever's mistakes. Both GPUs idle; nothing queued.

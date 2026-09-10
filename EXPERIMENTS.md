@@ -2068,3 +2068,6 @@ final model. Wording for the paper: modest, not inert. Cold-plant seeds 0/1 of M
 **M5.2 presence-augmented system (R6b retriever + re-ranker), cold-plant s42:** 0.194 (M5.0 0.215). Local / cold_poll pending.
 **M5.1 no-cell final complete:** cold-plant 0.206 / 0.208 / 0.202 (mean 0.205; M5.0 0.213), cold_poll 0.116 (0.129), cold_both 0.103
 (0.101), warm 0.046 (0.051), local 0.208 (0.216). Cell nodes are worth ~0.01 on four of five tables at the system level; retained.
+**Cold-plant paired bootstrap, M5.0 as reference:** vs System v2 +0.003 [-0.006, +0.013] p = 0.47 (tie); vs own retriever +0.039;
+vs Wide & Deep +0.071, vs DCN-V2 +0.077 (p < 0.001). nR@10 vs v2: -0.006, p = 0.20. The two systems are equivalent on cold plant;
+M5.0's advantage is on the pollinator side (paired tests on cold_poll / cold_both running).

@@ -20,7 +20,7 @@
 | DCN-V2 (2 cross layers) | Wang et al. 2021, WWW | 3 | 0.166 | 0.576 | 0.167 | 0.036 | **42.5** | — | — |
 | *Hand-engineered features (our earlier system)* | | |  |  |  |  |  |  |  |
 | Boosted ranker: taxonomy + spatial + per-cell features | this work, v2 | 1 | 0.222 [0.205,0.239] | 0.627 | 0.252 | **0.197** | 62.4 | 0.223 | **0.268** |
-| Genus-routed experts (booster / SVD by genus) | this work, v2 | 1 | 0.222 [0.205,0.239] | 0.627 | **0.252** | 0.197 | 62.5 | 0.223 | 0.268 |
+| Genus-routed experts (booster / SVD by genus) | this work, v2 | 1 | 0.222 [0.205,0.239] | 0.627 | 0.252 | 0.197 | 62.5 | 0.223 | 0.268 |
 | *Ours: graph retriever + re-ranker* | | |  |  |  |  |  |  |  |
 | **System v3: species-node R-GCN (text + interaction edges, symmetric rehearsal, no taxon nodes) + identity re-ranker** | this work | 3 | 0.216 | 0.631 | 0.241 | 0.085 | 52.4 | — | — |
 |   ablation: v3 retriever alone | this work | 3 | 0.218 | 0.633 | 0.241 | 0.071 | 51.1 | 0.220 | 0.233 |

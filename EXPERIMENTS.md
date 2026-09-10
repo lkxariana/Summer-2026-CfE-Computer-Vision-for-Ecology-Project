@@ -2183,3 +2183,5 @@ the raw names), three seeds on cold plant:** 0.2249 / 0.2281 / 0.2207 (mean **0.
 0.218 / 0.217 vs 0.220 / 0.215 -- indistinguishable. Reading: sharing stage 1's projection costs about 0.005 AUPR on the
 continental task and nothing within sites. The final model keeps the independent projection (better on every seed, and the
 standard two-stage design); M6.1 is the appendix answer to "can the two stages share the species encoding" -- yes, at 2% of AUPR.
+M6.1 within sites, three seeds: 0.218 / 0.217 / 0.214 (mean 0.216) vs the final's 0.220 / 0.215 / 0.217 (0.217) -- a tie.
+All GPU queues complete; both GPUs idle. Cold-plant paired bootstraps with the factorised model as reference still running on CPU.

@@ -2116,3 +2116,6 @@ on the continental splits. Cold plants inside sites drop (0.237 -> 0.203): for a
 a useful prior even inside a site; the warm-plant gain (0.217 -> 0.226) dominates. One seed; seeds 0/1 and the re-ranked system
 on A4 (affinity-only retriever base within sites) queued. The inference switch is a task-dependent choice and is stated as such.
 M5.2 presence variant cold_both s42: 0.101 (= final).
+M5.2 presence variant warm s42: 0.048 (final 0.051); its cold-plant seeds 0/1 run, then the factorised system (M6.0) starts on GPU 1.
+Figure 4 regenerated with the factorised model's two points (both-terms 0.197 / 0.215; opportunity-off-in-sites 0.197 / 0.224):
+the only arm above and to the right of the final retriever.

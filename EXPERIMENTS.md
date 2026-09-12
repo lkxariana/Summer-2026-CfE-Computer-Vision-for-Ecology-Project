@@ -1,5 +1,170 @@
 # Experiment Log
 
+## Where things stand (2026-09-12)
+
+### Final model
+
+Bundle `M6.0_system_factorised`, arm `configs/arms/final.json`. Three parts:
+
+- Species-node R-GCN. Frozen BioCLIP-2 text as node input, interaction edges and presence edges,
+  no taxon nodes, symmetric leave-own-edges-out.
+- An explicit pair co-presence ("opportunity") term in the head.
+- An identity re-ranker over the retriever's top-500.
+
+Within sites the opportunity term is held at its mean: the survey already fixes co-presence.
+
+### Headline table (three seeds, clean protocol)
+
+| regime | AUPR | AUROC | nR@10 | best comparison model (AUPR) |
+|---|---:|---:|---:|---|
+| cold plant | 0.230 | 0.972 | 0.386 | Wide & Deep 0.144 |
+| cold pollinator | 0.162 | 0.926 | 0.427 | pair GBM 0.044 |
+| cold both | 0.142 | 0.907 | 0.403 | ANTHEIA v1 scalar 0.044 |
+| warm | 0.051 | 0.974 | 0.296 | SVD + taxonomic 0.105 |
+
+Within sites (91 networks): mean AUPR 0.217, precision@L 0.249. The comparisons are congeneric
+transfer 0.222 and our earlier trees 0.222. Both paired bootstraps are ties: p = 0.32 and p = 0.175.
+
+### What each design step was worth (AUPR)
+
+| step | cold plant | cold pollinator | within sites |
+|---|---:|---:|---:|
+| v1 plant-side rehearsal retriever | 0.150 | 0.006 | 0.204 |
+| v2 symmetric rehearsal | 0.170 | 0.101 | 0.215 |
+| v3 no taxon nodes | 0.174 | 0.129 | 0.218 |
+| + opportunity term | 0.199 | 0.153 | 0.222 |
+| + re-ranker (final) | 0.230 | 0.162 | 0.217 |
+
+The within-site column of the last two rows is scored affinity-only (opportunity term off).
+
+### Closed arms
+
+| arm | reason |
+|---|---|
+| warm memory vector (R1) | within sites 0.192 with R3, against R3's 0.215; R1+R2 0.185 |
+| direct genus edges (R2) | within sites 0.190 against 0.204; cold plant 0.151 against 0.150 |
+| degree encoding (R5) | cold plant 0.165 up, within sites 0.197 down from 0.204; fails the rule |
+| presence embeddings as node input (R6 family, incl. concat R6b) | cold plant 0.168 / 0.155 / 0.165 against 0.169; within sites 0.209 / 0.201 |
+| learned co-presence metric (R6c) | cold plant 0.182, within sites 0.206 against R3 0.215 |
+| co-occurrence negatives (R7) | cold plant 0.152 against 0.169; within sites 0.204 against 0.215; cold pollinator 0.101, equal to R3 |
+| attention aggregation | equal to mean aggregation at 12x the cost; cold plant 0.155, within sites 0.196 |
+| three message-passing layers (M3.2) | cold plant 0.132 against the two-layer 0.150 |
+| genus-profile tokens in the re-ranker | cold plant 0.109 against 0.209; within sites 0.213 against 0.214 |
+| re-ranker tokens from the retriever's projections (M6.1) or graph outputs (M6.2) | M6.1 cold plant 0.2246 against 0.2295 over three seeds, tie within sites; M6.2 cold plant 0.182, below the retriever alone at 0.197 |
+| kingdom-specific text projections (K1) | a wash: cold plant 0.195 / 0.197, cold pollinator 0.165 / 0.155, within sites 0.222 / 0.224 |
+| site-time overlap at inference (R-site) | within sites +0.002, p = 0.09 |
+| tree-retriever hybrid | cold plant 0.114 re-ranking the trees' top-500; within sites 0.219 against the trees' 0.222 |
+| field tokens in the re-ranker | -0.0005, p = 0.49 |
+
+### Protocol corrections made before use
+
+- **Filtered ranking on warm.** An evaluated plant's known pairs are removed from the pooled metrics
+  and pushed below all candidates. The pre-fix warm run read AUPR 0.015 at AUROC 0.967.
+- **Pollinator negative pool.** Negatives, including the re-ranker's training hard negatives, are
+  drawn from the split's training pollinators (`antheia.negpool`). The same model measured 0.010
+  before the fix and 0.128 after it, on cold pollinator.
+- **Bundle git stamp is taken at write time.** Bundles that started before a fix and were written
+  after it were identified by start time.
+
+### Adoption rule (used throughout)
+
+Adopt an arm only if within-site mean AUPR rises by >= 0.01, with no universe AUPR loss > 0.01 and
+every current lead retained. Three seeds. One-epoch smokes never decide.
+
+### Open
+
+- **Test split.** Held; unlocking it is Dan's call.
+- **Prospective-2024 holdout.** Built (`data/splits/prospective_2024.json`) and wired into
+  `run_ladder.py`; not run.
+- **Presence-source ablation.** Modelled fields (field v2) are the presence source for every taxon.
+  GBIF occurrence grids as the alternative source are untested.
+- **Image-side species representation.** Image centroids cover 2,356 of 24,155 species
+  (1,620 of 11,031 plants, 736 of 13,124 pollinators).
+
+### How to reproduce any row
+
+    scripts/run_arm.py configs/arms/<arm>.json
+    python -m antheia.eval.tables
+
+Tables are written to `results/`.
+
+## Index
+
+Line numbers are as of this insertion.
+
+- 195 —   Final table (frozen split, 553 test plants; T1 = 222 curated-label plants)
+- 262 — SDM phase summary (2026-09-01) — all 5 plan steps complete
+- 282 — Candidate stories (kept deliberately plural; updated each loop tick)
+- 300 — Session summary (2026-09-01) — what is established
+- 314 — Stopping point (2026-08-31, end of autonomous session)
+- 324 — Paper story (working sketch, updated 08-31 evening)
+- 339 — Experiment 22 (09-01) — External ecological baselines · **changes the reference point**
+- 360 — Experiment 23 (09-01) — Two-head model (shared towers, retrieval + compatibility)
+- 394 — Experiment 24 (09-01) — **True temporal ablation** (3 seeds, paired bootstrap) · the temporal result
+- 436 — Experiment 25 (09-01) — BioCLIP-2 **image** embeddings (morphology as trait proxy)
+- 466 — Overlap-summary family test (window 2, 09-01) — *does the Δ result generalise?*
+- 503 — Phenology trajectory (window 2, 09-01) — **the encoding ladder has a peak, not a slope**
+- 541 — Unified encoding ladder (window 2, 09-01) — **⚠️ corrects exps 24 and the overlap-summary test**
+- 578 — Bilateral temporal ladder (window 2, 09-01) — **phenology helps when BOTH sides are model-derived and per-cell**
+- 615 — GloBI refuted-claims file (window 2, 09-02) — **DO NOT use as negatives**
+- 645 — Dataset rebuild (window 2, 09-02) — network constructed under the documented protocol
+- 677 — Feature-coverage analysis (window 2, 09-02) — **the modelled subgraph is 42% of the network**
+- 714 — Feature-gap diagnosis (window 2, 09-02) — genus aggregation is worth ~35k interactions; feature rebuild is not
+- 738 — Ecological verification of the built network (window 2, 09-02) — passes every check
+- 766 — Rebuilt pipeline end to end (09-04 → 09-06) — **93.5% coverage, and a leaderboard that survives its controls**
+- 790 —   Leaderboard (validation, tier A, 663 plants)
+- 805 —   What the controls changed
+- 831 —   Fixes that changed published numbers
+- 840 — Identity panel (09-06) — **BioCLIP-2 text embeddings add nothing in a hand-built form**
+- 872 — Why the neural pair ranker trails the booster (09-07) — **it is the tabular inductive bias, not the implementation**
+- 908 —   The encounter term does not work as a backbone
+- 922 — Architecture search on the embedding model (09-07) — **one positive finding, six negatives**
+- 956 —   The positive finding: the spatio-temporal signal is conditional, not marginal
+- 980 —   Inputs settled
+- 998 — Prevalence is signal, not confound to be removed (09-07) — **three independent confirmations**
+- 1022 —   The architecture search is closed
+- 1038 — Error analysis of the boosted ranker (09-07) — **the failure mode is an unseen genus**
+- 1087 — Genus-aware routing (09-07) — **the first significant gain over the boosted ranker**
+- 1126 —   Single-model alternative to routing: matrix-factorisation features
+- 1151 — Tier A against Tier A+B (09-07) — **the method ranking reverses**
+- 1179 — TabICL against the boosted ranker (09-07) — **the tabular premise holds for retrieval, not for calibration**
+- 1196 — Plant phylogeny (09-07) — **smoothing the taxonomic signal destroys it, for the third time**
+- 1226 — Field-embedding phase (09-07) — **species as learned spatio-temporal influence**
+- 1257 —   Step 2 result — sampling-scheme ablation of the joint field model (09-07)
+- 1299 —   Step 1 result, pooled — SDM pollinator head into the embedding model (3 seeds, 09-07)
+- 1325 —   Marginalisation test (09-07) — **same field, same grid: collapsing space or time before the product destroys the signal**
+- 1362 —   Step 3 result, pooled — joint two-kingdom field into the embedding model (3 seeds, 09-07)
+- 1392 —   Marginalisation test on the production surfaces, full universe (09-07)
+- 1419 —   Block ablation of the embedding model for PR-AUC (3 seeds, 09-08) — **the spatio-temporal blocks carry a fifth of the PR-AUC and little of the ranking**
+- 1446 — Connectivity ladder — S0 and S1 log (09-08)
+- 1451 —   S0 — shared encoders and caches
+- 1481 —   S1 — retriever loss sweep (in progress; bundles under runs/)
+- 1502 —   Concurrent work: NECTAR (Baiotto et al., bioRxiv 2026-04-01) — read, and turned into a baseline (09-08)
+- 1512 —   S1 phase A verdict (09-08) — **the reference weighting stays; no pooled-objective variant improves AUPR**
+- 1531 —   Table 3 first pass — local-network completion (09-08) — **the ranking reverses on real non-interactions**
+- 1571 —   S2 first arm (09-08, seed 42, provisional) — **the identity-only re-ranker is the largest single gain so far**
+- 1590 —   Table 3, warm vs cold plants (09-08) — **the trees' within-site lead is not memorisation**
+- 1614 —   S2b pre-registration (09-08) — **can a neural system also win within sites?**
+- 1630 —   S1 phase B verdict (09-08) — **retriever_v1 frozen = reference embedding model**
+- 1647 —   The neural within-site deficit is a warm-plant deficit (09-08)
+- 1667 —   S2 verdict (09-08, 3 seeds) — **the re-ranker is the gain; the field tokens are inert; the tree-retriever hybrid is weak**
+- 1699 —   M3.1 R-GCN, corrected loss (09-08, seed 42, provisional) — **the best cold-start ranker so far**
+- 1738 —   M3.1 R-GCN, complete (09-08) — **the neural model that approaches the trees within sites while beating them everywhere else**
+- 1763 —   M2.12 — re-ranker on the R-GCN (09-08, seed 42, provisional) — **best on every universe column**
+- 1780 —   THE SYSTEM (09-08): R-GCN retriever + identity-token re-ranker (M2.12) — **frozen; headline candidate for Dan**
+- 1806 —   Paired contrasts for the system (09-08, 3 seeds, 300 plant resamples, cold-plant validation)
+- 1832 — Refinement stage and split battery (09-08, evening) -- Dan: "use the system as the basis and refine; add warm start and the other regimes"
+- 2043 —   Session restart 09-09 10:00 -- results landed overnight
+- 2125 —   Follow-ups after Dan's review (09-09 15:20)
+- 2189 —   No-taxon system (M5.0) and retriever (A2): all seeds in (09-09 20:32)
+- 2213 —   Closing runs (09-10 02:45)
+- 2257 —   Opportunity x affinity (09-10 03:50)
+- 2298 —   Factorised model complete on seed 42; retriever on three seeds (09-10 07:55; both GPUs idle, no other session active since 04:33)
+- 2315 —   Design ablations requested by Dan (09-10 09:40)
+
+---
+
+
 All experiments run on the frozen protocol unless noted: `edges_v1` (62,832 orientation-corrected GloBI pairs), degree-stratified plant split 75/10/15 (`artifacts/split_v1.json`, 553 test plants / 9,210 test positives), leave-plant-out, ranking over all 24,939 pollinators, bootstrap-over-plants CIs. Reference numbers to beat: **raw N recall@10 = 0.117, hit@10 = 0.505; best pooled PR-AUC 0.657**.
 
 **Metric protocol (settled exp 42-44):** report **recall@k, nDCG@k and MAP@k at k = 10 and 50**, plus hit@10 and median-rank-of-first-partner as plain-language deployment numbers. Use binary gains for nDCG (graded gains give identical ordering, exp 43). Do **not** headline k=1/5 or MRR — both reward the popularity shortcut (exp 42, 44). Degree-normalised recall (nrecall) accompanies recall because 36% of test plants have >10 partners.

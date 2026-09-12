@@ -1,5 +1,14 @@
 # antheia
 
-Importable pipeline package. `config.py` resolves paths from `configs/*.yaml` (env `ANTHEIA_DATA_ROOT` overrides the data root). `globi.py` builds the orientation-corrected edge list. `store.py` loads all species artifacts aligned to the coverage universe and computes N/Δ features. `pairs.py` holds plant-grouped splits and negative samplers. `models.py` is the standardized LR probe over named feature specs; `metrics.py` the ranking/pair metrics and bootstraps.
+The installable package (`pip install -e .` from the repo root).
 
-Install: `pip install -e .` (or add `src/` to `sys.path` as the scripts do).
+| module | role |
+|---|---|
+| `paths.py` | every external location, from `ANTHEIA_DATA` / `ANTHEIA_RUNS` |
+| `store.py`, `globi.py`, `taxonomy.py`, `pairs.py` | the species universe, its features and the edge list |
+| `bundle.py`, `metrics.py`, `negpool.py` | the artifact contract, ranking metrics with bootstraps, the pollinator negative pool |
+| `models/` | `rgcn` (the retriever), `fusion` (the identity re-ranker), `embednet` / `pairnet` / `neural` / `twotower` (neural comparison models) |
+| `baselines/` | the REGISTRY of comparison methods (see its README) |
+| `eval/` | `ladder` (one retriever run), `rerank` (retrieve-then-re-rank), `localnets` / `localnets_rerank` (within-site completion), `report` (paired bootstraps), `tables`, `tables_appendix`, `tables_localnet`, `figures`, `fig_data`, `marginalisation_*`, `site_time`, `verify_splits` |
+
+Run a model row with `scripts/run_arm.py configs/arms/<arm>.json`; build tables with `python -m antheia.eval.tables`.

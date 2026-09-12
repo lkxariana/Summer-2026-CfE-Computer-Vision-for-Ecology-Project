@@ -160,9 +160,13 @@ That the season axis helps inside the graph; that the model beats matrix factori
 genus lookup inside a site; that occurrence-derived presence is free of effort bias (prevalence is two-thirds of the
 co-presence gain).
 
-## 7. To do before writing
+## 7. To do before writing (updated 2026-09-12)
 
-- A4 read-out (opportunity term on/off within sites); M5.2 presence variant across regimes; M5.1 confirms cells stay.
-- Dan: adopt M5.0 (or A4 if it holds) as the final; unlock the test split; decide on a prospective (post-cutoff-year) holdout.
-- Calibration curves on validation; low-degree stratum table (final leads: nR@10 0.35 vs <= 0.27); per-dataset within-site table.
-- Figures 2-5; one qualitative example.
+- Dan: adopt the factorised model (M6.0) as the final; unlock the test split (one run: `scripts/run_arm.py configs/arms/final.json --part test`
+  plus the comparison set); decide on the prospective-2024 holdout (`data/splits/prospective_2024.json`, built).
+- Presence-source ablation (opportunity term from raw occurrence overlap vs the modelled fields): arm
+  `configs/arms/ablations/opportunity_from_gbif.json`, running.
+- Calibration curves on validation; low-degree stratum table (final leads: nR@10 0.35 vs <= 0.27); per-dataset within-site table
+  (the dataset label is missing for the 72 GloBI-derived networks in the parquet -- fix in `pipelines/network/extract_local_networks.py`).
+- Figures 2-5; one qualitative example (a cold plant's ranked partners and where the top pair meets).
+- Repository is cleaned (2026-09-12): every row = an arm file + `scripts/run_arm.py`; tables from bundles; frozen copies in `results/final/`.

@@ -122,8 +122,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 MASK_FILL = -1e4
-ROOT_TAX = Path(__file__).resolve().parents[2] / "data/features/taxonomy.parquet"
-from antheia.paths import TEXT_DIR as _TEXT_DIR
+ROOT_TAX = FEATURES / "taxonomy.parquet"
+from antheia.paths import TEXT_DIR as _TEXT_DIR, FEATURES
 TEXT_DIR = str(_TEXT_DIR)
 
 
@@ -176,7 +176,7 @@ class EmbedConfig:
     blocks: tuple = ("text", "surface", "pca", "scale")
     blocks_q: tuple = None           # pollinator-side blocks; defaults to `blocks`
     field_impute: bool = True        # "field": keep text-imputed rows, or zero them (trained vectors only)
-    field_path: str = str(Path(__file__).resolve().parents[2] / "data/features/poll_field.npy")
+    field_path: str = str(FEATURES / "poll_field.npy")
     seed: int = 42
     device: str = "cuda"
     text_dir: str = TEXT_DIR

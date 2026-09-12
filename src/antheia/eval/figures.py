@@ -7,7 +7,7 @@ import pandas as pd
 from matplotlib.lines import Line2D
 from matplotlib.patches import BoxStyle, FancyBboxPatch, Patch
 
-REPO = Path(__file__).resolve().parents[1]
+from antheia.paths import REPO_ROOT as REPO
 OUT = REPO / "results" / "figures"
 
 # categorical slots 1, 2, 3, 7 of the documented palette (validated, see report)

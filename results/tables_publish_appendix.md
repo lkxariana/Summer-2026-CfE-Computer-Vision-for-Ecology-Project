@@ -20,8 +20,9 @@
 | + identity re-ranker | 0.350 / 0.041 | 0.402 | 0.245 / 0.051 | 0.361 |
 | R-GCN, species + cell nodes (symmetric leave-own-edges-out) | 0.349 / 0.045 | 0.393 | 0.242 / 0.076 | 0.361 |
 | + identity re-ranker (**final**) | 0.344 / 0.043 | 0.396 | 0.262 / 0.078 | 0.366 |
-| variant: retriever + explicit co-presence (opportunity) term | 0.368 / 0.059 | 0.403 | 0.304 / 0.099 | 0.376 |
-| variant: presence-embedding retriever + re-ranker | 0.306 / 0.041 | 0.388 | 0.203 / 0.043 | 0.342 |
+| factorised retriever: + explicit co-presence (opportunity) term | 0.358 / 0.053 | 0.401 | 0.296 / 0.094 | 0.364 |
+| factorised retriever + identity re-ranker (opportunity off within sites) | 0.354 / 0.047 | 0.404 | 0.313 / 0.093 | 0.375 |
+| variant: presence-embedding retriever + re-ranker | 0.313 / 0.041 | 0.392 | 0.213 / 0.043 | 0.341 |
 
 ## Table A2 — within-site mean AUPR by survey source (seeds averaged)
 
@@ -44,6 +45,7 @@
 | + identity re-ranker | 0.209 | 0.086 | 0.236 |
 | R-GCN, species + cell nodes (symmetric leave-own-edges-out) | 0.216 | 0.082 | 0.235 |
 | + identity re-ranker (**final**) | 0.212 | 0.086 | 0.235 |
-| variant: retriever + explicit co-presence (opportunity) term | 0.211 | 0.082 | 0.236 |
-| variant: same, opportunity term off within sites | 0.222 | 0.087 | 0.240 |
+| factorised retriever: + explicit co-presence (opportunity) term | 0.209 | 0.081 | 0.238 |
+| factorised retriever, opportunity term off within sites | 0.220 | 0.086 | 0.240 |
+| factorised retriever + identity re-ranker (opportunity off within sites) | 0.213 | 0.089 | 0.238 |
 | variant: presence-embedding retriever + re-ranker | 0.189 | 0.080 | 0.224 |

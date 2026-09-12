@@ -122,8 +122,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 MASK_FILL = -1e4
-ROOT_TAX = FEATURES / "taxonomy.parquet"
 from antheia.paths import TEXT_DIR as _TEXT_DIR, FEATURES
+ROOT_TAX = FEATURES / "taxonomy.parquet"
 TEXT_DIR = str(_TEXT_DIR)
 
 

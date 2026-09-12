@@ -36,7 +36,7 @@ import torch.nn.functional as F
 from antheia import negpool
 
 ROOT = Path(__file__).resolve().parents[2]
-TEXT_DIR = Path("/scratch/cher/antheia-data/text_embeddings")
+from antheia.paths import TEXT_DIR, FIELD_DIR
 
 
 def seed_everything(seed):
@@ -48,7 +48,7 @@ def seed_everything(seed):
 
 @dataclass
 class FusionConfig:
-    field_dir: str                      # joint_field/field_v2 (grid_h.npy, {plant,poll}_tokens*.npz)
+    field_dir: str = str(FIELD_DIR)                       # joint_field/field_v2 (grid_h.npy, {plant,poll}_tokens*.npz)
     token_variant: str = "joint"        # "joint" | "space" | "time"  (marginal-token controls)
     k: int = 128                        # field tokens per species (<= cached top-k)
     d: int = 192

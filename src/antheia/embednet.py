@@ -123,7 +123,8 @@ import torch.nn.functional as F
 
 MASK_FILL = -1e4
 ROOT_TAX = Path(__file__).resolve().parents[2] / "data/features/taxonomy.parquet"
-TEXT_DIR = "/scratch/cher/antheia-data/text_embeddings"
+from antheia.paths import TEXT_DIR as _TEXT_DIR
+TEXT_DIR = str(_TEXT_DIR)
 
 
 def seed_everything(seed: int) -> None:

@@ -20,16 +20,17 @@ import numpy as np
 import torch
 from sklearn.linear_model import Ridge
 from sklearn.model_selection import KFold
+from antheia.paths import DATA_ROOT, HF_CACHE
 
 ROOT = Path(__file__).resolve().parents[1]
-SDM = Path("/scratch/cher/antheia-data/pollinator_sdm")
+SDM = Path(str(DATA_ROOT) + "/pollinator_sdm")
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--head", default=SDM / "deliverable_universe/model_head.pt")
     ap.add_argument("--occ", default=SDM / "pollinator_occ_gbifv3.npz")
-    ap.add_argument("--text", default="/scratch/cher/antheia-data/text_embeddings/polls_bioclip2.pt")
+    ap.add_argument("--text", default=str(DATA_ROOT) + "/text_embeddings/polls_bioclip2.pt")
     ap.add_argument("--universe", default=ROOT / "data/network/modelled_universe.json")
     ap.add_argument("--out", default=ROOT / "data/features")
     ap.add_argument("--alpha", type=float, default=10.0)

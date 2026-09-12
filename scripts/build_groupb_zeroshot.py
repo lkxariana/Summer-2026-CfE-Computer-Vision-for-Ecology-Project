@@ -13,6 +13,7 @@ import argparse
 from pathlib import Path
 import numpy as np
 import pandas as pd
+from antheia.paths import DATA_ROOT, HF_CACHE
 
 CORE_ORDERS = {"Hymenoptera", "Lepidoptera", "Diptera", "Coleoptera", "Hemiptera", "Apodiformes"}
 ROOT = Path(__file__).resolve().parents[1]
@@ -21,8 +22,8 @@ ROOT = Path(__file__).resolve().parents[1]
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--nodes", default=ROOT / "data/network/nodes_pollinators.parquet")
-    ap.add_argument("--occ", default="/scratch/cher/antheia-data/pollinator_sdm/pollinator_occ_gbifv3.npz")
-    ap.add_argument("--out", default="/scratch/cher/antheia-data/pollinator_sdm/groupB_zeroshot_species.csv")
+    ap.add_argument("--occ", default=str(DATA_ROOT) + "/pollinator_sdm/pollinator_occ_gbifv3.npz")
+    ap.add_argument("--out", default=str(DATA_ROOT) + "/pollinator_sdm/groupB_zeroshot_species.csv")
     args = ap.parse_args()
 
     occ = set(map(str, np.load(args.occ, allow_pickle=True)["names"]))

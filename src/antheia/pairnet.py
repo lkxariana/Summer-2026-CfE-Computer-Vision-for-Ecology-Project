@@ -73,6 +73,7 @@ from pathlib import Path
 
 import numpy as np
 import torch
+from antheia.paths import TEXT_DIR
 import torch.nn as nn
 import torch.nn.functional as F
 from antheia import negpool
@@ -121,7 +122,7 @@ class PairConfig:
     niche_dim: int = 256        # width of the shared surface basis
     text_rank: int = 0          # 0 disables the text term; >0 gives the joint species-space rank
     text_dim: int = 768         # BioCLIP-2 text embedding width
-    text_dir: str = "/scratch/cher/antheia-data/text_embeddings"
+    text_dir: str = str(TEXT_DIR)
     device: str = "cuda"
     name: str = "Neural pair ranker (ours)"
 

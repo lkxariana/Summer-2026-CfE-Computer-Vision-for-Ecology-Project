@@ -43,9 +43,10 @@ from pipelines.ppe.backbone import text_matrix
 from pipelines.sdm.climate import gather_cells
 from pipelines.sdm.build_deliverable import SINR
 from pipelines.sdm.train_joint_field import Featurizer, load_occ
+from antheia.paths import DATA_ROOT, HF_CACHE
 
-TEXT_DIR = Path("/scratch/cher/antheia-data/text_embeddings")
-SDM = Path("/scratch/cher/antheia-data/pollinator_sdm")
+TEXT_DIR = Path(str(DATA_ROOT) + "/text_embeddings")
+SDM = Path(str(DATA_ROOT) + "/pollinator_sdm")
 
 
 class TextHead(nn.Module):

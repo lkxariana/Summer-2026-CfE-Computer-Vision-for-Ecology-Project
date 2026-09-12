@@ -7,12 +7,12 @@ hf:
 
 paths:
   # --- large covariates transferred from the HPC ---
-  ppe_cache:      /scratch/cher/antheia-data/phenofield_cache/e98_large_specdrop_dyn4l
-  climplicit:     /scratch/cher/antheia-data/climplicit/climplicit_monthly_lookup.pt
-  prism_365:      /scratch/cher/antheia-data/prism/hf_prism_365.parquet
-  sdm_data:       /scratch/cher/antheia-data/pollinator_sdm
-  gbif_obs:       /scratch/cher/antheia-data/pollinator_sdm/pollinator_observations_v3.csv
-  out_dir:        /scratch/cher/antheia-data/out
+  ppe_cache:      ${ANTHEIA_DATA}/phenofield_cache/e98_large_specdrop_dyn4l
+  climplicit:     ${ANTHEIA_DATA}/climplicit/climplicit_monthly_lookup.pt
+  prism_365:      ${ANTHEIA_DATA}/prism/hf_prism_365.parquet
+  sdm_data:       ${ANTHEIA_DATA}/pollinator_sdm
+  gbif_obs:       ${ANTHEIA_DATA}/pollinator_sdm/pollinator_observations_v3.csv
+  out_dir:        ${ANTHEIA_DATA}/out
 
   # --- model assets: absent locally on purpose, so resolve() pulls them from HF ---
   ppe_ckpt:           /nonexistent

@@ -42,9 +42,10 @@ from pipelines.common import fourier_loc, fourier_week
 from pipelines.config import load_config
 from pipelines.sdm.climate import gather_cells
 from pipelines.sdm.build_deliverable import SINR
+from antheia.paths import DATA_ROOT, HF_CACHE
 
 SCHEMES = ("uniform", "tg_spatial", "tg_spatiotemporal", "slds")
-PLANT_OCC = Path("/scratch/cher/antheia-data/plant_occ/inat_train_occ.npz")
+PLANT_OCC = Path(str(DATA_ROOT) + "/plant_occ/inat_train_occ.npz")
 
 
 def week_month(week):

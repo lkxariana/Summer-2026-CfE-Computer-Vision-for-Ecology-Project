@@ -30,6 +30,7 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from pipelines.config import load_config, resolve
 from pipelines.ppe.generate_opportunity import load_grid, load_vocab, load_presence
+from antheia.paths import DATA_ROOT, HF_CACHE
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -61,8 +62,8 @@ def curves(weeks, idx, cells, n_rows):
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--universe", default=ROOT / "data/network/modelled_universe.json")
-    ap.add_argument("--surface", default="/scratch/cher/antheia-data/opportunity_surface_e98/part_00000.parquet")
-    ap.add_argument("--occ", default="/scratch/cher/antheia-data/pollinator_sdm/pollinator_occ_gbifv3.npz")
+    ap.add_argument("--surface", default=str(DATA_ROOT) + "/opportunity_surface_e98/part_00000.parquet")
+    ap.add_argument("--occ", default=str(DATA_ROOT) + "/pollinator_sdm/pollinator_occ_gbifv3.npz")
     ap.add_argument("--out", default=ROOT / "data/features")
     args = ap.parse_args()
     out = Path(args.out); out.mkdir(parents=True, exist_ok=True)

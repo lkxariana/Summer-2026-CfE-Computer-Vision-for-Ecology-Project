@@ -21,8 +21,9 @@ def load_config(path=None):
     path = Path(path) if path else REPO_ROOT / "configs" / "pipelines.yaml"
     with open(path) as f:
         cfg = yaml.safe_load(f)
+    root = os.environ.get("ANTHEIA_DATA", "/scratch/cher/antheia-data")
     for k, v in cfg["paths"].items():
-        cfg["paths"][k] = Path(os.environ.get(f"PIPELINES_{k.upper()}", v))
+        cfg["paths"][k] = Path(os.environ.get(f"PIPELINES_{k.upper()}", str(v).replace("${ANTHEIA_DATA}", root)))
     return cfg
 
 

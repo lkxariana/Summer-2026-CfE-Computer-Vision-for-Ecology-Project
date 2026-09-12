@@ -24,6 +24,7 @@ import json
 from pathlib import Path
 import numpy as np
 import pandas as pd
+from antheia.paths import DATA_ROOT, HF_CACHE
 
 CORE_ORDERS = {"Hymenoptera", "Lepidoptera", "Diptera", "Coleoptera", "Hemiptera", "Apodiformes"}
 ROOT = Path(__file__).resolve().parents[1]
@@ -37,8 +38,8 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--network", default=ROOT / "data/network")
     ap.add_argument("--surface-species",
-                    default="/scratch/cher/antheia-data/opportunity_surface_e98_species.json")
-    ap.add_argument("--occ", default="/scratch/cher/antheia-data/pollinator_sdm/pollinator_occ_gbifv3.npz")
+                    default=str(DATA_ROOT) + "/opportunity_surface_e98_species.json")
+    ap.add_argument("--occ", default=str(DATA_ROOT) + "/pollinator_sdm/pollinator_occ_gbifv3.npz")
     ap.add_argument("--out", default=ROOT / "data/network/modelled_universe.json")
     args = ap.parse_args()
 

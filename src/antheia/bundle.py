@@ -15,8 +15,7 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import average_precision_score, roc_auc_score
 
-ROOT = Path(__file__).resolve().parents[2]
-RUNS = ROOT / "runs"
+from antheia.paths import REPO_ROOT as ROOT, RUNS
 
 
 def config_hash(cfg: dict) -> str:

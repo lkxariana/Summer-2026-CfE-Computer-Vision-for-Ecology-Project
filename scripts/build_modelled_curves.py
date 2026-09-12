@@ -26,6 +26,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import pyarrow.parquet as pq
+from antheia.paths import DATA_ROOT, HF_CACHE
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -78,9 +79,9 @@ def plant_curves(dirs, labels):
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--universe", default=ROOT / "data/network/modelled_universe.json")
-    ap.add_argument("--deliverable", default="/scratch/cher/antheia-data/pollinator_sdm/deliverable_universe")
-    ap.add_argument("--surfaces", nargs="*", default=["/scratch/cher/antheia-data/opportunity_surface_e98",
-                                                     "/scratch/cher/antheia-data/opportunity_surface_zs"])
+    ap.add_argument("--deliverable", default=str(DATA_ROOT) + "/pollinator_sdm/deliverable_universe")
+    ap.add_argument("--surfaces", nargs="*", default=[str(DATA_ROOT) + "/opportunity_surface_e98",
+                                                     str(DATA_ROOT) + "/opportunity_surface_zs"])
     ap.add_argument("--side", choices=["plants", "pollinators", "both"], default="both")
     ap.add_argument("--out", default=ROOT / "data/features")
     args = ap.parse_args()

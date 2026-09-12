@@ -32,12 +32,12 @@ from antheia.embednet import PairHead, MASK_FILL, seed_everything
 from antheia import negpool
 
 ROOT = Path(__file__).resolve().parents[2]
-TEXT_DIR = Path("/scratch/cher/antheia-data/text_embeddings")
+from antheia.paths import TEXT_DIR, FIELD_DIR
 
 
 @dataclass
 class RGCNConfig:
-    field_dir: str
+    field_dir: str = str(FIELD_DIR)
     d: int = 128
     layers: int = 2
     bases: int = 8

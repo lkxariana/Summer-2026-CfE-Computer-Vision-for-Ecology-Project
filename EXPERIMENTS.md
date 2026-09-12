@@ -2362,5 +2362,6 @@ this header; `tests/test_protocol.py` for the two invariants and the opportunity
 **Acceptance:** the final model's cold-plant seed 42 re-run through the new runner with the identical config gives AUPR 0.2255,
 AUROC 0.971, nR@10 0.389 against the original bundle's 0.2306 / 0.972 / 0.390 (retriever recall@500 0.754 vs 0.756). Same
 config, same seed; the AUPR gap is run-to-run GPU nondeterminism of the size seen before (duplicate seed-0 runs differed by
-0.003) and within the three-seed spread (0.228-0.231). `config_hash` was key-order dependent (the re-run landed in a new hash
-directory); fixed with `sort_keys=True` -- existing bundle directories keep their names, tables group by model name.
+0.003) and within the three-seed spread (0.228-0.231). The re-run's config hash (432ef2a1d8) equals the `config_hash` recorded inside the original bundle; only the
+original's directory name differs (it was created under an earlier config in that session), which is harmless: tables group by
+model name. `config_hash` already sorts keys.

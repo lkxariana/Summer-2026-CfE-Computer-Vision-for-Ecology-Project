@@ -1,11 +1,11 @@
 """Local-network completion for the fusion re-ranker (plan §1.5 applied to model 2).
 
-Same protocol as eval/run_localnets.py: every local-network pair is removed from training, the retriever
+Same protocol as antheia.eval.localnets: every local-network pair is removed from training, the retriever
 (reference embedding model) and the fusion model are fit on what remains, and each surveyed network's
 plants x pollinators block is scored. Blocks are small (<= 421 x 682), so every pair in a block is
 re-scored by the fusion model rather than only a retriever top-K: logit = retriever + fusion delta.
 
-  python eval/run_localnets_fusion.py --name M2.1_fusion_identity --config '{"field_dir": ..., "identity_only": true}' --seed 42
+  python -m antheia.eval.localnets_rerank --name M2.1_fusion_identity --config '{"field_dir": ..., "identity_only": true}' --seed 42
 """
 import argparse
 import json
@@ -19,15 +19,14 @@ from scipy.spatial import cKDTree
 from scipy.stats import spearmanr
 from sklearn.metrics import average_precision_score, roc_auc_score
 
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "src")); sys.path.insert(0, str(ROOT))
+from antheia.paths import REPO_ROOT as ROOT
 from antheia.bundle import RUNS, config_hash, git_commit
 from antheia.baselines import REGISTRY
-from antheia.embednet import EmbedRanker
-from antheia.fusion import FusionReranker
+from antheia.models.embednet import EmbedRanker
+from antheia.models.fusion import FusionReranker
 from antheia.store import UniverseStore
-from eval.run_ladder import BASE_EMBED
-from eval.run_localnets import nodf
+from antheia.eval.ladder import BASE_EMBED
+from antheia.eval.localnets import nodf
 
 
 def main():

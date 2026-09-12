@@ -1,6 +1,6 @@
 """Table 3 -- local-network completion -- from bundles under runs/*/*/localnet/s*/.
 
-  python eval/make_localnet_table.py [--out results/tables_localnet.md]
+  python -m antheia.eval.tables_localnet [--out results/tables_localnet.md]
 
 Mean per-network AUPR with a bootstrap CI over networks, lift over connectance, pooled AUPR / AUROC over
 all blocks, and structure fidelity of the predicted network at matched connectance: Spearman degree
@@ -14,10 +14,9 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "src")); sys.path.insert(0, str(ROOT))
+from antheia.paths import REPO_ROOT as ROOT
 from antheia.bundle import RUNS
-from eval.make_ladder_table import GROUPS
+from antheia.eval.tables_appendix import GROUPS
 
 
 def main():

@@ -3,7 +3,7 @@ results/fig_regimes.csv (final vs v1 vs best comparison model per regime). Re-ru
 import sys
 from pathlib import Path
 import pandas as pd
-ROOT = Path(__file__).resolve().parents[1]; sys.path.insert(0, str(ROOT / "src"))
+from antheia.paths import REPO_ROOT as ROOT
 from antheia.bundle import load_bundles, seed_pooled
 
 ARMS = {"R3 (taxon+cell)": "M3.7_rgcn_sym", "final retriever (no taxon)": "A2_rgcn_sym_notaxon", "no cell nodes": "A1_rgcn_sym_nocell",

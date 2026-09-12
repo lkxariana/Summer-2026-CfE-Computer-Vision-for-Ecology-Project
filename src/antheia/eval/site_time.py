@@ -6,9 +6,9 @@ active at that cell. For every in-grid network at cell c, the term t(p, q) = log
 is computed from the production surfaces, z-scored within the network, and added to the model's z-scored
 scores: S' = z(S) + beta * z(t). beta is cross-fitted two-fold over networks (chosen on one half by mean
 AUPR, applied to the other), so every network is scored with a beta it did not select. Reads the score blocks
-saved by eval/run_localnets.py (blocks.npz); no refit.
+saved by antheia.eval.localnets (blocks.npz); no refit.
 
-  python eval/localnet_site_time.py runs/<name>/<hash>/localnet/s42 [--betas 0 0.25 0.5 1 2]
+  python -m antheia.eval.site_time runs/<name>/<hash>/localnet/s42 [--betas 0 0.25 0.5 1 2]
 """
 import argparse
 import json
@@ -19,8 +19,7 @@ import pandas as pd
 from scipy.spatial import cKDTree
 from sklearn.metrics import average_precision_score, roc_auc_score
 
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "src"))
+from antheia.paths import REPO_ROOT as ROOT
 from antheia.store import UniverseStore
 
 

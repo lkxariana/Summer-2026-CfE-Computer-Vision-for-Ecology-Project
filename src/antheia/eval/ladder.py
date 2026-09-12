@@ -1,6 +1,6 @@
 """Run one (model, config, split, seed) of the connectivity ladder and write its bundle (plan §8).
 
-  python eval/run_ladder.py --model embednet --name retriever --config '{"softmax_weight": 0.0}' \
+  python -m antheia.eval.ladder --model embednet --name retriever --config '{"softmax_weight": 0.0}' \
          --split cold_plant --seed 42
 
 Splits (plan §1.4): cold_plant (val plants x all pollinators), cold_poll (train plants x val
@@ -19,8 +19,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "src"))
+from antheia.paths import REPO_ROOT as ROOT
 from antheia.baselines import REGISTRY
 from antheia.bundle import write_bundle
 from antheia.store import UniverseStore

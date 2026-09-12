@@ -22,8 +22,7 @@ import pandas as pd
 import torch
 from sklearn.metrics import average_precision_score
 
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "src"))
+from antheia.paths import REPO_ROOT as ROOT
 from antheia.metrics import paired_bootstrap, retrieval_metrics
 from antheia.store import UniverseStore
 

@@ -28,7 +28,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from antheia.embednet import PairHead, MASK_FILL, seed_everything
+from antheia.models.embednet import PairHead, MASK_FILL, seed_everything
 from antheia import negpool
 
 ROOT = Path(__file__).resolve().parents[2]

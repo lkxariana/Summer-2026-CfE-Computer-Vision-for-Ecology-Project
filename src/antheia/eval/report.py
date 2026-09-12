@@ -1,6 +1,6 @@
 """Tables from bundles, and nothing else (plan §8.1).
 
-  python eval/report_ladder.py --split cold_plant/val --ref M1.0_reference
+  python -m antheia.eval.report --split cold_plant/val --ref M1.0_reference
 
 For every (model, config) on the split: metrics averaged over seeds (bundles with < 3 seeds flagged
 incomplete), and paired bootstraps against the reference on the same plants -- nrecall@10 from
@@ -14,8 +14,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "src"))
+from antheia.paths import REPO_ROOT as ROOT
 from antheia.bundle import RUNS, load_bundles, seed_pooled
 from antheia.metrics import paired_bootstrap
 

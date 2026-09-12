@@ -1,6 +1,6 @@
 """Table 2 of the connectivity ladder from bundles (plan §6, §8.1): grouped, cited, seed-pooled.
 
-  python eval/make_ladder_table.py --split cold_plant/val [--out results/tables_ladder.md]
+  python -m antheia.eval.tables_appendix --split cold_plant/val [--out results/tables_ladder.md]
 
 Rows are the comparative set only -- nulls, ecological baselines, published architectures we
 re-implemented, and our frozen models. Intermediate arms (sweeps, ablations) are excluded by
@@ -11,8 +11,7 @@ import sys
 from pathlib import Path
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "src"))
+from antheia.paths import REPO_ROOT as ROOT
 from antheia.bundle import load_bundles, seed_pooled
 
 GROUPS = [

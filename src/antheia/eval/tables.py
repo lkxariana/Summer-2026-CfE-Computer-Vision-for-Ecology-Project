@@ -4,7 +4,7 @@ Rows: nulls, ecological baselines, ANTHEIA v1 (prior work from this group), publ
 +re-ranker, symmetric R-GCN, +re-ranker). Everything else (ablations, hand-engineered trees, re-expressed AUPRs, nR@50,
 strata, degree correlations) goes to the appendix tables produced by make_ladder_table.py / make_localnet_table.py.
 
-  python eval/make_publish_tables.py [--out results/tables_publish.md]
+  python -m antheia.eval.tables [--out results/tables_publish.md]
 """
 import argparse
 import subprocess
@@ -12,8 +12,7 @@ import sys
 from pathlib import Path
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "src"))
+from antheia.paths import REPO_ROOT as ROOT
 from antheia.bundle import RUNS as RUNS_DIR, load_bundles, seed_pooled
 
 ROWS = [

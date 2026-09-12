@@ -6,7 +6,7 @@ evaluated plant over all candidates. Its top-K per plant are the candidates the 
 and re-scores. The bundle's score matrix is the re-ranked top-K with the retriever's scores, shifted
 below the re-ranked block, everywhere else, so pooled metrics stay defined over all candidates.
 
-  python eval/run_fusion.py --name M2.2_fusion --retriever-config '{...}' \
+  python -m antheia.eval.rerank --name M2.2_fusion --retriever-config '{...}' \
          --config '{"field_dir": ".../field_v2", "k": 128}' --split cold_plant --seed 42
 """
 import argparse
@@ -18,15 +18,14 @@ import numpy as np
 import pandas as pd
 import torch
 
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "src")); sys.path.insert(0, str(ROOT))
+from antheia.paths import REPO_ROOT as ROOT
 from antheia.bundle import write_bundle
 from antheia.baselines import REGISTRY
-from antheia.embednet import EmbedRanker
-from antheia.fusion import FusionReranker
+from antheia.models.embednet import EmbedRanker
+from antheia.models.fusion import FusionReranker
 from antheia.store import UniverseStore
 from antheia import negpool
-from eval.run_ladder import BASE_EMBED, load_split
+from antheia.eval.ladder import BASE_EMBED, load_split
 
 
 def main():

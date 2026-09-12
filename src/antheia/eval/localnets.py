@@ -11,7 +11,7 @@ at matched connectance -- take the top-L scored pairs, L = observed links, and c
 pollinator-degree Spearman correlations and nestedness (NODF) against the observed network. Aggregates:
 mean over networks with a bootstrap over networks, pooled AUPR over all blocks, and per-dataset means.
 
-  python eval/run_localnets.py --model embednet --name M1.0_reference --seed 42
+  python -m antheia.eval.localnets --model embednet --name M1.0_reference --seed 42
 """
 import argparse
 import json
@@ -23,12 +23,11 @@ import pandas as pd
 from scipy.stats import spearmanr
 from sklearn.metrics import average_precision_score, roc_auc_score
 
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "src")); sys.path.insert(0, str(ROOT))
+from antheia.paths import REPO_ROOT as ROOT
 from antheia.baselines import REGISTRY
 from antheia.bundle import RUNS, config_hash, git_commit
 from antheia.store import UniverseStore
-from eval.run_ladder import BASE_EMBED
+from antheia.eval.ladder import BASE_EMBED
 
 
 def nodf(M):

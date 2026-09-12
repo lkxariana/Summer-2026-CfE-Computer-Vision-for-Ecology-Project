@@ -1,28 +1,36 @@
-rawplantsdata/
-rawpollinatordata/
-*.zip
-*.parquet
-*.gz
-__pycache__/
-*.egg-info/
-artifacts/cache/
-artifacts/external/
-
-# built data products (regenerate with scripts/run_build_pipeline.sh)
-data/network/*.parquet
-
-# never commit credentials
+# ---- credentials: never commit ----------------------------------------------------------------
 .hf_token
 *.token
 
-# run logs
-logs/
+# ---- raw data and model inputs: live under $ANTHEIA_DATA (default /scratch/cher/antheia-data) ---
+rawplantsdata/
+rawpollinatordata/
+*.parquet
+*.zip
+*.gz
+*.pt
+*.ckpt
 
-# feature caches (regenerate with scripts/build_feature_caches.py)
+# ---- built inputs: regenerate with pipelines/ (only the frozen splits and the universe are committed)
+data/network/*.parquet
 data/features/
-
-# frozen splits are committed; nothing else under data/ is
+artifacts/cache/
+artifacts/external/
 !data/splits/
 
-# results: keep the tables, not the score dumps
+# ---- experiment outputs: bundles under runs/ are the record and live outside git --------------
+runs/
+runs_archive/
+logs/
 results/*.npy
+results/*.npz
+results/scores_*
+results/**/*.npy
+results/**/*.npz
+
+# ---- python / notebooks ------------------------------------------------------------------------
+__pycache__/
+*.pyc
+*.egg-info/
+.ipynb_checkpoints/
+.pytest_cache/

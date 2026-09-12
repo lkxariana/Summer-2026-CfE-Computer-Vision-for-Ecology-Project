@@ -1,5 +1,16 @@
 # pipelines/
 
+Everything that builds the model's inputs. Paths come from `configs/pipelines.yaml` (root `${ANTHEIA_DATA}`, override any
+entry with `PIPELINES_<KEY>`) and from `antheia.paths`.
+
+| folder | builds | entry point |
+|---|---|---|
+| `network/` | orientation-corrected GloBI edges, canonical nodes, the modelled universe, the frozen splits (cold plant / pollinator / both, warm, prospective), the 91 surveyed local networks | `pipelines/run_all.sh` (edges -> nodes -> universe -> splits -> local networks -> tests) |
+| `features/` | BioCLIP-2 text embeddings, image embeddings and centroids, phylogeny, presence surfaces and their SVD basis, per-cell tokens, field embeddings, feature caches | run individually; each script's docstring states its inputs and outputs under `data/features/` |
+| `ppe/`, `sdm/` | the two occurrence field models (plant flowering-opportunity surface; pollinator activity field) | below |
+
+## Field models
+
 Regenerates the two model-derived inputs for the interaction models: the plant flowering
 opportunity surface (frozen **e98** phenology backbone + multi-species SINR) and the pollinator
 activity curves (temporal SINR head + zero-shot LE-SINR hybrid).

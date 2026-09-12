@@ -2365,3 +2365,19 @@ config, same seed; the AUPR gap is run-to-run GPU nondeterminism of the size see
 0.003) and within the three-seed spread (0.228-0.231). The re-run's config hash (432ef2a1d8) equals the `config_hash` recorded inside the original bundle; only the
 original's directory name differs (it was created under an earlier config in that session), which is harmless: tables group by
 model name. `config_hash` already sorts keys.
+
+### Presence-source ablation (2026-09-12): opportunity term from raw occurrence overlap vs the modelled fields
+
+Arm `configs/arms/ablations/opportunity_from_gbif.json` (`pair_stat: "occurrence"` = z-scored log1p of the raw cell-overlap count N over
+the 3,162 shared cells, no season), otherwise the final retriever. Seed 42:
+
+| opportunity term | cold plant | cold pollinator (AUPR / nR@10) | within sites, affinity-only (AUPR / p@L / cold plants) |
+|---|---:|---|---|
+| modelled joint field (final, A4) | 0.197 | 0.155 / 0.418 | 0.224 / 0.249 / 0.203 |
+| raw occurrence overlap N (A5) | 0.194 | **0.168 / 0.441** | 0.224 / 0.248 / **0.226** |
+
+The field models do not earn their place inside the opportunity term: raw GBIF/PhenoField cell overlap ties on cold plant and is
+better on cold pollinator (+0.013) and for cold plants inside sites (+0.023). Consistent with the scalar/space/time/joint ladder
+(two-thirds of the term's value is prevalence-like) and with ANTHEIA v1's N being the best non-neural signal on the pollinator
+side. Seeds 0/1 queued on GPU 1; if they hold, the final model's opportunity term becomes the raw overlap (simpler, no field model
+needed for it) and the modelled fields remain only in the cell x month edges (worth ~0.01 at the system level).

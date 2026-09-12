@@ -25,7 +25,7 @@ from antheia.bundle import write_bundle
 from antheia.store import UniverseStore
 from antheia import negpool
 
-BASE_EMBED = dict(epochs=25, use_genus_context=False, use_tier_head=False)
+BASE_EMBED = dict(epochs=25)
 
 
 def load_split(name, part):

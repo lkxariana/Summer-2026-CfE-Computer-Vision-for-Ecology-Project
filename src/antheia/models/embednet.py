@@ -40,37 +40,16 @@ on the same logits makes scores comparable between plants. Ablation showed the c
 0.089 nrecall@10 -- without it a popular pollinator appears as a sampled negative far more often than
 a rare one and the model learns to penalise the taxa most likely to be true partners.
 
-**Genus context (E4).** Taxonomic affinity is the strongest signal in this network and it enters
-every other model as a sparse lookup: a count table indexed by pollinator identity, empty for the
-7,491 of 13,124 pollinators with fewer than three training edges and empty for any plant genus absent
-from training. Here the plant instead *attends* to the set of pollinators its genus was recorded
-visiting, and the context vector that returns is concatenated to its representation. The set members
-are encoded by the same pollinator encoder, so the model can shape the space in which the pooling
-happens -- which is what separates this from the hand-built prototype cosine that scored below its
-own permuted control.
-
-The set is built leave-one-out: a training plant's own interactions are subtracted from its genus
-profile, or the target would appear in the query. Held-out plants contribute nothing to any genus
-profile by construction, since the profiles are built from training edges alone.
-
-**Tier head (H1).** Interactions carry an evidence tier -- flower visitation against general
-association, 99,033 and 81,316 edges. Predicting it as an auxiliary target asks the representation to
-separate pollination from co-occurrence, which is the distinction the Tier A evaluation rests on.
-
 **Score contrast.** The first version of this model produced a nearly uniform ranking: softmax
 entropy 9.04 against a 9.48 maximum over 13,124 candidates, and a top-1-to-top-50 separation of 0.97
 standard deviations where the boosted ranker reaches 14.35. Ordering was right and contrast was
 absent, which is why it led on pooled PR-AUC and trailed on recall at ten -- a metric that depends
-entirely on the head of the list being sharply separated. Three causes, all addressed here:
-
-  * a learned temperature was tried and is provably inert: scaling every logit by one positive
-    constant is a monotone map, so it leaves every within-plant ranking, and therefore every
-    retrieval metric, bit-identical. Recorded because the negative result is the useful part --
-    contrast and ordering are separate properties, and only ordering drives recall@k;
-  * the binary term, with 383 negatives per positive, pulls every logit toward a common value, so
-    its weight is now swept rather than fixed;
-  * 384 candidates sampled from 13,124 almost never include the near-misses that decide the top ten,
-    so hard negatives are mined from the model's own current top of the list.
+entirely on the head of the list being sharply separated. A learned temperature was tried and is
+provably inert: scaling every logit by one positive constant is a monotone map, so it leaves every
+within-plant ranking, and therefore every retrieval metric, bit-identical. Contrast and ordering are
+separate properties, and only ordering drives recall@k. What does move the metric is the weight on
+the binary term, which with 383 negatives per positive pulls every logit toward a common value, so
+`bce_weight` is swept rather than fixed.
 
 **The wide path.** Handing the taxonomic affinity count to the pair MLP left retrieval unchanged
 (p=0.99) and collapsed pooled PR-AUC from 0.165 to 0.073: the deep path smooths exactly the sparsity
@@ -79,16 +58,6 @@ cross-product feature belongs on a *linear* path added to the logit, bypassing t
 "deep neural networks with embeddings can over-generalize when the interactions are sparse and
 high-rank" -- which describes a network at 0.12% connectance exactly. `use_wide_affinity` puts the
 affinity, co-occurrence and degree terms on that linear path instead.
-
-**Hierarchical back-off crosses.** A single cross, pollinator species by plant genus, has 96,651
-occupied cells at a median count of one, and is empty for the 57% of pollinators with fewer than three
-training edges. It is barely a count. Five granularities are therefore placed on the wide path at
-once -- species by genus, pollinator genus by plant genus, pollinator family by plant genus, family by
-family, order by family -- whose occupancy rises from a median of 1 to a median of 12 as they coarsen.
-The linear layer weights them, so where the fine cross is empty a coarser one still carries signal
-instead of contributing a zero. This is Katz back-off, and it matches the biology: pollination
-syndromes operate at family and order level, and "bees visit Fabaceae" is a regularity a
-species-by-genus cross cannot express.
 
 **Cross network (DCN-V2).** The wide path memorises crosses a person chose. DCN-V2 (Wang et al.,
 WWW 2021) makes the point that choosing them "falls back to the feature engineering problem for
@@ -100,15 +69,6 @@ concatenated, the arrangement Google productionised in place of Wide & Deep.
 Crossing is applied to the encoded pair, [h_p, h_q] at 512 dimensions, rather than to the raw 2,082
 input dimensions: the latter is 4.3M parameters per layer and 2e11 multiply-adds per training step,
 the former 262k and 1.3e10.
-
-**Prevalence-matched negatives.** Ranked on its own, per-cell co-activity puts widespread,
-heavily-recorded pollinators at the top rather than partners -- AUC 0.665 inside its own top 200.
-Conditioned on prevalence it is strongly discriminative, worth 0.125 held-out AUC at the top 200 over
-popularity and range overlap together. Uniformly sampled negatives let the loss be satisfied by
-predicting prevalence, so the conditional signal is never required. Matching each negative to its
-positive's recorded degree removes that route: within a matched pair the prevalence term is
-uninformative by construction, and only the conditional signal separates them. This is the standard
-propensity-matched control transplanted into negative sampling.
 
 **Cold start.** No per-plant parameters of any kind. A held-out plant is represented only by inputs
 computable from its name and its predicted surfaces, so nothing about it is fitted during training.
@@ -123,7 +83,6 @@ import torch.nn.functional as F
 
 MASK_FILL = -1e4
 from antheia.paths import TEXT_DIR as _TEXT_DIR, FEATURES
-ROOT_TAX = FEATURES / "taxonomy.parquet"
 TEXT_DIR = str(_TEXT_DIR)
 
 
@@ -150,29 +109,9 @@ class EmbedConfig:
     grad_clip: float = 1.0
     bce_weight: float = 0.5
     softmax_weight: float = 1.0      # within-plant softmax term; 0 = pooled BCE only (plan M1.1)
-    pu_prior: float = 0.0            # >0: nnPU risk (Kiryo et al. 2017) with this class prior in place of plain BCE
-    use_degree_heads: bool = False   # MLP(h_p) + MLP(h_q) -> logit; content-based, so cold-start capable
-    head_type: str = "elementwise"   # "elementwise" = [h_p,h_q,h_p*h_q,|h_p-h_q|]; "concat_bilinear" = [h_p,h_q] + h_p^T U V^T h_q
-    bilinear_rank: int = 64
-    logq: bool = True
-    use_bias_head: bool = True
-    use_genus_context: bool = True   # E4: attend over the plant genus's recorded partners
-    ctx_k: int = 64                  # partners kept per genus, by count
-    ctx_heads: int = 4
-    use_tier_head: bool = True       # H1: auxiliary evidence-tier classification
-    tier_weight: float = 0.3
-    use_affinity: bool = False       # hand the sharp taxonomic lookup to the pair head directly
-    use_wide_affinity: bool = False  # Wide & Deep: the same signal on a linear path, added to the logit
-    backoff_crosses: bool = False    # five taxonomic granularities on the wide path, Katz-style
+    use_wide_affinity: bool = False  # Wide & Deep: the taxonomic affinity counts on a linear path, added to the logit
     cross_layers: int = 0            # DCN-V2 depth over the encoded pair; 0 disables
-    matched_negatives: float = 0.0   # share of uniform negatives replaced by degree-matched ones
-    match_bins: int = 32             # log-degree strata used for matching
     use_degree_offset: bool = False  # A3: log-degree as an explicit term with a learned coefficient
-    learn_temperature: bool = True   # scale the head output; flat logits cost top-k precision
-    hard_negatives: int = 0          # per plant per step, mined from the model's current top ranks
-    hard_pool: int = 200             # depth of the mined pool
-    hard_warmup: int = 5             # epochs before mining begins
-    hard_refresh: int = 3            # epochs between pool refreshes
     blocks: tuple = ("text", "surface", "pca", "scale")
     blocks_q: tuple = None           # pollinator-side blocks; defaults to `blocks`
     field_impute: bool = True        # "field": keep text-imputed rows, or zero them (trained vectors only)
@@ -203,46 +142,24 @@ class BlockEncoder(nn.Module):
         return self.mlp(torch.cat([n(b) for n, b in zip(self.norms, blocks)], -1))  # [B, d_model]
 
 
-class GenusContext(nn.Module):
-    """Multi-head attention from a plant to its genus's recorded partners. Returns [B, d]."""
-
-    def __init__(self, d_model, heads, dropout):
-        super().__init__()
-        self.attn = nn.MultiheadAttention(d_model, heads, dropout=dropout, batch_first=True)
-        self.empty = nn.Parameter(torch.zeros(d_model))     # learned fallback for an unseen genus
-        self.norm = nn.LayerNorm(d_model)
-
-    def forward(self, hp, ctx, mask):
-        """hp [B, d]; ctx [B, K, d]; mask [B, K] True where the slot is padding."""
-        allpad = mask.all(dim=1)                            # [B] genera with no recorded partners
-        safe = mask.clone()
-        safe[allpad, 0] = False                             # keep one slot so attention is defined
-        out, _ = self.attn(hp.unsqueeze(1), ctx, ctx, key_padding_mask=safe)
-        out = out.squeeze(1)                                # [B, d]
-        return self.norm(torch.where(allpad.unsqueeze(-1), self.empty.expand_as(out), out))
-
-
 class PairHead(nn.Module):
-    """[h_p, h_q, h_p*h_q, |h_p-h_q|] -> logit."""
+    """[h_p, h_q, h_p*h_q, |h_p-h_q|] -> logit.
 
-    def __init__(self, d_model, hidden, dropout, n_out=1, p_mult=1, n_extra=0, cross_layers=0,
+    `head_type` and `bilinear_rank` are accepted and ignored: the concatenation-plus-bilinear variant
+    was an ablation and the elementwise form is the only one used by a reported run.
+    """
+
+    def __init__(self, d_model, hidden, dropout, n_extra=0, cross_layers=0,
                  head_type="elementwise", bilinear_rank=64):
         super().__init__()
-        self.head_type = head_type
         self.cross = CrossNet(2 * d_model, cross_layers) if cross_layers else None
         cross_dim = 2 * d_model if cross_layers else 0
-        if head_type == "concat_bilinear":
-            # no shared-space assumption: plain concatenation plus a learned cross-space metric
-            self.U = nn.Linear(d_model, bilinear_rank, bias=False)
-            self.V = nn.Linear(d_model, bilinear_rank, bias=False)
-            in_dim = 2 * d_model + (2 * (p_mult - 1)) * d_model + n_extra + cross_dim + 1
-        else:
-            in_dim = (2 + 2 * p_mult) * d_model + n_extra + cross_dim
+        in_dim = 4 * d_model + n_extra + cross_dim
         self.mlp = nn.Sequential(
             nn.Linear(in_dim, hidden),
             nn.GELU(), nn.Dropout(dropout),
             nn.Linear(hidden, hidden // 2), nn.GELU(), nn.Dropout(dropout),
-            nn.Linear(hidden // 2, n_out))
+            nn.Linear(hidden // 2, 1))
         for m in self.mlp:
             if isinstance(m, nn.Linear):
                 nn.init.kaiming_normal_(m.weight, nonlinearity="relu")
@@ -250,26 +167,19 @@ class PairHead(nn.Module):
         nn.init.normal_(self.mlp[-1].weight, std=0.01)
         self.logit_scale = nn.Parameter(torch.tensor(0.0))   # exp(0)=1 at init
 
-    def forward(self, hp, hq, ctx=None, extra=None):
-        """hp [B, d], hq [C, d], optional ctx [B, d] -> [B, C, n_out] squeezed when n_out == 1."""
+    def forward(self, hp, hq, extra=None):
+        """hp [B, d], hq [C, d], optional extra [B, C, n_extra] -> [B, C]."""
         B, C, d = hp.shape[0], hq.shape[0], hp.shape[1]
         a = hp.unsqueeze(1).expand(B, C, d)
         b = hq.unsqueeze(0).expand(B, C, d)
-        if self.head_type == "concat_bilinear":
-            bil = (self.U(hp) @ self.V(hq).T).unsqueeze(-1)          # [B, C, 1]  h_p^T U^T V h_q
-            parts = [a, b, bil]
-        else:
-            parts = [a, b, a * b, (a - b).abs()]
-        if ctx is not None:
-            c = ctx.unsqueeze(1).expand(B, C, d)
-            parts += [c * b, (c - b).abs()]                       # candidate against the genus profile
+        parts = [a, b, a * b, (a - b).abs()]
         if self.cross is not None:
             pair = torch.cat([a, b], -1)                          # [B, C, 2d]
             parts.append(self.cross(pair.reshape(-1, pair.shape[-1])).view_as(pair))
         if extra is not None:
             parts.append(extra)                                   # [B, C, n_extra]
-        out = self.mlp(torch.cat(parts, -1)) * self.logit_scale.exp()   # [B, C, n_out]
-        return out.squeeze(-1) if out.shape[-1] == 1 else out
+        out = self.mlp(torch.cat(parts, -1)) * self.logit_scale.exp()   # [B, C, 1]
+        return out.squeeze(-1)
 
 
 class CrossNet(nn.Module):
@@ -392,92 +302,13 @@ class EmbedRanker:
 
         self.enc_p = BlockEncoder(dims, cfg.d_model, cfg.hidden, cfg.dropout).to(dev)
         self.enc_q = BlockEncoder(dims_q, cfg.d_model, cfg.hidden, cfg.dropout).to(dev)
-        n_out = 2 if cfg.use_tier_head else 1
-        self.head = PairHead(cfg.d_model, cfg.hidden, cfg.dropout, n_out=n_out,
-                             p_mult=2 if cfg.use_genus_context else 1,
-                             n_extra=1 if cfg.use_affinity else 0,
-                             cross_layers=cfg.cross_layers,
-                             head_type=cfg.head_type, bilinear_rank=cfg.bilinear_rank).to(dev)
+        self.head = PairHead(cfg.d_model, cfg.hidden, cfg.dropout,
+                             cross_layers=cfg.cross_layers).to(dev)
         mods = [self.enc_p, self.enc_q, self.head]
-        if cfg.use_degree_heads:
-            # plan M1.3: content-based log-degree terms; the within-plant softmax cancels the plant one,
-            # so these only matter under the pooled objective, which is the point
-            self.deg_head_p = nn.Sequential(nn.Linear(cfg.d_model, 64), nn.GELU(), nn.Linear(64, 1)).to(dev)
-            self.deg_head_q = nn.Sequential(nn.Linear(cfg.d_model, 64), nn.GELU(), nn.Linear(64, 1)).to(dev)
-            for m in (self.deg_head_p[-1], self.deg_head_q[-1]):
-                nn.init.zeros_(m.weight); nn.init.zeros_(m.bias)
-            mods += [self.deg_head_p, self.deg_head_q]
-        if cfg.use_genus_context:
-            self.ctx = GenusContext(cfg.d_model, cfg.ctx_heads, cfg.dropout).to(dev)
-            mods.append(self.ctx)
 
         pi = store.idx_plants(edges["plant"]); qi = store.idx_polls(edges["pollinator"])
 
-        if cfg.use_genus_context:
-            gen = np.array([x.split()[0] for x in store.plants])
-            g2i = {g: i for i, g in enumerate(sorted(set(gen)))}
-            self.p_gi = np.array([g2i[g] for g in gen])
-            counts = {}
-            for a, b in zip(pi.tolist(), qi.tolist()):
-                counts.setdefault(self.p_gi[a], {}).setdefault(b, 0)
-                counts[self.p_gi[a]][b] += 1
-            own = {}
-            for a, b in zip(pi.tolist(), qi.tolist()):
-                own.setdefault(a, {}).setdefault(b, 0)
-                own[a][b] += 1
-            K = cfg.ctx_k
-            idx = np.zeros((self.n_p, K), np.int64)
-            msk = np.ones((self.n_p, K), bool)
-            for a in range(self.n_p):
-                c = dict(counts.get(self.p_gi[a], {}))
-                for b, n in own.get(a, {}).items():          # leave-one-out: remove this plant's own
-                    c[b] = c.get(b, 0) - n
-                    if c[b] <= 0:
-                        c.pop(b, None)
-                if not c:
-                    continue
-                top = sorted(c.items(), key=lambda kv: -kv[1])[:K]
-                idx[a, :len(top)] = [b for b, _ in top]
-                msk[a, :len(top)] = False
-            self.ctx_idx = torch.from_numpy(idx).to(dev)
-            self.ctx_msk = torch.from_numpy(msk).to(dev)
-            print(f"    genus context: {int((~msk).any(1).sum())}/{self.n_p} plants have a non-empty "
-                  f"leave-one-out genus profile", flush=True)
-
-        if cfg.backoff_crosses:
-            import pandas as _pd
-            tx = _pd.read_parquet(ROOT_TAX)
-            fam_of = dict(zip(tx.label, tx.family.fillna("UNK")))
-            ord_of = dict(zip(tx.label, tx["order"].fillna("UNK"))) if "order" in tx else {}
-            pg = [x.split()[0] for x in store.plants]
-            pf = [fam_of.get(x, "UNK") for x in store.plants]
-            qg = [x.split()[0] for x in store.polls]
-            qf = [fam_of.get(x, "UNK") for x in store.polls]
-            qo = [ord_of.get(x, "UNK") for x in store.polls]
-
-            def code(vals):
-                m = {v: i for i, v in enumerate(sorted(set(vals)))}
-                return np.array([m[v] for v in vals]), len(m)
-
-            PG, nPG = code(pg); PF, nPF = code(pf)
-            QG, nQG = code(qg); QF, nQF = code(qf); QO, nQO = code(qo)
-            self.cross_specs = []
-            for qcode, nq_, pcode, np_, name in [
-                    (np.arange(self.n_q), self.n_q, PG, nPG, "poll x plantgenus"),
-                    (QG, nQG, PG, nPG, "pollgenus x plantgenus"),
-                    (QF, nQF, PG, nPG, "pollfamily x plantgenus"),
-                    (QF, nQF, PF, nPF, "pollfamily x plantfamily"),
-                    (QO, nQO, PF, nPF, "pollorder x plantfamily")]:
-                M = np.zeros((nq_, np_), np.float32)
-                np.add.at(M, (qcode[qi], pcode[pi]), 1.0)
-                self.cross_specs.append((T(M),
-                                         torch.from_numpy(qcode).long().to(dev),
-                                         torch.from_numpy(pcode).long().to(dev), name))
-            print("    back-off crosses: " + ", ".join(
-                f"{n} ({int((m.cpu().numpy() > 0).sum())} cells)" for m, _, _, n in self.cross_specs),
-                flush=True)
-
-        if cfg.use_affinity or cfg.use_wide_affinity:
+        if cfg.use_wide_affinity:
             gen_a = np.array([x.split()[0] for x in store.plants])
             fam_a = np.array([store.family.get(x, "UNK") for x in store.plants])
             ga = {g: i for i, g in enumerate(sorted(set(gen_a)))}
@@ -486,24 +317,16 @@ class EmbedRanker:
             Cg = np.zeros((self.n_q, len(ga)), np.float32); Cf = np.zeros((self.n_q, len(fa)), np.float32)
             np.add.at(Cg, (qi, self.aff_GI[pi]), 1.0); np.add.at(Cf, (qi, self.aff_FI[pi]), 1.0)
             self.Cg_t, self.Cf_t = T(Cg), T(Cf)
-
-        if cfg.use_wide_affinity:
             self.N_t = T(np.asarray(store.N_full, dtype=np.float32))
 
-        if cfg.use_tier_head:
-            tier = (edges["tier"].to_numpy() == "A").astype(np.float32)
-            self.tier_of = {(int(a), int(b)): float(t) for a, b, t in zip(pi, qi, tier)}
+        # species-level documentation effort only: never the pair's ecology
+        self.bias_p = T(np.stack([np.log1p(store.Frs), (store.FCo.sum(1) > 0).astype(np.float32)], 1))
+        self.bias_q = T(np.stack([np.log1p(store.Prs), (store.ACo.sum(1) > 0).astype(np.float32)], 1))
+        self.bias = BiasHead(self.bias_p.shape[1] + self.bias_q.shape[1]).to(dev)
+        mods.append(self.bias)
 
-        if cfg.use_bias_head:
-            # species-level documentation effort only: never the pair's ecology
-            self.bias_p = T(np.stack([np.log1p(store.Frs), (store.FCo.sum(1) > 0).astype(np.float32)], 1))
-            self.bias_q = T(np.stack([np.log1p(store.Prs), (store.ACo.sum(1) > 0).astype(np.float32)], 1))
-            self.bias = BiasHead(self.bias_p.shape[1] + self.bias_q.shape[1]).to(dev)
-            mods.append(self.bias)
-
-        if cfg.use_wide_affinity or cfg.use_degree_offset or cfg.backoff_crosses:
-            n_wide = ((3 if cfg.use_wide_affinity else 0) + (2 if cfg.use_degree_offset else 0)
-                      + (len(self.cross_specs) if cfg.backoff_crosses else 0))
+        if cfg.use_wide_affinity or cfg.use_degree_offset:
+            n_wide = (3 if cfg.use_wide_affinity else 0) + (2 if cfg.use_degree_offset else 0)
             self.wide = WidePath(n_wide).to(dev)
             mods.append(self.wide)
             self.deg_q = T(np.log1p(np.bincount(qi, minlength=self.n_q).astype(np.float32)))
@@ -517,25 +340,12 @@ class EmbedRanker:
         for a, b in zip(pi.tolist(), qi.tolist()):
             partners.setdefault(a, set()).add(b)
         cnt = np.bincount(qi, minlength=self.n_q).astype(np.float64)
-        if cfg.matched_negatives > 0:
-            # strata of equal log-degree; a negative drawn from the positive's own stratum cannot be
-            # told apart from it by prevalence
-            ld = np.log1p(cnt)
-            edges_ = np.quantile(ld, np.linspace(0, 1, cfg.match_bins + 1))
-            strat = np.clip(np.searchsorted(edges_, ld, side="right") - 1, 0, cfg.match_bins - 1)
-            members = [np.flatnonzero(strat == b) for b in range(cfg.match_bins)]
-            members = [m if len(m) else np.arange(self.n_q) for m in members]
-            print(f"    matched negatives: {cfg.match_bins} degree strata, "
-                  f"sizes {min(len(m) for m in members)}-{max(len(m) for m in members)}", flush=True)
         logQ_pop = T(np.log(np.maximum(cnt / cnt.sum(), 1e-12)))
         logQ_uni = float(np.log(1.0 / self.n_q))
         n_uni = cfg.n_cand - cfg.in_batch
         pos_weight = torch.tensor(float(cfg.n_cand - 1), device=dev)
-        hard_pool = None
 
         for ep in range(cfg.epochs):
-            if cfg.hard_negatives and ep >= cfg.hard_warmup and (ep - cfg.hard_warmup) % cfg.hard_refresh == 0:
-                hard_pool = self._mine(mods, sorted(set(pi.tolist())), cfg.hard_pool, partners)
             for m in mods:
                 m.train()
             perm = rng.permutation(len(pi))
@@ -545,46 +355,20 @@ class EmbedRanker:
                 bp, bq = pi[b], qi[b]
                 B = len(bp)
                 sub = rng.choice(B, min(cfg.in_batch, B), replace=False)
-                if cfg.matched_negatives > 0:
-                    n_match = int(n_uni * cfg.matched_negatives)
-                    src = bq[rng.integers(0, B, n_match)]
-                    matched = np.array([members[strat[q]][rng.integers(0, len(members[strat[q]]))]
-                                        for q in src])
-                    uni = np.concatenate([matched, rng.integers(0, self.n_q, n_uni - n_match)])
-                else:
-                    uni = rng.integers(0, self.n_q, n_uni)
+                uni = rng.integers(0, self.n_q, n_uni)
                 cand = np.concatenate([bq[sub], uni])
-                if hard_pool is not None and cfg.hard_negatives:
-                    hp_rows = np.stack([hard_pool[int(a)] for a in bp])          # [B, pool]
-                    picks = hp_rows[np.arange(len(bp))[:, None],
-                                    rng.integers(0, hp_rows.shape[1], (len(bp), cfg.hard_negatives))]
-                    cand = np.concatenate([cand, np.unique(picks.ravel())])
                 C = len(cand)
                 tp_i = torch.from_numpy(np.ascontiguousarray(bp)).long().to(dev)
                 tc_i = torch.from_numpy(np.ascontiguousarray(cand)).long().to(dev)
 
                 hp = self.enc_p([blk[tp_i] for blk in self.P_blocks])      # [B, d]
                 hq = self.enc_q([blk[tc_i] for blk in self.Q_blocks])      # [C, d]
-                ctx = None
-                if cfg.use_genus_context:
-                    ci = self.ctx_idx[tp_i]                                # [B, K]
-                    cm = self.ctx_msk[tp_i]                                # [B, K]
-                    cflat = self.enc_q([blk[ci.reshape(-1)] for blk in self.Q_blocks])
-                    ctx = self.ctx(hp, cflat.view(len(tp_i), cfg.ctx_k, -1), cm)   # [B, d]
-                ex = None
-                if cfg.use_affinity:
-                    ex = torch.log1p(self.Cg_t[tc_i][:, self.aff_GI[bp]].T
-                                     + 1e-3 * self.Cf_t[tc_i][:, self.aff_FI[bp]].T).unsqueeze(-1)
-                out = self.head(hp, hq, ctx, ex)                           # [B,C] or [B,C,2]
-                logits = out[..., 0] if cfg.use_tier_head else out
-                if cfg.use_degree_heads:
-                    logits = logits + self.deg_head_p(hp) + self.deg_head_q(hq).T   # [B,1] + [1,C]
-                if cfg.use_wide_affinity or cfg.use_degree_offset or cfg.backoff_crosses:
+                logits = self.head(hp, hq)                                 # [B, C]
+                if cfg.use_wide_affinity or cfg.use_degree_offset:
                     logits = logits + self.wide(self._wide_feats(tp_i, tc_i))
-                if cfg.use_bias_head:
-                    bp_f = self.bias_p[tp_i].unsqueeze(1).expand(B, C, -1)
-                    bq_f = self.bias_q[tc_i].unsqueeze(0).expand(B, C, -1)
-                    logits = logits + self.bias(torch.cat([bp_f, bq_f], -1))
+                bp_f = self.bias_p[tp_i].unsqueeze(1).expand(B, C, -1)
+                bq_f = self.bias_q[tc_i].unsqueeze(0).expand(B, C, -1)
+                logits = logits + self.bias(torch.cat([bp_f, bq_f], -1))
 
                 where = {}
                 for j, c in enumerate(cand):
@@ -603,36 +387,16 @@ class EmbedRanker:
                 if not bool(vm.any()):
                     continue
 
-                z = logits
-                if cfg.logq:
-                    corr = torch.cat([logQ_pop[torch.from_numpy(np.ascontiguousarray(bq[sub])).long().to(dev)],
-                                      torch.full((n_uni,), logQ_uni, device=dev)])
-                    z = z - corr[None, :]
+                # logQ correction: the in-batch candidates are drawn with probability proportional to
+                # their recorded degree, the uniform ones uniformly
+                corr = torch.cat([logQ_pop[torch.from_numpy(np.ascontiguousarray(bq[sub])).long().to(dev)],
+                                  torch.full((n_uni,), logQ_uni, device=dev)])
+                z = logits - corr[None, :]
                 loss = cfg.softmax_weight * F.cross_entropy(z.masked_fill(hitT, MASK_FILL)[vm], tgt[vm])
                 lab = torch.zeros_like(logits)
                 lab[torch.arange(B, device=dev)[vm], tgt[vm]] = 1.0
-                if cfg.pu_prior > 0:
-                    # non-negative PU risk: unlabelled cells are a mixture, not negatives
-                    w = (~hitT).float()
-                    pos_m = lab > 0
-                    l_pos = F.softplus(-logits)[pos_m].mean()                       # positives scored positive
-                    l_pos_neg = F.softplus(logits)[pos_m].mean()                    # positives scored negative
-                    l_unl_neg = (F.softplus(logits) * w * (1 - lab)).sum() / (w * (1 - lab)).sum()
-                    prior = cfg.pu_prior
-                    loss = loss + cfg.bce_weight * (prior * l_pos + torch.clamp(l_unl_neg - prior * l_pos_neg, min=0.0))
-                else:
-                    loss = loss + cfg.bce_weight * F.binary_cross_entropy_with_logits(
-                        logits, lab, weight=(~hitT).float(), pos_weight=pos_weight)
-
-                if cfg.use_tier_head:
-                    # auxiliary: is this pair flower-visitation evidence, supervised on positives only
-                    tv = np.array([self.tier_of.get((int(a), int(cand[c])), -1.0)
-                                   for a, c in zip(bp, np.clip(pos_col, 0, None))], np.float32)
-                    keep = torch.from_numpy((tv >= 0) & valid).to(dev)
-                    if bool(keep.any()):
-                        tl = out[torch.arange(B, device=dev), tgt, 1]
-                        loss = loss + cfg.tier_weight * F.binary_cross_entropy_with_logits(
-                            tl[keep], torch.from_numpy(np.clip(tv, 0, 1)).to(dev)[keep])
+                loss = loss + cfg.bce_weight * F.binary_cross_entropy_with_logits(
+                    logits, lab, weight=(~hitT).float(), pos_weight=pos_weight)
 
                 opt.zero_grad(set_to_none=True)
                 loss.backward()
@@ -646,14 +410,6 @@ class EmbedRanker:
         for m in mods:
             m.eval()
         self.hp_all, self.hq_all = self._encode_all()      # bias head deliberately not applied
-        if cfg.use_genus_context:
-            with torch.no_grad():
-                self.ctx_all = torch.cat([
-                    self.ctx(self.hp_all[i:i + 512],
-                             self.hq_all[self.ctx_idx[i:i + 512].reshape(-1)].view(
-                                 len(self.hp_all[i:i + 512]), cfg.ctx_k, -1),
-                             self.ctx_msk[i:i + 512])
-                    for i in range(0, self.n_p, 512)])
         return self
 
 
@@ -668,68 +424,17 @@ class EmbedRanker:
         if self.cfg.use_degree_offset:
             parts += [self.deg_q[qi].view(1, C).expand(B, C),
                       self.deg_p[pi].view(B, 1).expand(B, C)]
-        if self.cfg.backoff_crosses:
-            for M, qcode, pcode, _ in self.cross_specs:
-                parts.append(torch.log1p(M[qcode[qi]][:, pcode[pi]].T))     # [B, C]
         return torch.stack(parts, -1)
-
-    def _mine(self, mods, plants, pool, partners):
-        """Top-`pool` non-partner candidates per training plant, under the current model."""
-        for m in mods:
-            m.eval()
-        hp_all, hq_all = self._encode_all()
-        ctx_all = None
-        if self.cfg.use_genus_context:
-            with torch.no_grad():
-                ctx_all = torch.cat([
-                    self.ctx(hp_all[i:i + 512],
-                             hq_all[self.ctx_idx[i:i + 512].reshape(-1)].view(
-                                 len(hp_all[i:i + 512]), self.cfg.ctx_k, -1),
-                             self.ctx_msk[i:i + 512])
-                    for i in range(0, self.n_p, 512)])
-        out = {}
-        with torch.no_grad():
-            for s in range(0, len(plants), 24):
-                blk = plants[s:s + 24]
-                ti = torch.tensor(blk, device=self.dev, dtype=torch.long)
-                ctx = ctx_all[ti] if ctx_all is not None else None
-                ex = None
-                if self.cfg.use_affinity:
-                    qs = torch.arange(self.n_q, device=self.dev)
-                    ex = torch.log1p(self.Cg_t[qs][:, self.aff_GI[blk]].T
-                                     + 1e-3 * self.Cf_t[qs][:, self.aff_FI[blk]].T).unsqueeze(-1)
-                z = self.head(hp_all[ti], hq_all, ctx, ex)
-                if self.cfg.use_tier_head:
-                    z = z[..., 0]
-                for j, a in enumerate(blk):
-                    row = z[j].clone()
-                    ps = partners.get(int(a))
-                    if ps:
-                        row[torch.tensor(sorted(ps), device=self.dev, dtype=torch.long)] = -1e9
-                    out[int(a)] = torch.topk(row, pool).indices.cpu().numpy()
-        for m in mods:
-            m.train()
-        return out
 
     def score_plant(self, p, chunk=4096):
         out = np.empty(self.n_q, np.float32)
         with torch.no_grad():
             hp = self.hp_all[p:p + 1]
-            ctx = self.ctx_all[p:p + 1] if self.cfg.use_genus_context else None
             for s in range(0, self.n_q, chunk):
                 hq = self.hq_all[s:s + chunk]
                 qs_all = torch.arange(s, s + len(hq), device=self.dev)
-                ex = None
-                if self.cfg.use_affinity:
-                    qs = torch.arange(s, s + len(hq), device=self.dev)
-                    ex = torch.log1p(self.Cg_t[qs, self.aff_GI[p]]
-                                     + 1e-3 * self.Cf_t[qs, self.aff_FI[p]]).view(1, -1, 1)
-                z = self.head(hp, hq, ctx, ex)
-                if self.cfg.use_tier_head:
-                    z = z[..., 0]
-                if self.cfg.use_degree_heads:
-                    z = z + self.deg_head_p(hp) + self.deg_head_q(hq).T
-                if self.cfg.use_wide_affinity or self.cfg.use_degree_offset or self.cfg.backoff_crosses:
+                z = self.head(hp, hq)
+                if self.cfg.use_wide_affinity or self.cfg.use_degree_offset:
                     z = z + self.wide(self._wide_feats(
                         torch.tensor([p], device=self.dev, dtype=torch.long), qs_all))
                 out[s:s + len(hq)] = z.squeeze(0).float().cpu().numpy()

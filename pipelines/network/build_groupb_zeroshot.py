@@ -16,7 +16,7 @@ import pandas as pd
 from antheia.paths import DATA_ROOT, HF_CACHE
 
 CORE_ORDERS = {"Hymenoptera", "Lepidoptera", "Diptera", "Coleoptera", "Hemiptera", "Apodiformes"}
-ROOT = Path(__file__).resolve().parents[1]
+from antheia.paths import REPO_ROOT as ROOT
 
 
 def main():

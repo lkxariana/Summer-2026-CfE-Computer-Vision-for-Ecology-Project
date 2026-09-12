@@ -3,7 +3,6 @@ import datetime
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from antheia.config import load_config
 from antheia.globi import build_edges
 from antheia.store import FeatureStore

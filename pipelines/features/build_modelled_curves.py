@@ -28,7 +28,7 @@ import pandas as pd
 import pyarrow.parquet as pq
 from antheia.paths import DATA_ROOT, HF_CACHE
 
-ROOT = Path(__file__).resolve().parents[1]
+from antheia.paths import REPO_ROOT as ROOT
 
 
 def normalise(C, n):

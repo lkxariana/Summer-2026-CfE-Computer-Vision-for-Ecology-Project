@@ -19,7 +19,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[1]
+from antheia.paths import REPO_ROOT as ROOT
 NETWORK_DATASETS = ("web-of-life", "Plant-Pollinator-Web", "bee-interaction-database", "Pollination-Collection",
                     "guzman2022", "CropPol", "lamanna2020", "dorey2023")
 

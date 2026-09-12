@@ -6,7 +6,6 @@ from pathlib import Path
 import numpy as np
 
 os.environ.setdefault("HF_HOME", str(HF_CACHE))
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from antheia.config import load_config
 from antheia.store import FeatureStore
 from antheia.paths import DATA_ROOT, HF_CACHE

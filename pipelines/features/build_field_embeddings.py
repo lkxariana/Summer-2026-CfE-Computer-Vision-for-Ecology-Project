@@ -22,7 +22,7 @@ from sklearn.linear_model import Ridge
 from sklearn.model_selection import KFold
 from antheia.paths import DATA_ROOT, HF_CACHE
 
-ROOT = Path(__file__).resolve().parents[1]
+from antheia.paths import REPO_ROOT as ROOT
 SDM = Path(str(DATA_ROOT) + "/pollinator_sdm")
 
 

@@ -1,6 +1,6 @@
 """Prospective holdout: train on pairs first recorded before a cutoff year, predict the pairs first recorded from the cutoff on.
 
-  python scripts/build_prospective_split.py --cutoff 2024
+  python pipelines/network/build_prospective_split.py --cutoff 2024
 
 Writes data/splits/prospective_<cutoff>.json with: train pairs (first_year < cutoff, all tiers), eval pairs (tier A,
 first_year >= cutoff), eval plants (those with >= 1 eval pair), and the two strata -- plants / pollinators with no
@@ -10,7 +10,7 @@ import argparse, json
 from pathlib import Path
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[1]
+from antheia.paths import REPO_ROOT as ROOT
 
 
 def main():

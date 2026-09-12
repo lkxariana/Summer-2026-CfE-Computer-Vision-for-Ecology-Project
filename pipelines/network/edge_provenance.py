@@ -1,9 +1,9 @@
+from antheia.paths import REPO_ROOT as ROOT
 import sys
 from pathlib import Path
 import numpy as np
 import pandas as pd
 
-sys.path.insert(0, "/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/src")
 from antheia.config import load_config
 from antheia.globi import binomial
 from antheia.store import FeatureStore
@@ -81,4 +81,4 @@ print(f"  edges supported ONLY by iNat records:   {only_inat:.1%}")
 print(f"  edges with >=1 non-iNat record:         {has_noninat:.1%}")
 print(f"  edges with >=2 records:                 {(agg['n'] >= 2).mean():.1%}")
 print(f"  edges with >=2 records incl >=1 noniNat: {((agg['n'] >= 2) & (agg['n_inat'] < agg['n'])).mean():.1%}")
-agg.to_csv("/scratch/cher/Summer-2026-CfE-Computer-Vision-for-Ecology-Project/artifacts/edge_provenance_v1.csv", index=False)
+agg.to_csv(str(ROOT / "artifacts") + "/edge_provenance_v1.csv", index=False)

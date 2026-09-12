@@ -6,7 +6,6 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 LAT, LON = (24.0, 49.5), (-125.0, -66.0)
 TIER = {"visitsFlowersOf": "A", "pollinates": "A", "visits": "B", "interactsWith": "B"}

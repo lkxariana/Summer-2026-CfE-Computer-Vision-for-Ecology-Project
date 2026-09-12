@@ -25,7 +25,7 @@ import numpy as np
 import pyarrow.parquet as pq
 from huggingface_hub import hf_hub_download
 
-ROOT = Path(__file__).resolve().parents[1]
+from antheia.paths import REPO_ROOT as ROOT
 REPO = "imageomics/TreeOfLife-200M-Embeddings"
 PATTERN = "bioclip-2.5-vith14_float16/train-{:05d}-of-00933.parquet"
 DIM = 1024

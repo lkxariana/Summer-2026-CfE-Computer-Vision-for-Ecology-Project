@@ -27,12 +27,11 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from pipelines.config import load_config, resolve
 from pipelines.ppe.generate_opportunity import load_grid, load_vocab, load_presence
 from antheia.paths import DATA_ROOT, HF_CACHE
 
-ROOT = Path(__file__).resolve().parents[1]
+from antheia.paths import REPO_ROOT as ROOT
 
 
 def to_cell(lat, lon, cell_of):

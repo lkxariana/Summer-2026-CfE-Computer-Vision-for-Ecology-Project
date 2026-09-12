@@ -22,7 +22,7 @@ from pathlib import Path
 import numpy as np
 import torch
 
-ROOT = Path(__file__).resolve().parents[1]
+from antheia.paths import REPO_ROOT as ROOT
 
 
 def project(surf, B, dev, chunk=512):

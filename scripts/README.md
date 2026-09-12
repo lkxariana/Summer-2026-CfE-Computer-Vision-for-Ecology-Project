@@ -1,3 +1,5 @@
 # scripts
 
-- `rebuild_edges.py` — rebuilds `artifacts/edges_v1.parquet` (orientation-corrected GloBI edge list) plus a dataset card, from the raw GloBI records and the current coverage universe.
+- `run_arm.py` — run one model configuration (an arm file in `configs/arms/`) through every regime and the within-site evaluation, skipping bundles that exist. The only launcher.
+
+Data-building scripts live in `pipelines/` (network, features, sdm, ppe).

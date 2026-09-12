@@ -25,7 +25,7 @@ import shutil
 from pathlib import Path
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[1]
+from antheia.paths import REPO_ROOT as ROOT
 ID_PREF = {"GBIF": 0, "COL": 1, "ITIS": 2, "WFO": 3, "NAME": 4}
 # edges_no_coordinates.parquet is name-keyed and holds dropped records; it carries no
 # identifiers to remap.

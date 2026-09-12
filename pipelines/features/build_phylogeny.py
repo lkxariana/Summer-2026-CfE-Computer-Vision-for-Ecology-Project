@@ -25,7 +25,7 @@ from pathlib import Path
 import numpy as np
 from scipy.sparse import csr_matrix
 
-ROOT = Path(__file__).resolve().parents[1]
+from antheia.paths import REPO_ROOT as ROOT
 
 
 def parse_newick(text):

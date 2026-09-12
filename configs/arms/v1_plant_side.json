@@ -1,0 +1,7 @@
+{
+  "name": "M2.12_fusion_on_rgcn",
+  "description": "System v1: taxon + cell nodes, plant-side leave-own-edges-out (DropoutNet-style), + re-ranker.",
+  "retriever_model": "rgcn",
+  "retriever": {"softmax_weight": 1.0, "bce_weight": 0.5, "head_type": "elementwise", "use_degree_heads": false},
+  "reranker": {"identity_only": true}
+}

@@ -1,0 +1,1 @@
+{"name": "M1.0_reference", "description": "Embedding-model retriever alone (pre-graph reference).", "retriever_model": "embednet", "retriever": {}}

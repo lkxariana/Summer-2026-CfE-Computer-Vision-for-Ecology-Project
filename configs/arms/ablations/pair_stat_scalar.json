@@ -1,0 +1,1 @@
+{"name": "M3.8c_rgcn_pair_scalar", "description": "v1 retriever + mass x mass (scalar) pair statistic.", "retriever_model": "rgcn", "retriever": {"softmax_weight": 1.0, "bce_weight": 0.5, "head_type": "elementwise", "use_degree_heads": false, "pair_stat": "scalar"}}

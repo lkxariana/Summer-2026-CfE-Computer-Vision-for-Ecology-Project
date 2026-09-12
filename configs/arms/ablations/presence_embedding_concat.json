@@ -1,0 +1,1 @@
+{"name": "M3.13_rgcn_sym_presconcat", "description": "v2 retriever + SVD presence embedding concatenated to the text input.", "retriever_model": "rgcn", "retriever": {"softmax_weight": 1.0, "bce_weight": 0.5, "head_type": "elementwise", "use_degree_heads": false, "anchor_side": "both", "presence_input": "surface", "presence_fusion": "concat"}}

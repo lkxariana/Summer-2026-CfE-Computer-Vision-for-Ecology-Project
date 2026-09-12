@@ -1,0 +1,8 @@
+{
+  "name": "M6.0_system_factorised",
+  "description": "Final: species-node R-GCN (text + interaction + presence edges, symmetric leave-own-edges-out, no taxon nodes) + explicit pair co-presence term; identity re-ranker on the top-500. Within sites the opportunity term is held at its mean.",
+  "retriever_model": "rgcn",
+  "retriever": {"softmax_weight": 1.0, "bce_weight": 0.5, "head_type": "elementwise", "use_degree_heads": false, "anchor_side": "both", "use_taxon_nodes": false, "pair_stat": "joint"},
+  "reranker": {"identity_only": true},
+  "within_site_retriever_overrides": {"pair_stat_at_inference": false}
+}

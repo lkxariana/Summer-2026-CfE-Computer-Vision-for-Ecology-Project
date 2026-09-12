@@ -1,0 +1,1 @@
+{"name": "M2.1_fusion_identity", "description": "Identity re-ranker on the embedding-model retriever.", "retriever_model": "embednet", "retriever": {}, "reranker": {"identity_only": true}}

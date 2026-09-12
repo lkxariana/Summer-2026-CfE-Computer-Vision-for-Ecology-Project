@@ -1,0 +1,1 @@
+{"name": "M3.9_rgcn_degree_enc", "description": "v1 retriever + Graphormer-style degree encoding.", "retriever_model": "rgcn", "retriever": {"softmax_weight": 1.0, "bce_weight": 0.5, "head_type": "elementwise", "use_degree_heads": false, "degree_encoding": true}}

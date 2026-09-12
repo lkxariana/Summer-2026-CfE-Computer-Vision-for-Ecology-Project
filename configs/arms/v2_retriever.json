@@ -1,0 +1,4 @@
+{
+  "name": "M3.7_rgcn_sym", "description": "v2 retriever alone.", "retriever_model": "rgcn",
+  "retriever": {"softmax_weight": 1.0, "bce_weight": 0.5, "head_type": "elementwise", "use_degree_heads": false, "anchor_side": "both"}
+}

@@ -1,0 +1,1 @@
+{"name": "M3.15_rgcn_sym_coocneg", "description": "v2 retriever with half the uniform negatives replaced by co-occurrence negatives.", "retriever_model": "rgcn", "retriever": {"softmax_weight": 1.0, "bce_weight": 0.5, "head_type": "elementwise", "use_degree_heads": false, "anchor_side": "both", "cooc_neg_frac": 0.5}}

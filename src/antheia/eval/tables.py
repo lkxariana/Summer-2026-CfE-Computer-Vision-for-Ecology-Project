@@ -31,17 +31,15 @@ ROWS = [
         ("baseline_widedeep", "Wide & Deep"),
         ("baseline_dcnv2", "DCN-V2")]),
     ("Ours", [
-        ("M3.1_rgcn", "R-GCN, taxon + cell nodes (plant-side leave-own-edges-out)"),
-        ("M2.12_fusion_on_rgcn", "  + identity re-ranker"),
-        ("M3.7_rgcn_sym", "R-GCN, taxon + cell nodes (symmetric leave-own-edges-out)"),
-        ("M4.0_system_sym", "  + identity re-ranker"),
-        ("A2_rgcn_sym_notaxon", "R-GCN, species + cell nodes (symmetric leave-own-edges-out)"),
-        ("M5.0_system_notaxon", "  + identity re-ranker (**final**)"),
-        ("A4_rgcn_notaxon_pair", "  factorised retriever: + explicit co-presence (opportunity) term"),
-        ("A4_rgcn_notaxon_pair_affinityonly", "  factorised retriever, opportunity term off within sites"),
-        ("M6.0_system_factorised", "  factorised retriever + identity re-ranker (opportunity off within sites)"),
-        ("M5.2_system_presence", "  variant: presence-embedding retriever + re-ranker")]),
-]
+        ("M3.1_rgcn", "R-GCN, taxon + cell nodes, plant-side leave-own-edges-out (v1 retriever)"),
+        ("M2.12_fusion_on_rgcn", "  + identity re-ranker (v1)"),
+        ("M3.7_rgcn_sym", "R-GCN, taxon + cell nodes, symmetric leave-own-edges-out (v2 retriever)"),
+        ("M4.0_system_sym", "  + identity re-ranker (v2)"),
+        ("A2_rgcn_sym_notaxon", "R-GCN, species + cell nodes, symmetric (affinity-only retriever)"),
+        ("M5.0_system_notaxon", "  + identity re-ranker (affinity-only system)"),
+        ("A4_rgcn_notaxon_pair", "  + co-presence (opportunity) term = final retriever"),
+        ("M6.0_system_factorised", "  + identity re-ranker (**final: opportunity x affinity**)")]),
+]]
 SPLITS = [("cold_plant/val", "cold plant"), ("cold_poll/val", "cold pollinator"), ("cold_both/val", "cold both"), ("warm/val", "warm")]
 METS = [("aupr", "AUPR"), ("auroc", "AUROC"), ("nrecall_at_10", "nR@10")]
 DET = {"baseline_popularity", "baseline_cooccurrence", "baseline_abundance", "baseline_phenology_abundance", "baseline_congeneric",

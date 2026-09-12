@@ -1,0 +1,1 @@
+{"name": "A3_rgcn_sym_monthcollapsed", "description": "v2 retriever with cell-only nodes (months summed).", "retriever_model": "rgcn", "retriever": {"softmax_weight": 1.0, "bce_weight": 0.5, "head_type": "elementwise", "use_degree_heads": false, "anchor_side": "both", "month_collapsed": true}}

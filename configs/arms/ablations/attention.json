@@ -1,0 +1,1 @@
+{"name": "M3.6_rgcn_attention", "description": "v2 retriever with per-relation attention aggregation (SimpleHGN-style control).", "retriever_model": "rgcn", "retriever": {"softmax_weight": 1.0, "bce_weight": 0.5, "head_type": "elementwise", "use_degree_heads": false, "anchor_side": "both", "aggregation": "attention"}}

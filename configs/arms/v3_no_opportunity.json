@@ -1,0 +1,7 @@
+{
+  "name": "M5.0_system_notaxon",
+  "description": "Affinity only: final without the co-presence term (+ re-ranker).",
+  "retriever_model": "rgcn",
+  "retriever": {"softmax_weight": 1.0, "bce_weight": 0.5, "head_type": "elementwise", "use_degree_heads": false, "anchor_side": "both", "use_taxon_nodes": false},
+  "reranker": {"identity_only": true}
+}

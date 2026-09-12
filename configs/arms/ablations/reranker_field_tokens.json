@@ -1,0 +1,1 @@
+{"name": "M2.2_fusion_joint", "description": "Re-ranker with joint field tokens on the embedding-model retriever.", "retriever_model": "embednet", "retriever": {}, "reranker": {"token_variant": "joint"}}

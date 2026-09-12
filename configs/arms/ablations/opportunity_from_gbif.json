@@ -1,0 +1,8 @@
+{
+  "name": "A5_rgcn_notaxon_pair_occurrence",
+  "description": "Presence-source ablation: the opportunity term from raw occurrence-grid overlap (log1p N over 3,162 cells, no season) instead of the modelled presence fields.",
+  "retriever_model": "rgcn",
+  "retriever": {"softmax_weight": 1.0, "bce_weight": 0.5, "head_type": "elementwise", "use_degree_heads": false, "anchor_side": "both", "use_taxon_nodes": false, "pair_stat": "occurrence"},
+  "within_site_retriever_overrides": {"pair_stat_at_inference": false},
+  "within_site_name": "A5_rgcn_notaxon_pair_occurrence_affinityonly"
+}

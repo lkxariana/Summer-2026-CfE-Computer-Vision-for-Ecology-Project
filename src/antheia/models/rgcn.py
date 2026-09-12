@@ -54,6 +54,7 @@ class RGCNConfig:
     genus_edges: bool = False           # R2: direct genus <-> partner relations weighted by log1p(training count), leave-own-edges-out
     aggregation: str = "mean"           # "mean" (R-GCN) | "attention" (per-relation GAT-style attention, SimpleHGN-like control)
     pair_stat: str = "none"             # R4: explicit co-presence statistic of the pair into the head: joint | space | time | scalar
+                                        #     (from the modelled presence fields) | occurrence (log1p of raw GBIF/PhenoField cell overlap N)
     pair_stat_at_inference: bool = True # False: the co-presence ("opportunity") term is zeroed at inference -- affinity-only scoring,
                                         #        for within-site completion where the survey fixes co-presence
     degree_encoding: bool = False       # R5: Graphormer-style centrality encoding -- log(1 + in-degree per relation) added to node inputs
@@ -415,6 +416,9 @@ class RGCNRanker:
             A, Bm, scale = np.load(F_ / "plant_surf_time.npy"), np.load(F_ / "poll_surf_time.npy"), 1.0 / 3335
         elif k == "scalar":
             A, Bm, scale = np.load(F_ / "plant_surf_mass.npy")[:, None], np.load(F_ / "poll_surf_mass.npy")[:, None], 1.0 / (3335 * 52)
+        elif k == "occurrence":
+            # presence-source ablation: the raw occurrence grids (binary cells, no season) instead of the modelled fields
+            A, Bm, scale = np.asarray(store.F, np.float32), np.asarray(store.P, np.float32), 1.0
         else:
             raise ValueError(k)
         self.ps_p = torch.from_numpy(np.ascontiguousarray(A, dtype=np.float32)).to(dev)

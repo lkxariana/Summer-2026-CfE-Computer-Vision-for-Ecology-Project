@@ -22,7 +22,7 @@ pollinators; the loss is pooled binary cross-entropy. At inference the retriever
 re-scored and everything outside keeps the retriever score, shifted below the re-ranked block.
 
 Marginal-token controls (plan M2.7) use the same class with token caches built from the space or time
-marginal of the field instead of the joint (scripts/build_field_tokens.py).
+marginal of the field instead of the joint (pipelines/features/build_field_tokens.py).
 """
 from dataclasses import dataclass, asdict
 from pathlib import Path

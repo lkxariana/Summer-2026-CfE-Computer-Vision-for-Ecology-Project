@@ -406,7 +406,7 @@ class RGCNRanker:
     # ---- explicit pair statistic (R4) ---------------------------------------------------------------
     def _load_pair_stat(self, store):
         """Expected co-presence of the pair from the production surfaces, in the four marginalisation forms of
-        eval/run_marginalisation_surfaces.py; stored as factor matrices so a B x C block is one matmul."""
+        antheia.eval.marginalisation_surfaces; stored as factor matrices so a B x C block is one matmul."""
         F_ = ROOT / "data/features"; k = self.cfg.pair_stat; dev = self.dev
         if k == "joint":
             A, Bm, scale = np.asarray(store.plant_proj, np.float32), np.asarray(store.poll_proj, np.float32), 1.0

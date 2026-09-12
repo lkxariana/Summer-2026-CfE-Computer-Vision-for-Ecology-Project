@@ -68,7 +68,7 @@ class FeatureStore:
         if self._S is None:
             path = self.cfg["cache_dir"] / f"plant_surfaces_{len(self.plants)}x{len(self.common_bins)}x52.npy"
             if not path.exists():
-                raise FileNotFoundError(f"{path} missing — run scripts/build_plant_surfaces.py first")
+                raise FileNotFoundError(f"{path} missing — run pipelines/features/build_plant_surfaces.py first")
             self._S = np.load(path, mmap_mode="r")
         return self._S
 

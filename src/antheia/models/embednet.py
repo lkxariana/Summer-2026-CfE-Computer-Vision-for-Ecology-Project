@@ -370,7 +370,7 @@ class EmbedRanker:
         def load_field(side, n):
             # a species' learned spatio-temporal influence: the per-species head of a SINR-style
             # field model, not a projection of its output surface. `field_path` is either the
-            # pollinator file (scripts/build_field_embeddings.py) or a directory holding
+            # pollinator file (pipelines/features/build_field_embeddings.py) or a directory holding
             # plant_field.npy / poll_field.npy from pipelines/sdm/train_joint_field.py.
             fp = Path(cfg.field_path)
             f = fp / f"{side}_field.npy" if fp.is_dir() else fp

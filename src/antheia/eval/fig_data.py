@@ -1,5 +1,5 @@
 """Data for the story figures: results/fig_arms.csv (retriever arms: universe / within-site / cold-pollinator AUPR) and
-results/fig_regimes.csv (final vs v1 vs best comparison model per regime). Re-run before eval/make_figures.py."""
+results/fig_regimes.csv (final vs v1 vs best comparison model per regime). Re-run before antheia.eval.figures."""
 import sys
 from pathlib import Path
 import pandas as pd

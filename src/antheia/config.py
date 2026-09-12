@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 import yaml
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+from antheia.paths import REPO_ROOT
 
 
 def load_config(path=None):

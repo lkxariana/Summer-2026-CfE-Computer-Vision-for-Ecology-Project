@@ -31,7 +31,7 @@ import torch.nn.functional as F
 from antheia.models.embednet import PairHead, MASK_FILL, seed_everything
 from antheia import negpool
 
-ROOT = Path(__file__).resolve().parents[2]
+from antheia.paths import REPO_ROOT as ROOT
 from antheia.paths import TEXT_DIR, FIELD_DIR
 
 

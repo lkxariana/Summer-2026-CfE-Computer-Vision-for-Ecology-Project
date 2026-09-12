@@ -27,7 +27,7 @@ def gather_obs(cfg, lat, lon, doy, chunk=200_000):
     mon = np.empty((N, 256), np.float32)
     for i in range(0, N, chunk):
         j = min(i + chunk, N)
-        _, nn = tree.query(np.c_[lat[i:j], lon[i:j]])
+        _, nn = tree.query(np.c_[lat[i:j], lon[i:j]], workers=-1)
         e = emb[torch.from_numpy(nn).long()]
         ann[i:j] = e.mean(1).numpy()
         mon[i:j] = e[torch.arange(j - i), torch.from_numpy(month[i:j]).long()].numpy()
@@ -39,5 +39,5 @@ def gather_obs(cfg, lat, lon, doy, chunk=200_000):
 def gather_cells(cfg, lat, lon):
     """Per-cell monthly embeddings [n_cells, 12, 256]."""
     tree, emb = load_lookup(cfg)
-    _, nn = tree.query(np.c_[lat, lon])
+    _, nn = tree.query(np.c_[lat, lon], workers=-1)
     return emb[torch.from_numpy(nn).long()].numpy()
